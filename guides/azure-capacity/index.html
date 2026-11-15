@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A self-guided, customer-facing Azure capacity journey. Explore quota, capacity, regional flexibility, public support routes, and launch planning through interactive visuals.">
+  <title>Beyond the Bottleneck | Azure Capacity Journey</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <!-- Reveal.js 6.0.2, MIT license. Local distribution and license: assets/reveal/. -->
+  <link rel="stylesheet" href="assets/reveal/reveal.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+    body { background: var(--cp-bg); color: var(--cp-text); font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button, .button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; padding: 10px 18px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; color: var(--cp-text); background: var(--cp-surface); cursor: pointer; text-decoration: none; font-size: 14px; font-weight: 650; transition: background .2s, border-color .2s, transform .2s; }
+    button:hover, .button:hover { background: var(--cp-accent-soft); border-color: var(--cp-accent); }
+    button:active { transform: translateY(1px); }
+    button.primary, .button.primary { background: var(--cp-accent); border-color: var(--cp-accent); color: var(--cp-accent-fg); }
+    button.primary:hover, .button.primary:hover { background: var(--cp-accent-hover); }
+    button[disabled] { opacity: .4; cursor: default; }
+    :focus-visible { outline: 3px solid var(--cp-accent); outline-offset: 4px; }
+    a { color: var(--cp-link); text-underline-offset: 4px; }
+    .skip { position: fixed; left: 16px; top: -100px; padding: 12px; background: var(--cp-surface); z-index: 100; }
+    .skip:focus { top: 8px; }
+    .masthead { height: 68px; padding: 0 32px; display: flex; justify-content: space-between; gap: 12px; align-items: center; border-bottom: 1px solid var(--cp-border); background: var(--cp-bg-elevated); position: fixed; inset: 0 0 auto; z-index: 15; }
+    .wordmark { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: -.02em; font-size: 15px; }
+    .brand-icon { width: 28px; height: 28px; color: var(--cp-accent); }
+    .wordmark small { font-size: 11px; font-weight: 500; color: var(--cp-text-muted); letter-spacing: .08em; text-transform: uppercase; }
+    .toolbar { display: flex; gap: 8px; align-items: center; }
+    .toolbar button { font-size: 12px; min-height: 36px; padding: 6px 12px; background: var(--cp-bg-elevated); }
+    .tour-frame { position: fixed; inset: 68px 0 80px; }
+    .reveal { width: 100%; height: 100%; color: var(--cp-text); font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.5; }
+    .tour-frame .reveal { background: var(--cp-bg); background-image: radial-gradient(ellipse at 85% 25%, var(--cp-accent-soft), var(--cp-bg) 65%); }
+    .reveal .slides { inset: 0; width: 100%; height: 100%; margin: 0; transform: none; text-align: left; }
+    .reveal .slides > section { width: 100%; height: 100%; padding: 0; top: 0; overflow: auto; overscroll-behavior: contain; }
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 { margin: 0; color: var(--cp-text); font-family: inherit; text-transform: none; font-weight: 750; line-height: 1.04; letter-spacing: -.055em; }
+    .reveal h1 { font-size: clamp(54px, 7.1vw, 104px); }
+    .reveal h2 { font-size: clamp(38px, 4.6vw, 68px); }
+    .reveal h3 { font-size: 22px; line-height: 1.2; letter-spacing: -.025em; }
+    .reveal p { margin: 0; }
+    .reveal a { color: var(--cp-link); }
+    .reveal small { font-size: 12px; line-height: 1.5; }
+    .slide-body { max-width: 1280px; min-height: 100%; margin: 0 auto; padding: 36px 48px; display: flex; flex-direction: column; justify-content: center; gap: 20px; position: relative; }
+    .slide-body.wide { max-width: 1440px; }
+    .kicker { display: flex; align-items: center; gap: 12px; color: var(--cp-accent); font-size: 11px; line-height: 1.4; font-weight: 750; letter-spacing: .18em; text-transform: uppercase; }
+    .kicker::before { content: ""; display: inline-block; width: 28px; height: 2px; background: var(--cp-accent); }
+    .accent { color: var(--cp-accent); }
+    .muted { color: var(--cp-text-muted); }
+    .lead { max-width: 800px; color: var(--cp-text-muted); font-size: clamp(17px, 1.7vw, 22px); line-height: 1.5; }
+    .fine { font-size: 12px; color: var(--cp-text-muted); line-height: 1.5; }
+    .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+    .split.hero { grid-template-columns: 1.05fr 1fr; gap: 0; }
+    .stack { display: grid; gap: 20px; }
+    #quota-lab .stack { gap: 16px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card { border: 1px solid var(--cp-border); background: var(--cp-surface); border-radius: 16px; padding: 24px; }
+    .card h3 { margin-bottom: 12px; }
+    .card p { font-size: 16px; color: var(--cp-text-muted); }
+    .tag { display: inline-flex; padding: 4px 10px; border: 1px solid var(--cp-border); border-radius: .625rem; font-size: 11px; font-weight: 600; color: var(--cp-text-muted); background: var(--cp-bg-elevated); line-height: 1.6; }
+    .tag.accent-tag { color: var(--cp-accent); background: var(--cp-accent-soft); border-color: var(--cp-accent); }
+    .big-stat { font-size: clamp(56px, 6vw, 88px); font-weight: 750; line-height: 1; letter-spacing: -.06em; color: var(--cp-accent); }
+    .rule { width: 100%; height: 1px; background: var(--cp-border); }
+    .callout { border-left: 3px solid var(--cp-accent); background: var(--cp-accent-soft); border-radius: .625rem; padding: 14px 18px; font-size: 15px; line-height: 1.5; }
+    .source { font-size: 11px; color: var(--cp-text-muted); margin-top: 4px; }
+    .lead, .fine, .muted, .source, .wordmark small, .hud small { color: var(--cp-text-soft); }
+    .source a { margin-right: 12px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .hero-art { width: 100%; aspect-ratio: 1; position: relative; display: grid; place-items: center; }
+    .orbital { width: 100%; height: 100%; overflow: visible; }
+    .orbit-line { fill: none; stroke: var(--cp-border-strong); stroke-width: .6; }
+    .orbit-main { fill: none; stroke: var(--cp-accent); stroke-width: 1.3; }
+    .orbit-dash { fill: none; stroke: var(--cp-accent); stroke-width: .8; stroke-dasharray: 3 11; }
+    .orbit-node { fill: var(--cp-accent); }
+    .orbit-inner { fill: var(--cp-surface); stroke: var(--cp-accent); stroke-width: 1.2; }
+    .orbit-grid { stroke: var(--cp-border); stroke-width: .6; fill: none; }
+    .orbit-label { font: 10px "Segoe UI", Aptos, Calibri, sans-serif; fill: var(--cp-text-muted); letter-spacing: 2px; }
+    .orbit-heading { font: 700 29px "Segoe UI", Aptos, Calibri, sans-serif; fill: var(--cp-text); letter-spacing: -1px; }
+    .spin { transform-origin: 260px 260px; }
+    .present .spin.slow { animation: orbit 80s linear infinite; }
+    .present .spin.fast { animation: orbit 48s linear infinite reverse; }
+    .present .breathing { animation: breathe 5s ease-in-out infinite; }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+    @keyframes breathe { 50% { opacity: .35; } }
+    .signal-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: var(--cp-accent); }
+    .chapter-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+    .chapter-card { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 20px; border: 1px solid var(--cp-border); border-radius: 16px; padding: 20px; min-height: 220px; background: var(--cp-surface); color: var(--cp-text); text-align: left; }
+    .chapter-card .chapter-n { font-size: 40px; color: var(--cp-accent); font-weight: 400; line-height: 1; letter-spacing: -.04em; }
+    .chapter-card strong { font-size: 17px; }
+    .chapter-card small { color: var(--cp-text-muted); font-weight: 400; }
+    .chapter-card:hover { transform: translateY(-4px); }
+    .gate { padding: 28px 24px; position: relative; overflow: hidden; }
+    .gate .numeral { font-size: 70px; line-height: 1; font-weight: 300; color: var(--cp-border-strong); margin-bottom: 24px; }
+    .gate .tag { margin-top: 20px; }
+    .gauge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .gauge { text-align: center; padding: 12px; }
+    .gauge svg { width: 148px; height: 148px; max-width: 100%; }
+    .gauge-track { fill: none; stroke: var(--cp-border); stroke-width: 7; }
+    .gauge-value { fill: none; stroke: var(--cp-accent); stroke-width: 7; stroke-linecap: round; transform-origin: 80px 80px; transform: rotate(-90deg); transition: stroke-dashoffset .45s; }
+    .gauge-value.blocked { stroke: var(--cp-danger); }
+    .gauge text { fill: var(--cp-text); font: 700 27px "Segoe UI", Aptos, Calibri, sans-serif; text-anchor: middle; }
+    .gauge text.sub { fill: var(--cp-text-muted); font-size: 11px; font-weight: 400; }
+    .gauge-label { font-size: 13px; font-weight: 700; }
+    .gauge small { display: block; color: var(--cp-text-muted); }
+    label.field { display: grid; gap: 8px; color: var(--cp-text); font-size: 14px; font-weight: 650; }
+    input[type="range"] { width: 100%; height: 28px; accent-color: var(--cp-accent); cursor: pointer; }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--cp-accent); flex-shrink: 0; }
+    select, textarea { width: 100%; background: var(--cp-bg-elevated); color: var(--cp-text); padding: 10px 12px; font: inherit; font-size: 14px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; }
+    .switch { display: flex; align-items: center; gap: 12px; padding: 12px 0; font-size: 14px; cursor: pointer; }
+    .readout { min-height: 84px; padding: 14px 16px; border: 1px solid var(--cp-border); background: var(--cp-bg-elevated); border-radius: .625rem; }
+    .readout strong { display: block; font-size: 16px; margin-bottom: 6px; }
+    .readout p { font-size: 13px; color: var(--cp-text-muted); line-height: 1.5; }
+    .segmented { display: flex; gap: 8px; flex-wrap: wrap; }
+    .segmented button[aria-pressed="true"], .route-choice[aria-pressed="true"] { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); }
+    .reservation-visual { min-height: 270px; display: grid; place-items: center; background: var(--cp-bg-elevated); border-radius: 16px; border: 1px solid var(--cp-border); }
+    .reservation-ticket { width: 80%; padding: 28px; border: 1px solid var(--cp-accent); border-radius: 16px; background: var(--cp-surface); position: relative; }
+    .reservation-ticket .ticket-mark { font-size: 56px; font-weight: 300; color: var(--cp-accent); line-height: 1; margin-bottom: 20px; }
+    .reservation-ticket h3 { margin: 8px 0 16px; }
+    .reservation-ticket .rule { background: var(--cp-accent); opacity: .4; margin: 16px 0; }
+    .ai-shape { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 28px 12px; }
+    .ai-unit { width: 72px; height: 110px; border: 1px solid var(--cp-accent); background: var(--cp-accent-soft); border-radius: .625rem; position: relative; overflow: hidden; display: grid; place-items: center; color: var(--cp-accent); font-size: 12px; font-weight: 700; }
+    .ai-unit::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, var(--cp-highlight) 0 8px, var(--cp-sheen) 8px 16px); }
+    .ai-unit span { position: relative; }
+    .present .ai-unit:nth-child(2) { animation: breathe 3s ease-in-out infinite; }
+    .present .ai-unit:nth-child(3) { animation: breathe 3s 1s ease-in-out infinite; }
+    .constraint-title { font-size: clamp(48px, 6.7vw, 94px) !important; max-width: 900px; }
+    .constraint-ribbon { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 24px; }
+    .constraint-ribbon div { border-top: 1px solid var(--cp-accent); padding-top: 16px; }
+    .constraint-ribbon b { display: block; font-size: 18px; margin-bottom: 8px; }
+    .constraint-ribbon p { color: var(--cp-text-muted); font-size: 14px; }
+    .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .region-card { border: 1px solid var(--cp-border); border-radius: 16px; background: var(--cp-surface); padding: 16px; }
+    .region-card h3 { font-size: 15px; letter-spacing: 0; margin-bottom: 8px; }
+    .region-card.locked { border-style: dashed; }
+    .zone { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding: 12px 0; border-top: 1px solid var(--cp-border); font-size: 11px; color: var(--cp-text-muted); }
+    .candidate { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: var(--cp-bg-elevated); color: var(--cp-text-soft); border: 1px solid var(--cp-border); border-radius: 5px; font-size: 10px; margin-left: 4px; transition: background .3s, color .3s; }
+    .candidate.eligible { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); }
+    .option-controls { display: grid; gap: 0; }
+    .option-controls label { border-bottom: 1px solid var(--cp-border); }
+    .network { width: 100%; height: auto; display: block; }
+    .network-box { fill: var(--cp-surface); stroke: var(--cp-border-strong); stroke-width: 1.2; }
+    .network-path { fill: none; stroke: var(--cp-accent); stroke-width: 2; stroke-dasharray: 7 7; }
+    .present .network-path.active { animation: packets 1.5s linear infinite; }
+    @keyframes packets { to { stroke-dashoffset: -28; } }
+    .network-path.inactive { stroke: var(--cp-border); opacity: .5; }
+    .network-text { fill: var(--cp-text); font: 650 15px "Segoe UI", Aptos, Calibri, sans-serif; text-anchor: middle; }
+    .network-small { fill: var(--cp-text-muted); font: 11px "Segoe UI", Aptos, Calibri, sans-serif; text-anchor: middle; }
+    .network-status { fill: var(--cp-accent); }
+    .network-status.down { fill: var(--cp-danger); }
+    .route-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .route-choice { text-align: left; justify-content: flex-start; font-size: 13px; }
+    .step-list { display: grid; gap: 12px; }
+    .step { display: flex; gap: 16px; align-items: flex-start; }
+    .step b { font-weight: 400; color: var(--cp-accent); font-size: 26px; line-height: 1.2; }
+    .step strong { font-size: 16px; display: block; }
+    .step p { font-size: 14px; color: var(--cp-text-muted); }
+    .packet { border: 1px solid var(--cp-border); border-radius: 16px; background: var(--cp-surface); padding: 24px; }
+    .packet-row { display: grid; grid-template-columns: 100px 1fr; gap: 16px; border-bottom: 1px solid var(--cp-border); padding: 14px 0; font-size: 14px; }
+    .packet-row:last-child { border-bottom: 0; }
+    .packet-row b { color: var(--cp-accent); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    .scenario-context { padding: 24px; background: var(--cp-bg-elevated); border: 1px solid var(--cp-border); border-radius: 16px; }
+    .scenario-context .big-stat { margin: 16px 0; }
+    .answer-list { display: grid; gap: 8px; }
+    .answer { width: 100%; text-align: left; justify-content: flex-start; gap: 12px; font-weight: 500; font-size: 14px; padding: 12px 16px; min-height: 56px; }
+    .answer > span:first-child { flex-shrink: 0; color: var(--cp-accent); font-weight: 700; }
+    .answer > span:last-child { flex: 1; min-width: 0; color: var(--cp-text); font-weight: 500; }
+    .answer[aria-pressed="true"] { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    .answer[aria-pressed="true"] > span:first-child { color: var(--cp-text); }
+    .feedback { font-size: 14px; padding: 14px 16px; border-left: 3px solid var(--cp-accent); border-radius: .625rem; background: var(--cp-accent-soft); }
+    .feedback.correct { border-left-color: var(--cp-success); }
+    .feedback.incorrect { border-left-color: var(--cp-warning); }
+    .flip-card { text-align: left; flex-direction: column; align-items: flex-start; justify-content: flex-start; padding: 24px; border-radius: 16px; min-height: 220px; }
+    .flip-card .front { font-size: 26px; letter-spacing: -.035em; line-height: 1.15; }
+    .flip-card .back { color: var(--cp-text-muted); font-size: 15px; font-weight: 400; line-height: 1.5; }
+    .flip-card small { color: var(--cp-accent); }
+    .flip-card[aria-expanded="true"] { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+    .check-grid label { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--cp-border); align-items: flex-start; font-size: 14px; }
+    .check-grid label input { margin-top: 2px; }
+    .source-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .source-card { padding: 16px; border: 1px solid var(--cp-border); border-radius: 16px; background: var(--cp-surface); display: grid; gap: 8px; }
+    .source-card a { font-size: 14px; font-weight: 650; }
+    .source-card p { font-size: 12px; color: var(--cp-text-muted); }
+    .hud { position: fixed; inset: auto 0 0; height: 80px; border-top: 1px solid var(--cp-border); background: var(--cp-bg-elevated); display: grid; grid-template-columns: 160px 1fr 160px; align-items: center; padding: 10px 32px 12px; gap: 24px; z-index: 15; }
+    .hud #tour-next { justify-self: end; }
+    .hud #tour-prev { justify-self: start; }
+    .journey-status { display: grid; gap: 6px; }
+    .journey-status .row { justify-content: space-between; font-size: 11px; }
+    .progress-track { height: 3px; background: var(--cp-border); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0; background: var(--cp-accent); transition: width .6s; }
+    .hud small { color: var(--cp-text-muted); font-size: 10px; }
+    .chapter-dots { display: flex; gap: 8px; }
+    .chapter-dots span { height: 4px; width: 20px; border-radius: 4px; background: var(--cp-border); }
+    .chapter-dots span.active { background: var(--cp-accent); }
+    dialog { width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 64px); border: 1px solid var(--cp-border); border-radius: 16px; padding: 28px; background: var(--cp-surface); color: var(--cp-text); box-shadow: var(--cp-shadow); }
+    dialog::backdrop { background: var(--cp-overlay); }
+    .dialog-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .dialog-top h2 { font-size: 28px; letter-spacing: -.04em; margin: 0; }
+    .toc { display: grid; gap: 4px; margin: 16px 0; }
+    .toc button { text-align: left; justify-content: flex-start; padding: 8px 12px; border-color: var(--cp-border); min-height: 40px; }
+    .toc button[aria-current="step"] { color: var(--cp-accent); border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    .toc-number { width: 24px; color: var(--cp-text-muted); font-weight: 400; }
+    .toast { position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); padding: 14px 20px; background: var(--cp-surface); color: var(--cp-text); border: 1px solid var(--cp-accent); border-radius: .625rem; font-size: 14px; max-width: calc(100vw - 40px); z-index: 40; }
+    #load-error { padding: 32px; position: fixed; inset: 80px 20px 100px; z-index: 50; background: var(--cp-surface); border: 1px solid var(--cp-danger); border-radius: 16px; overflow: auto; }
+    #plan-copy { width: 100%; min-height: 200px; margin-top: 16px; font-family: Consolas, "Courier New", Courier, monospace; }
+    [hidden] { display: none !important; }
+    @media (max-width: 1050px) {
+      .slide-body { padding: 28px 32px; }
+      .chapter-grid { grid-template-columns: repeat(3, 1fr); }
+      .chapter-card { min-height: 156px; gap: 12px; }
+      .chapter-card .chapter-n { font-size: 28px; }
+      .split { gap: 24px; }
+      .cards { gap: 12px; }
+      .card { padding: 20px; }
+    }
+    @media (max-width: 760px) {
+      .masthead { padding: 0 16px; height: 60px; }
+      .wordmark { gap: 8px; font-size: 12px; }
+      .wordmark small { display: none; }
+      .toolbar { gap: 4px; }
+      .toolbar button { padding: 6px 8px; font-size: 11px; }
+      #fullscreen-toggle { display: none; }
+      .tour-frame { inset: 60px 0 86px; }
+      .slide-body { padding: 28px 24px 36px; justify-content: flex-start; gap: 20px; }
+      .reveal h1 { font-size: clamp(44px, 12vw, 68px); }
+      .reveal h2 { font-size: 38px; }
+      .lead { font-size: 17px; }
+      .split, .split.hero { grid-template-columns: 1fr; gap: 24px; }
+      .split.hero .hero-art { order: -1; width: min(240px, 75%); margin: -16px auto -12px; }
+      .cards, .source-grid { grid-template-columns: 1fr; }
+      .chapter-grid { grid-template-columns: 1fr 1fr; }
+      .chapter-card { min-height: 160px; padding: 16px; }
+      .constraint-ribbon { grid-template-columns: 1fr 1fr; margin-top: 0; }
+      .constraint-title { font-size: 48px !important; }
+      .options-grid { gap: 6px; }
+      .region-card { padding: 10px; }
+      .zone { flex-direction: column; gap: 8px; }
+      .route-grid { grid-template-columns: 1fr 1fr; }
+      .check-grid { grid-template-columns: 1fr; }
+      .hud { height: 86px; grid-template-columns: 72px 1fr 72px; padding: 12px 12px; gap: 12px; }
+      .hud button { min-width: 70px; padding: 8px 10px; font-size: 12px; }
+      .hud small { display: none; }
+      .hud .row { gap: 4px; font-size: 10px; }
+      .chapter-dots { display: none; }
+      .reservation-visual { min-height: 230px; }
+      .packet-row { grid-template-columns: 72px 1fr; gap: 12px; }
+      .flip-card { min-height: 160px; }
+      .toast { bottom: 96px; font-size: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+    @media (max-width: 380px) {
+      .chapter-grid { grid-template-columns: 1fr; }
+      .ai-shape { gap: 8px; padding: 24px 0; }
+      .ai-unit { width: 56px; }
+    }
+    html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-motion="reduce"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  </style>
+</head>
+<body>
+  <a href="#tour" class="skip">Skip to the current chapter</a>
+  <header class="masthead">
+    <a class="wordmark" href="../../index.html" aria-label="Back to all customer guides" title="All customer guides" style="color:var(--cp-text);text-decoration:none">
+      <svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor"/><path d="M11 21L14 11L21 11L18 21Z" fill="none" stroke="currentColor"/><path d="M14 11L18 21M11 21L21 11" stroke="currentColor"/></svg>
+      CAPACITY / COMPASS <small>Customer journey</small>
+    </a>
+    <div class="toolbar">
+      <button id="journey-open" aria-haspopup="dialog">Journey</button>
+      <button id="motion-toggle" aria-pressed="false">Motion on</button>
+      <button id="theme-toggle" aria-label="Switch light or dark theme">Theme</button>
+      <button id="fullscreen-toggle" aria-label="Toggle fullscreen">Full screen</button>
+    </div>
+  </header>
+  <main id="tour" class="tour-frame" tabindex="-1" aria-label="Self-guided Azure capacity presentation">
+    <div class="reveal">
+      <div class="slides">
+        <section id="welcome" data-title="Beyond the bottleneck" data-chapter="Welcome" data-auto-animate>
+          <div class="slide-body wide">
+            <div class="split hero">
+              <div class="stack">
+                <div class="kicker">Azure capacity / An interactive journey</div>
+                <h1>Build beyond<br>the <span class="accent">bottleneck.</span></h1>
+                <p class="lead">Your ambitions deserve an architecture with options. Discover how to plan, adapt, and grow when cloud capacity is a moving target.</p>
+                <div class="row"><span class="tag">Self-guided</span><span class="tag">15 stops</span><span class="tag">Public sources only</span></div>
+                <div class="actions"><button class="primary" data-jump="2">Begin the journey &rarr;</button><button data-jump="1">Choose your path</button></div>
+                <p class="fine">No presenter needed. Use Next, the arrow keys, or Journey to jump anywhere. On smaller screens, scroll within each stop.</p>
+              </div>
+              <div class="hero-art" aria-hidden="true">
+                <svg class="orbital" viewBox="0 0 520 520">
+                  <path class="orbit-grid" d="M40 260H480M260 40V480M104 104L416 416M104 416L416 104"/>
+                  <circle class="orbit-line" cx="260" cy="260" r="224"/>
+                  <circle class="orbit-line" cx="260" cy="260" r="172"/>
+                  <g class="spin slow"><ellipse class="orbit-main" cx="260" cy="260" rx="224" ry="98" transform="rotate(-35 260 260)"/><circle class="orbit-node" cx="444" cy="135" r="5"/><circle class="orbit-node" cx="76" cy="385" r="4"/></g>
+                  <g class="spin fast"><circle class="orbit-dash" cx="260" cy="260" r="198"/><ellipse class="orbit-line" cx="260" cy="260" rx="148" ry="224" transform="rotate(20 260 260)"/><circle class="orbit-node" cx="260" cy="62" r="4"/></g>
+                  <circle class="orbit-inner" cx="260" cy="260" r="104"/>
+                  <circle class="orbit-dash breathing" cx="260" cy="260" r="120"/>
+                  <image href="assets/azure/azure-logo.svg" x="198" y="198" width="124" height="124" preserveAspectRatio="xMidYMid meet"/>
+                  <text class="orbit-label" x="260" y="34" text-anchor="middle">PLAN</text><text class="orbit-label" x="260" y="505" text-anchor="middle">ADAPT</text>
+                  <text class="orbit-label" x="12" y="265">01</text><text class="orbit-label" x="490" y="265">05</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="journey-map" data-title="Choose your path" data-chapter="Welcome">
+          <div class="slide-body">
+            <div class="kicker">Five chapters / Your pace</div>
+            <h2>A journey.<br><span class="accent">Not a slide marathon.</span></h2>
+            <p class="lead">Follow the story from the beginning, or jump straight to a decision you need to make.</p>
+            <div class="chapter-grid">
+              <button class="chapter-card" data-jump="2"><span class="chapter-n">01</span><strong>Fundamentals</strong><small>Permission, capacity, and the two quota gates.</small><span aria-hidden="true">&rarr;</span></button>
+              <button class="chapter-card" data-jump="6"><span class="chapter-n">02</span><strong>Conversations</strong><small>Turn hard constraints into informed options.</small><span aria-hidden="true">&rarr;</span></button>
+              <button class="chapter-card" data-jump="9"><span class="chapter-n">03</span><strong>Processes &amp; tools</strong><small>Find the public request and support route.</small><span aria-hidden="true">&rarr;</span></button>
+              <button class="chapter-card" data-jump="11"><span class="chapter-n">04</span><strong>Customer scenarios</strong><small>Make the call. Explore the consequences.</small><span aria-hidden="true">&rarr;</span></button>
+              <button class="chapter-card" data-jump="13"><span class="chapter-n">05</span><strong>Your next steps</strong><small>Build a practical launch-readiness checklist.</small><span aria-hidden="true">&rarr;</span></button>
+            </div>
+            <p class="fine">All simulations are fictional. Nothing in this tour queries your Azure environment, reserves resources, submits requests, or reports live regional capacity.</p>
+          </div>
+        </section>
+        <section id="three-concepts" data-title="Permission is not placement" data-chapter="01 / Fundamentals" data-auto-animate>
+          <div class="slide-body">
+            <div class="kicker">01 / Capacity fundamentals</div>
+            <h2>Permission<br>is not <span class="accent">placement.</span></h2>
+            <p class="lead">Three concepts. Three different questions. One deployment depends on all of them.</p>
+            <div class="cards">
+              <div class="card gate"><div class="numeral">01</div><h3>Quota</h3><p>"How much may my subscription deploy?"</p><span class="tag">A scoped limit</span></div>
+              <div class="card gate"><div class="numeral">02</div><h3>Capacity</h3><p>"Can the infrastructure meet this exact request?"</p><span class="tag">SKU, region, zone, constraints</span></div>
+              <div class="card gate"><div class="numeral">03</div><h3>Allocation</h3><p>"Can Azure place the resources when I deploy?"</p><span class="tag">A deployment-time outcome</span></div>
+            </div>
+            <div class="callout">A product can be offered in a region and your quota can be approved, while the requested allocation still fails. Availability is not a promise of capacity.</div>
+            <p class="source">Public reference: <a href="https://learn.microsoft.com/azure/virtual-machines/quotas" target="_blank" rel="noopener noreferrer">VM quota and capacity</a></p>
+          </div>
+        </section>
+        <section id="quota-lab" data-title="The two quota gates" data-chapter="01 / Fundamentals" data-auto-animate>
+          <div class="slide-body">
+            <div class="kicker">01 / A hands-on thought experiment</div>
+            <h2>Two gates.<br><span class="accent">Try the limits.</span></h2>
+            <div class="split">
+              <div class="stack">
+                <p class="lead">VM compute needs headroom in both its family quota and its total regional vCPU quota.</p>
+                <div class="row"><span class="big-stat" id="new-demand">64</span><span class="muted">new vCPUs</span></div>
+                <label class="field" for="vm-demand">New 8-vCPU VMs: <output id="vm-demand-label" for="vm-demand">8</output><input id="vm-demand" type="range" min="0" max="64" value="8" step="1"></label>
+                <label class="switch"><input id="capacity-blocked" type="checkbox">Simulate capacity unavailable for this request</label>
+                <div id="quota-result" class="readout" aria-live="polite"></div>
+              </div>
+              <div class="card">
+                <div class="gauge-grid">
+                  <div class="gauge">
+                    <svg viewBox="0 0 160 160" role="img" aria-labelledby="family-gauge-title"><title id="family-gauge-title">VM-family quota usage</title><circle class="gauge-track" cx="80" cy="80" r="64"/><circle id="family-arc" class="gauge-value" cx="80" cy="80" r="64"/><text id="family-total" x="80" y="77">224</text><text class="sub" x="80" y="99">of 256 vCPUs</text></svg>
+                    <div class="gauge-label">VM-family</div><small>160 existing / 256 limit</small>
+                  </div>
+                  <div class="gauge">
+                    <svg viewBox="0 0 160 160" role="img" aria-labelledby="region-gauge-title"><title id="region-gauge-title">Total regional quota usage</title><circle class="gauge-track" cx="80" cy="80" r="64"/><circle id="region-arc" class="gauge-value" cx="80" cy="80" r="64"/><text id="region-total" x="80" y="77">664</text><text class="sub" x="80" y="99">of 1,000 vCPUs</text></svg>
+                    <div class="gauge-label">Regional total</div><small>600 existing / 1,000 limit</small>
+                  </div>
+                </div>
+                <div class="rule" style="margin:20px 0"></div>
+                <p class="fine">Fictional values. This model omits other quotas, policies, SKU restrictions, and placement checks. Deallocated VMs can still count toward vCPU quota.</p>
+              </div>
+            </div>
+            <p class="source">Public reference: <a href="https://learn.microsoft.com/azure/virtual-machines/quotas" target="_blank" rel="noopener noreferrer">Check vCPU quotas</a></p>
+          </div>
+        </section>
+        <section id="reservations" data-title="Discount or capacity?" data-chapter="01 / Fundamentals">
+          <div class="slide-body">
+            <div class="kicker">01 / A crucial distinction</div>
+            <h2>Same word.<br><span class="accent">Different promise.</span></h2>
+            <p class="lead">A billing reservation and a capacity reservation solve different problems. Select a card to see the distinction.</p>
+            <div class="segmented" aria-label="Reservation comparison"><button data-reservation="billing" aria-pressed="true">Reserved VM Instance</button><button data-reservation="capacity" aria-pressed="false">On-demand capacity reservation</button></div>
+            <div class="split">
+              <div class="reservation-visual" aria-hidden="true"><div class="reservation-ticket"><div class="ticket-mark" id="ticket-mark">%</div><span class="tag" id="ticket-tag">BILLING BENEFIT</span><h3 id="ticket-title">A discount.<br>Not a deployment slot.</h3><div class="rule"></div><p class="fine" id="ticket-foot">Financial commitment != physical capacity</p></div></div>
+              <div class="stack" id="reservation-detail" aria-live="polite"></div>
+            </div>
+            <p class="source">Public reference: <a href="https://learn.microsoft.com/azure/virtual-machines/capacity-reservation-overview" target="_blank" rel="noopener noreferrer">Capacity reservation behavior, support, billing, and SLA</a></p>
+          </div>
+        </section>
+        <section id="ai-capacity" data-title="AI: choose the right unit" data-chapter="01 / Fundamentals">
+          <div class="slide-body">
+            <div class="kicker">01 / Capacity for AI workloads</div>
+            <h2>Not all capacity<br>speaks <span class="accent">vCPUs.</span></h2>
+            <div class="split">
+              <div class="stack">
+                <p class="lead">Capture model/version, deployment type, region, workload shape, and processing-location requirements before you size.</p>
+                <div class="segmented" aria-label="AI capacity concepts"><button data-ai="standard" aria-pressed="true">Standard / PayGo</button><button data-ai="provisioned" aria-pressed="false">Provisioned / PTU</button><button data-ai="gpu" aria-pressed="false">GPU VMs</button></div>
+                <div class="readout" id="ai-detail" aria-live="polite"></div>
+                <p class="fine">Deployment location alone does not establish where inference is processed. Verify current data-processing rules for the exact model and deployment type.</p>
+              </div>
+              <div class="card">
+                <div class="ai-shape" aria-hidden="true"><div class="ai-unit"><span id="ai-unit-one">TPM</span></div><div class="ai-unit"><span id="ai-unit-two">RPM</span></div><div class="ai-unit"><span id="ai-unit-three">MODEL</span></div></div>
+                <div class="callout">Unused PTU quota does not guarantee deployable model capacity. For provisioned throughput, create the deployment before purchasing matching billing-reservation coverage.</div>
+              </div>
+            </div>
+            <p class="source">Public references: <a href="https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/provisioned-throughput" target="_blank" rel="noopener noreferrer">Provisioned throughput</a><a href="https://learn.microsoft.com/en-us/azure/ai-foundry/foundry-models/concepts/deployment-types" target="_blank" rel="noopener noreferrer">Deployment types and processing locations</a></p>
+          </div>
+        </section>
+        <section id="constraints" data-title="Constraints are design inputs" data-chapter="02 / Conversations" data-auto-animate data-auto-animate-id="options">
+          <div class="slide-body">
+            <div class="kicker">02 / Start a better conversation</div>
+            <h2 class="constraint-title">Constraints aren't<br>the end of the story.<br><span class="accent">They're design inputs.</span></h2>
+            <p class="lead">Ask what must remain fixed, what can change, and what evidence is still missing. Never trade compliance for convenience.</p>
+            <div class="constraint-ribbon" data-id="flexibility-options">
+              <div><b>Place</b><p>Approved regions, zones, residency, latency, dependencies.</p></div>
+              <div><b>Shape</b><p>Compatible SKU, model/version, features, performance.</p></div>
+              <div><b>Pace</b><p>Initial demand, peak demand, launch date, growth ramp.</p></div>
+              <div><b>Protection</b><p>Reliability targets, failover readiness, supported reservations.</p></div>
+            </div>
+            <div class="callout">A useful commitment: "Let's validate the exact configuration and agree a compliant fallback, an owner, and the next checkpoint."</div>
+          </div>
+        </section>
+        <section id="options-lab" data-title="Expand the design space" data-chapter="02 / Conversations" data-auto-animate data-auto-animate-id="options">
+          <div class="slide-body">
+            <div class="kicker">02 / Interactive design-space explorer</div>
+            <h2>More options.<br><span class="accent">Same hard boundaries.</span></h2>
+            <div class="split">
+              <div class="stack">
+                <div class="row"><span id="option-count" class="big-stat">1</span><span class="muted">candidate configurations<br>to validate</span></div>
+                <div class="option-controls" data-id="flexibility-options">
+                  <label class="switch"><input id="flex-zone" type="checkbox">Allow other approved zones</label>
+                  <label class="switch"><input id="flex-sku" type="checkbox">Evaluate a compatible alternate SKU</label>
+                  <label class="switch"><input id="flex-region" type="checkbox">Evaluate another compliant region</label>
+                </div>
+                <div id="options-result" class="readout" aria-live="polite"></div>
+                <p class="fine">P = preferred SKU; C = compatible alternate. Every highlighted candidate still needs performance, dependencies, quota, and live capacity validation.</p>
+              </div>
+              <div class="stack">
+                <div class="options-grid" id="options-matrix"></div>
+                <div class="row"><span class="tag accent-tag">A + B: inside the fictional boundary</span><span class="tag">C: excluded</span></div>
+                <p class="fine">These are fictional regions and configurations, not an Azure availability map. Highlighted means "candidate to evaluate," not "capacity available."</p>
+              </div>
+            </div>
+            <p class="source">Public references: <a href="https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/allocation-failure" target="_blank" rel="noopener noreferrer">Allocation constraints and alternatives</a><a href="https://learn.microsoft.com/en-us/azure/reliability/regions-overview" target="_blank" rel="noopener noreferrer">Region selection and trade-offs</a></p>
+          </div>
+        </section>
+        <section id="resilience-lab" data-title="A second region is not a recovery plan" data-chapter="02 / Conversations">
+          <div class="slide-body">
+            <div class="kicker">02 / Design for the day you need it</div>
+            <h2>A second region<br>is not <span class="accent">a recovery plan.</span></h2>
+            <div class="split">
+              <div class="stack">
+                <p class="lead">Resilience needs more than a location. Validate capacity, replication, routing, dependencies, and failover procedures.</p>
+                <label class="switch"><input id="region-outage" type="checkbox">Simulate an outage in Region A</label>
+                <label class="switch"><input id="recovery-ready" type="checkbox">Assume recovery readiness checks passed</label>
+                <div class="readout" id="recovery-result" aria-live="polite"></div>
+              </div>
+              <div class="card">
+                <svg class="network" viewBox="0 0 520 290" role="img" aria-labelledby="network-title"><title id="network-title">Fictional two-region recovery routing diagram</title>
+                  <rect class="network-box" x="16" y="113" width="106" height="64" rx="10"/><text class="network-text" x="69" y="142">Your users</text><text class="network-small" x="69" y="161">request traffic</text>
+                  <path class="network-path active" d="M122 145H185"/>
+                  <rect class="network-box" x="185" y="107" width="116" height="76" rx="10"/><text class="network-text" x="243" y="141">Routing</text><text class="network-small" x="243" y="163">health + policy</text>
+                  <path id="path-a" class="network-path active" d="M301 130C340 130 325 67 365 67"/>
+                  <path id="path-b" class="network-path inactive" d="M301 160C340 160 325 224 365 224"/>
+                  <rect class="network-box" x="365" y="26" width="140" height="83" rx="10"/><circle id="status-a" class="network-status" cx="383" cy="43" r="4"/><text class="network-text" x="435" y="59">Region A</text><text class="network-small" x="435" y="81">primary</text>
+                  <rect class="network-box" x="365" y="182" width="140" height="83" rx="10"/><circle id="status-b" class="network-status" cx="383" cy="199" r="4"/><text class="network-text" x="435" y="215">Region B</text><text id="region-b-note" class="network-small" x="435" y="237">readiness unverified</text>
+                  <path class="orbit-line" d="M435 110V181" stroke-dasharray="3 5"/><text class="network-small" x="437" y="148">data</text>
+                </svg>
+                <p class="fine">A conceptual simulation, not a service-specific failover design. The readiness switch assumes verified capacity and tested recovery for illustration only. Define and test your actual RTO/RPO.</p>
+              </div>
+            </div>
+            <p class="source">Public reference: <a href="https://learn.microsoft.com/en-us/azure/reliability/regions-overview" target="_blank" rel="noopener noreferrer">Multi-region options and trade-offs</a></p>
+          </div>
+        </section>
+        <section id="public-routes" data-title="Resolve the right problem" data-chapter="03 / Processes & tools">
+          <div class="slide-body">
+            <div class="kicker">03 / Public processes, tools &amp; resources</div>
+            <h2>Resolve<br>the <span class="accent">right problem.</span></h2>
+            <p class="lead">Choose the evidence you have. A quota request, allocation investigation, and growth plan are not interchangeable.</p>
+            <div class="route-grid" aria-label="Select a planning or deployment issue">
+              <button class="route-choice" data-route="quota" aria-pressed="true">Quota insufficient</button><button class="route-choice" data-route="allocation" aria-pressed="false">Allocation failed</button><button class="route-choice" data-route="ai" aria-pressed="false">AI deployment blocked</button><button class="route-choice" data-route="growth" aria-pressed="false">Planning future growth</button>
+            </div>
+            <div class="split">
+              <div class="card stack" id="route-detail" aria-live="polite"></div>
+              <div class="step-list">
+                <div class="step"><b>01</b><div><strong>Classify</strong><p>Exact service, configuration, scope, quota/usage, and error.</p></div></div>
+                <div class="step"><b>02</b><div><strong>Prepare</strong><p>Demand with units, impact, dates, constraints, alternatives.</p></div></div>
+                <div class="step"><b>03</b><div><strong>Request and track</strong><p>Use the supported public portal route. Record the request ID.</p></div></div>
+                <div class="step"><b>04</b><div><strong>Revalidate</strong><p>Agree ownership and recheck before committing or deploying.</p></div></div>
+              </div>
+            </div>
+            <p class="fine">Permissions, subscription eligibility, and support-plan requirements apply. Approval and support response times vary; neither a submitted ticket nor a quota increase guarantees allocation.</p>
+          </div>
+        </section>
+        <section id="request-packet" data-title="Make the next conversation useful" data-chapter="03 / Processes & tools">
+          <div class="slide-body">
+            <div class="kicker">03 / From concern to a precise request</div>
+            <h2>Clarity is<br>a <span class="accent">force multiplier.</span></h2>
+            <div class="split">
+              <div class="stack">
+                <p class="lead">Replace "we need more capacity" with a request someone can investigate.</p>
+                <div class="callout">"We need [total demand + units] for [exact configuration] in [region/zone] by [date]. Our current quota/usage is [values]. Here is the error, impact, and the alternatives we can accept."</div>
+                <p class="fine">Use your authorized Azure support channel for resource identifiers and diagnostic evidence. Do not put credentials, secrets, or unnecessary personal information in requests.</p>
+              </div>
+              <div class="packet">
+                <div class="packet-row"><b>Scope</b><span>Subscription, service, SKU or model/version, deployment type, region/zone.</span></div>
+                <div class="packet-row"><b>Demand</b><span>Current usage, approved limits, additional demand, requested total, peak and dates.</span></div>
+                <div class="packet-row"><b>Evidence</b><span>Exact error, timestamp, correlation ID, relevant configuration, prior request ID.</span></div>
+                <div class="packet-row"><b>Choices</b><span>Hard requirements, allowed alternatives, technical trade-offs and impact.</span></div>
+                <div class="packet-row"><b>Follow-up</b><span>Accountable owner, next update, and revalidation checkpoint.</span></div>
+              </div>
+            </div>
+            <p class="source">Public reference: <a href="https://learn.microsoft.com/en-us/azure/azure-portal/supportability/how-to-create-azure-support-request" target="_blank" rel="noopener noreferrer">Create an Azure support request</a></p>
+          </div>
+        </section>
+        <section id="customer-decisions" data-title="Make the launch decision" data-chapter="04 / Customer scenarios">
+          <div class="slide-body">
+            <div class="kicker">04 / You are in the decision room</div>
+            <h2>Your launch.<br><span class="accent">Your next move.</span></h2>
+            <label class="field" for="scenario-picker">Choose a fictional customer situation<select id="scenario-picker"><option value="0">A / The compute launch</option><option value="1">B / The AI launch</option><option value="2">C / The residency boundary</option></select></label>
+            <div class="split" style="align-items:start">
+              <div id="scenario-context" class="scenario-context"></div>
+              <div class="stack"><div id="scenario-answers" class="answer-list"></div><div id="scenario-feedback" class="feedback" role="status" hidden></div><p class="fine">Explore any answer. You can change your decision, switch situations, or move on at any time.</p></div>
+            </div>
+          </div>
+        </section>
+        <section id="three-reframes" data-title="Three ideas to take with you" data-chapter="04 / Customer scenarios">
+          <div class="slide-body">
+            <div class="kicker">04 / Keep these distinctions</div>
+            <h2>Three reframes.<br><span class="accent">Better decisions.</span></h2>
+            <p class="lead">Select each card to reveal the planning principle behind it.</p>
+            <div class="cards">
+              <button class="flip-card" aria-expanded="false"><small>01 / REFRAME</small><span class="front">"Our quota<br>is approved."</span><span class="back" hidden>Permission is in place. Deployable capacity and the exact placement constraints still need validation.</span><span class="fine">Select to reveal</span></button>
+              <button class="flip-card" aria-expanded="false"><small>02 / REFRAME</small><span class="front">"We added<br>a second region."</span><span class="back" hidden>A recovery location is not recovery readiness. Validate capacity, data, routing, dependencies, and tested RTO/RPO.</span><span class="fine">Select to reveal</span></button>
+              <button class="flip-card" aria-expanded="false"><small>03 / REFRAME</small><span class="front">"The first phase<br>deployed."</span><span class="back" hidden>Today's success does not reserve tomorrow's ramp. Revalidate growth and consider supported capacity mechanisms where appropriate.</span><span class="fine">Select to reveal</span></button>
+            </div>
+            <div class="callout">Architecture does not remove uncertainty. It creates informed, compliant ways to respond to it.</div>
+          </div>
+        </section>
+        <section id="your-plan" data-title="Take the next step" data-chapter="05 / Next steps">
+          <div class="slide-body">
+            <div class="kicker">05 / Conclusion and next steps</div>
+            <h2>Leave with<br><span class="accent">a plan. Not a promise.</span></h2>
+            <p class="lead">Select what you have prepared. Export a checklist for the next architecture conversation; it is not a live readiness assessment.</p>
+            <div class="check-grid" id="plan-checklist"></div>
+            <div class="row"><span class="tag accent-tag" id="plan-count">0 / 6 prepared</span><span class="fine">Selections stay only in this open page. No customer details are collected.</span></div>
+            <div class="actions"><button class="primary" id="export-plan">Download my checklist</button><button id="show-plan">View / copy checklist</button><button data-jump="14">Explore public resources &rarr;</button></div>
+            <p class="fine">Agree an owner, next update, and capacity revalidation checkpoint in your own planning system.</p>
+          </div>
+        </section>
+        <section id="public-resources" data-title="Keep your guidance current" data-chapter="05 / Next steps">
+          <div class="slide-body">
+            <div class="kicker">05 / Public resources to keep</div>
+            <h2>Confidence comes<br>from <span class="accent">current evidence.</span></h2>
+            <div class="source-grid" id="public-source-grid"></div>
+            <div class="row"><button class="primary" data-jump="1">Explore another path</button><button data-jump="0">Return to the beginning</button></div>
+            <p class="fine">Public documentation reviewed 15 November 2026. Examples and orbital artwork are original and illustrative. The Azure icon is an official Microsoft asset. This is an independent educational experience, not an Azure availability dashboard or service commitment. No analytics, external fonts, remote scripts, or live capacity calls. Public links require internet; your own Azure resources require authorized access.</p>
+            <p class="fine">Azure icon from the <a href="https://learn.microsoft.com/en-us/azure/architecture/icons/" target="_blank" rel="noopener noreferrer">official Azure Architecture Center collection</a>, used unchanged for training. <a href="assets/azure/Microsoft_Terms_of_Use.pdf" target="_blank" rel="noopener noreferrer">Microsoft icon terms</a>.</p>
+            <p class="fine">Built with <a href="https://revealjs.com" target="_blank" rel="noopener noreferrer">Reveal.js</a> 6.0.2, MIT license. Local third-party license: <a href="assets/reveal/LICENSE" target="_blank" rel="noopener noreferrer">Reveal.js license</a>.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <footer class="hud" aria-label="Tour navigation">
+    <button id="tour-prev" disabled>&larr; Back</button>
+    <div class="journey-status">
+      <div class="row"><span id="chapter-label">Welcome</span><span id="slide-count">01 / 15</span></div>
+      <div class="progress-track" role="progressbar" aria-label="Position in tour" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1" id="tour-progress"><div class="progress-fill" id="tour-progress-fill"></div></div>
+      <div class="row"><small id="navigation-hint">Next / arrow keys to explore. Journey to jump.</small><div class="chapter-dots" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div></div>
+    </div>
+    <button id="tour-next" class="primary">Next &rarr;</button>
+  </footer>
+  <dialog id="journey-dialog" aria-labelledby="journey-dialog-title">
+    <div class="dialog-top"><h2 id="journey-dialog-title">Your journey</h2><button data-close="journey-dialog" aria-label="Close journey menu">Close &times;</button></div>
+    <p class="fine">Jump to any stop. There are no locked slides or required answers.</p>
+    <nav class="toc" id="tour-toc" aria-label="All tour stops"></nav>
+    <p class="fine">Keyboard: Left / Right = previous / next; Home / End = first / last; Escape = close this menu. Scroll inside a stop to read details on small screens.</p>
+  </dialog>
+  <dialog id="plan-dialog" aria-labelledby="plan-dialog-title">
+    <div class="dialog-top"><h2 id="plan-dialog-title">Your planning checklist</h2><button data-close="plan-dialog" aria-label="Close checklist">Close &times;</button></div>
+    <p class="fine">Select the text to copy. This is a preparation aid, not an assessment of your Azure environment.</p>
+    <label class="field" for="plan-copy">Checklist text<textarea id="plan-copy" readonly></textarea></label>
+    <div class="actions" style="margin-top:16px"><button id="copy-plan" class="primary">Copy checklist</button></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="load-error" role="alert" hidden><h2>The tour could not start.</h2><p>Keep this HTML file together with its <strong>assets\reveal</strong> folder, then reopen it in a modern browser. No installation or server is required.</p></div>
+  <noscript><div id="noscript-message">Enable JavaScript in your browser to use this interactive Reveal.js tour.</div></noscript>
+  <script src="assets/reveal/reveal.js"></script>
+  <script>
+    "use strict";
+    const $ = id => document.getElementById(id);
+    const slideElements = [...document.querySelectorAll(".slides > section")];
+    const chapterStarts = [2, 6, 9, 11, 13];
+    const publicSources = [
+      ["VM quotas", "Understand family and regional limits, usage, and quota versus capacity.", "https://learn.microsoft.com/azure/virtual-machines/quotas"],
+      ["Request a quota increase", "Use the supported Azure portal quota process and check eligibility.", "https://learn.microsoft.com/en-us/azure/quotas/quickstart-increase-quota-portal"],
+      ["Allocation failures", "Inspect exact errors and evaluate compatible placement alternatives.", "https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/allocation-failure"],
+      ["Capacity reservations", "Check supported configurations, charges, behavior, and SLA.", "https://learn.microsoft.com/azure/virtual-machines/capacity-reservation-overview"],
+      ["Choose your regions", "Weigh residency, latency, availability zones, and multi-region trade-offs.", "https://learn.microsoft.com/en-us/azure/reliability/regions-overview"],
+      ["Products by region", "Check product regional support; a listing is not a capacity guarantee.", "https://azure.microsoft.com/explore/global-infrastructure/products-by-region/"],
+      ["AI provisioned throughput", "Separate quota, processing capacity, sizing, and reservation billing.", "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/provisioned-throughput"],
+      ["AI deployment types", "Verify model/type support and current data-processing locations.", "https://learn.microsoft.com/en-us/azure/ai-foundry/foundry-models/concepts/deployment-types"],
+      ["Create a support request", "Find the authorized customer route, permissions, and support requirements.", "https://learn.microsoft.com/en-us/azure/azure-portal/supportability/how-to-create-azure-support-request"]
+    ];
+    let deck;
+    let toastTimer;
+    let motionPreferenceOverridden = false;
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    function notify(text) {
+      $("toast").textContent = text; $("toast").hidden = false;
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; }, 6500);
+    }
+    function jump(index) {
+      if (!deck || !deck.isReady()) return;
+      const openDialog = document.querySelector("dialog[open]");
+      if (openDialog) openDialog.close();
+      deck.slide(index);
+      const current = slideElements[index];
+      current.scrollTop = 0;
+      const heading = current.querySelector("h1, h2");
+      heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true });
+    }
+    function updateNavigation() {
+      const index = deck.getIndices().h;
+      $("chapter-label").textContent = slideElements[index].dataset.chapter;
+      $("slide-count").textContent = `${String(index + 1).padStart(2, "0")} / ${slideElements.length}`;
+      $("tour-progress").setAttribute("aria-valuenow", String(index + 1));
+      $("tour-progress").setAttribute("aria-valuetext", `${index + 1} of ${slideElements.length}: ${slideElements[index].dataset.title}`);
+      $("tour-progress-fill").style.width = `${(index + 1) / slideElements.length * 100}%`;
+      $("tour-prev").disabled = index === 0;
+      $("tour-next").textContent = index === slideElements.length - 1 ? "Restart \u21ba" : "Next \u2192";
+      let activeChapter = -1;
+      chapterStarts.forEach((start, chapter) => { if (index >= start) activeChapter = chapter; });
+      document.querySelectorAll(".chapter-dots span").forEach((dot, chapter) => dot.classList.toggle("active", chapter === activeChapter));
+      document.querySelectorAll("#tour-toc button").forEach((button, i) => {
+        if (i === index) button.setAttribute("aria-current", "step");
+        else button.removeAttribute("aria-current");
+      });
+      $("navigation-hint").textContent = "Scroll for details if needed. Next / arrow keys to explore.";
+    }
+    document.querySelectorAll("[data-jump]").forEach(button => button.addEventListener("click", () => jump(Number(button.dataset.jump))));
+    slideElements.forEach((slide, index) => {
+      const button = document.createElement("button");
+      const number = document.createElement("span"); number.className = "toc-number"; number.textContent = String(index + 1).padStart(2, "0");
+      const text = document.createElement("span"); text.textContent = slide.dataset.title;
+      button.append(number, text); button.addEventListener("click", () => jump(index)); $("tour-toc").append(button);
+    });
+    $("tour-prev").addEventListener("click", () => jump(Math.max(0, deck.getIndices().h - 1)));
+    $("tour-next").addEventListener("click", () => jump(deck.getIndices().h === slideElements.length - 1 ? 0 : deck.getIndices().h + 1));
+    $("journey-open").addEventListener("click", () => { if (!$("journey-dialog").open) $("journey-dialog").showModal(); });
+    document.querySelectorAll("[data-close]").forEach(button => button.addEventListener("click", () => $(button.dataset.close).close()));
+    document.addEventListener("keydown", event => {
+      const openDialog = document.querySelector("dialog[open]");
+      if (event.key === "Escape" && openDialog) {
+        event.preventDefault();
+        event.stopPropagation();
+        openDialog.close();
+      }
+    }, true);
+    $("theme-toggle").addEventListener("click", () => {
+      document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    });
+    function setMotion(reduce) {
+      document.documentElement.dataset.motion = reduce ? "reduce" : "full";
+      $("motion-toggle").textContent = reduce ? "Motion off" : "Motion on";
+      $("motion-toggle").setAttribute("aria-pressed", String(reduce));
+      if (deck) deck.configure({ transition: reduce ? "none" : "slide", autoAnimate: !reduce });
+    }
+    $("motion-toggle").addEventListener("click", () => {
+      motionPreferenceOverridden = true;
+      setMotion(document.documentElement.dataset.motion !== "reduce");
+    });
+    reducedMotion.addEventListener("change", event => { if (!motionPreferenceOverridden) setMotion(event.matches); });
+    $("fullscreen-toggle").addEventListener("click", async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+        else throw new Error("Fullscreen is not supported.");
+      } catch (error) { console.warn("Fullscreen unavailable:", error); notify("Fullscreen is unavailable in this browser. The tour remains fully usable."); }
+    });
+    function updateQuota() {
+      const count = Number($("vm-demand").value), demand = count * 8;
+      const family = 160 + demand, region = 600 + demand;
+      $("vm-demand-label").value = String(count); $("new-demand").textContent = String(demand);
+      const circumference = 2 * Math.PI * 64;
+      [["family", family, 256], ["region", region, 1000]].forEach(([name, total, limit]) => {
+        $(`${name}-total`).textContent = total.toLocaleString("en-US");
+        const arc = $(`${name}-arc`); arc.style.strokeDasharray = String(circumference);
+        arc.style.strokeDashoffset = String(circumference * (1 - Math.min(total / limit, 1)));
+        arc.classList.toggle("blocked", total > limit);
+        $(`${name}-gauge-title`).textContent = `${name === "family" ? "VM-family" : "Regional"} quota: ${total} of ${limit} vCPUs; ${total > limit ? "exceeds limit" : "within limit"}.`;
+      });
+      let title, text;
+      if (count === 0) { title = "No additional demand."; text = "Move the slider to explore quota and capacity independently."; }
+      else if (family > 256 || region > 1000) {
+        title = "A quota gate is closed.";
+        const gaps = [];
+        if (family > 256) gaps.push(`Family shortfall: ${family - 256} vCPUs`);
+        if (region > 1000) gaps.push(`regional shortfall: ${region - 1000} vCPUs`);
+        text = `${gaps.join("; ")}. Plan an appropriate new total limit or evaluate permitted alternatives. More quota still does not hold capacity.`;
+      } else if ($("capacity-blocked").checked) {
+        title = "Permission passes. Placement does not.";
+        text = "In this simulation, infrastructure cannot meet the request. Inspect constraints and evaluate compatible alternatives; a quota increase alone is not the remedy.";
+      } else {
+        title = "Both modeled quota gates pass.";
+        text = `${demand} new vCPUs fit both limits. Actual allocation still needs live capacity and all other checks. This is not a deployment guarantee.`;
+      }
+      renderReadout($("quota-result"), title, text);
+    }
+    function renderReadout(container, title, text) {
+      const strong = document.createElement("strong"); strong.textContent = title;
+      const p = document.createElement("p"); p.textContent = text; container.replaceChildren(strong, p);
+    }
+    $("vm-demand").addEventListener("input", updateQuota); $("capacity-blocked").addEventListener("change", updateQuota);
+    const reservations = {
+      billing: {
+        mark: "%", tag: "BILLING BENEFIT", title: "A discount. Not a deployment slot.", foot: "Financial commitment != physical capacity",
+        heading: "Reserved VM Instance",
+        body: "A term commitment can reduce eligible VM compute charges. It does not guarantee that the VM size can be allocated in your chosen region or zone.",
+        note: "Use it for billing optimization, not as evidence that launch or restart capacity is secured."
+      },
+      capacity: {
+        mark: "01", tag: "MATCHING CAPACITY", title: "Accepted capacity. Defined scope.", foot: "Exact VM size + location + quantity",
+        heading: "On-demand capacity reservation",
+        body: "After Azure accepts a supported reservation, matching compute capacity is held within the applicable SLA. Creating it still requires sufficient quota and available capacity, and the VM must be associated to consume it.",
+        note: "Check exact SKU/configuration support and cost. Unused reserved capacity is charged; it is not a universal solution for every VM or GPU."
+      }
+    };
+    function renderReservation(key) {
+      const item = reservations[key];
+      $("ticket-mark").textContent = item.mark; $("ticket-tag").textContent = item.tag;
+      $("ticket-title").textContent = item.title; $("ticket-foot").textContent = item.foot;
+      const h = document.createElement("h3"); h.textContent = item.heading;
+      const p = document.createElement("p"); p.className = "lead"; p.textContent = item.body;
+      const note = document.createElement("div"); note.className = "callout"; note.textContent = item.note;
+      $("reservation-detail").replaceChildren(h, p, note);
+      document.querySelectorAll("[data-reservation]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.reservation === key)));
+    }
+    document.querySelectorAll("[data-reservation]").forEach(button => button.addEventListener("click", () => renderReservation(button.dataset.reservation)));
+    const aiTypes = {
+      standard: ["Standard / PayGo", "Identify applicable token-per-minute (TPM) and request-per-minute (RPM) quotas and runtime limits for the model and deployment type. A token quota is not a GPU reservation or a universal performance promise.", ["TPM", "RPM", "MODEL"]],
+      provisioned: ["Provisioned throughput", "PTUs measure provisioned model processing capacity. Size for model/version and workload shape; there is no universal PTU-to-TPM conversion. Deployment and scale-up require available capacity; deployed PTUs incur charges even when idle.", ["PTU", "MODEL", "LOAD"]],
+      gpu: ["GPU-backed virtual machines", "Compute quota and actual GPU SKU/zone/region allocation checks apply. GPU VM capacity is not the same quota mechanism as an Azure OpenAI model-service deployment.", ["vCPU", "GPU", "ZONE"]]
+    };
+    function renderAI(key) {
+      const [title, text, units] = aiTypes[key]; renderReadout($("ai-detail"), title, text);
+      ["one", "two", "three"].forEach((name, index) => { $(`ai-unit-${name}`).textContent = units[index]; });
+      document.querySelectorAll("[data-ai]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.ai === key)));
+    }
+    document.querySelectorAll("[data-ai]").forEach(button => button.addEventListener("click", () => renderAI(button.dataset.ai)));
+    const candidateNodes = [];
+    ["A", "B", "C"].forEach(region => {
+      const card = document.createElement("div"); card.className = `region-card${region === "C" ? " locked" : ""}`;
+      const h = document.createElement("h3"); h.textContent = `Region ${region}`;
+      const note = document.createElement("p"); note.className = "fine"; note.textContent = region === "C" ? "Outside boundary" : "Within boundary";
+      card.append(h, note);
+      [1, 2, 3].forEach(zone => {
+        const row = document.createElement("div"); row.className = "zone";
+        const title = document.createElement("span"); title.textContent = `Zone ${zone}`; row.append(title);
+        const units = document.createElement("span");
+        ["P", "C"].forEach(sku => {
+          const unit = document.createElement("span"); unit.className = "candidate"; unit.textContent = sku;
+          unit.setAttribute("aria-label", `Region ${region}, zone ${zone}, ${sku === "P" ? "preferred" : "alternate"} SKU`);
+          candidateNodes.push({ region, zone, sku, unit }); units.append(unit);
+        });
+        row.append(units); card.append(row);
+      });
+      $("options-matrix").append(card);
+    });
+    function updateOptions() {
+      const allowZone = $("flex-zone").checked, allowSKU = $("flex-sku").checked, allowRegion = $("flex-region").checked;
+      let count = 0;
+      candidateNodes.forEach(candidate => {
+        const eligible = candidate.region !== "C" && (candidate.region === "A" || allowRegion) && (candidate.zone === 1 || allowZone) && (candidate.sku === "P" || allowSKU);
+        candidate.unit.classList.toggle("eligible", eligible);
+        candidate.unit.setAttribute("title", `${candidate.region} / zone ${candidate.zone} / ${candidate.sku}: ${eligible ? "candidate to validate; capacity unknown" : "excluded by current choices"}`);
+        if (eligible) count++;
+      });
+      $("option-count").textContent = String(count);
+      renderReadout($("options-result"), `${count} candidate${count === 1 ? "" : "s"}. Zero capacity promises.`, "Changing preferences expands the design space, not the confirmed supply. Region C stays excluded because the hard residency boundary does not change.");
+    }
+    ["flex-zone", "flex-sku", "flex-region"].forEach(id => $(id).addEventListener("change", updateOptions));
+    function updateRecovery() {
+      const outage = $("region-outage").checked, ready = $("recovery-ready").checked;
+      $("path-a").classList.toggle("active", !outage); $("path-a").classList.toggle("inactive", outage);
+      $("path-b").classList.toggle("active", outage && ready); $("path-b").classList.toggle("inactive", !(outage && ready));
+      $("status-a").classList.toggle("down", outage); $("status-b").classList.toggle("down", !ready);
+      $("region-b-note").textContent = ready ? "readiness assumed" : "readiness unverified";
+      let title, text;
+      if (!outage) { title = "Primary serves traffic in this simulation."; text = ready ? "Recovery readiness is assumed here. In reality, test capacity, data, routing, dependencies, and recovery objectives repeatedly." : "The secondary exists, but recovery readiness is unverified. A second region alone is not enough."; }
+      else if (!ready) { title = "Outage. Recovery cannot be assumed."; text = "There is no verified recovery path in this example. Provisioning a second region is not proof that it can serve your workload."; }
+      else { title = "Illustrative failover path is enabled."; text = "This assumes recovery checks passed, including capacity validation. Real success depends on the service design, current conditions, replication, routing, and tested procedures."; }
+      renderReadout($("recovery-result"), title, text);
+    }
+    ["region-outage", "recovery-ready"].forEach(id => $(id).addEventListener("change", updateRecovery));
+    const routeData = {
+      quota: ["Quota is insufficient", "Check the applicable scope and current usage. For VM compute, verify both family and regional limits. In Azure portal Quotas, request an appropriate new total where supported; follow the service-specific route and eligibility requirements.", 1],
+      allocation: ["Allocation failed", "Read the exact allocation error and constraints. Evaluate customer-approved compatible SKU, zone, region, or timing options. Follow public troubleshooting guidance; if unresolved, use Azure support with the appropriate permissions and plan.", 2],
+      ai: ["AI deployment is blocked", "Separate model/version/type support, quota, processing-location requirements, and actual capacity. Use current Foundry deployment and quota experiences and public provisioned-throughput guidance. Do not substitute GPU quota or billing reservations for service capacity.", 6],
+      growth: ["Future growth needs a plan", "Specify initial and peak demand, time horizon, and hard requirements. Compare compliant regions and compatible configurations; plan capacity checks before milestones. A phased deployment or favorable regional product listing does not reserve future resources.", 4]
+    };
+    function renderRoute(key) {
+      const [title, text, sourceIndex] = routeData[key];
+      const h = document.createElement("h3"); h.textContent = title;
+      const p = document.createElement("p"); p.textContent = text;
+      const a = document.createElement("a"); a.href = publicSources[sourceIndex][2]; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = `${publicSources[sourceIndex][0]} \u2197`; a.className = "button";
+      $("route-detail").replaceChildren(h, p, a);
+      document.querySelectorAll("[data-route]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.route === key)));
+    }
+    document.querySelectorAll("[data-route]").forEach(button => button.addEventListener("click", () => renderRoute(button.dataset.route)));
+    const situations = [
+      {
+        title: "The compute launch", metric: "96", unit: "new vCPUs requested",
+        context: "You need 12 new 8-vCPU VMs. Family usage is 32 / 96. Regional usage is 200 / 400. All new VMs use this family.",
+        answers: ["Request a family total of at least 128, then validate capacity separately.", "Request a new family total of 96: that is the additional demand.", "Increase regional quota only and commit the launch date."],
+        best: 0,
+        reasons: [
+          "A sound next step. 12 x 8 = 96 additional vCPUs; 32 existing + 96 new = 128 family total. Regional total is 296, within 400. Request an appropriate total and validate actual capacity before committing.",
+          "This confuses the increment with the requested total. Keeping the family limit at 96 leaves only 64 vCPUs of headroom; the new demand is 96. The required family total is at least 128.",
+          "The regional total would be 296, below 400; the family limit is the blocker. Increasing the wrong limit cannot solve it, and quota approval alone cannot secure the date."
+        ]
+      },
+      {
+        title: "The AI launch", metric: "PTU", unit: "quota approved; deployment not created",
+        context: "You have unused provisioned quota for a model. The team wants to buy a billing reservation now, then create the deployment on launch day.",
+        answers: ["Buy the reservation first; unused quota holds the hardware.", "Verify model/type and capacity, size and deploy, then buy matching billing coverage.", "Use a universal PTU-to-TPM conversion and promise the date."],
+        best: 1,
+        reasons: [
+          "A billing reservation is not a capacity reservation for model deployment. Unused PTU quota also does not hold deployable capacity. You risk paying for coverage you cannot consume.",
+          "A sound next step. Confirm current capacity and sizing, create the provisioned deployment, then purchase matching coverage. Discuss ongoing deployment charges and processing-location requirements.",
+          "PTU throughput depends on model/version and workload shape. A universal conversion and quota-based date promise both create false confidence."
+        ]
+      },
+      {
+        title: "The residency boundary", metric: "2", unit: "compliant regions to investigate",
+        context: "Your preferred region is constrained. A distant region looks attractive, but processing there would violate your mandatory residency requirement.",
+        answers: ["Move to the attractive region; capacity comes first.", "Submit a support request and treat submission as a guaranteed launch.", "Keep the hard boundary, compare compliant alternatives, and document the next validation."],
+        best: 2,
+        reasons: [
+          "Availability cannot override a hard compliance requirement. Validate both storage and processing-location obligations, not just the resource's region label.",
+          "A support submission is a step toward investigation, not a deployment or delivery guarantee. Capture the evidence, constraints, impact, and alternatives without promising the outcome.",
+          "A sound next step. Evaluate approved regions/configurations and any permitted ramp change. Keep compliance fixed, record trade-offs, and agree an owner and revalidation checkpoint."
+        ]
+      }
+    ];
+    function renderSituation() {
+      const item = situations[Number($("scenario-picker").value)];
+      const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = "Fictional customer situation";
+      const h = document.createElement("h3"); h.textContent = item.title;
+      const stat = document.createElement("div"); stat.className = "big-stat"; stat.textContent = item.metric;
+      const unit = document.createElement("p"); unit.className = "fine"; unit.textContent = item.unit;
+      const p = document.createElement("p"); p.style.fontSize = "16px"; p.style.marginTop = "16px"; p.textContent = item.context;
+      $("scenario-context").replaceChildren(tag, h, stat, unit, p);
+      $("scenario-answers").replaceChildren(); $("scenario-feedback").hidden = true;
+      item.answers.forEach((text, index) => {
+        const button = document.createElement("button"); button.className = "answer"; button.setAttribute("aria-pressed", "false");
+        const letter = document.createElement("span"); letter.textContent = String.fromCharCode(65 + index);
+        const wording = document.createElement("span"); wording.textContent = text;
+        button.append(letter, wording);
+        button.addEventListener("click", () => {
+          document.querySelectorAll("#scenario-answers button").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
+          $("scenario-feedback").hidden = false;
+          $("scenario-feedback").className = `feedback ${index === item.best ? "correct" : "incorrect"}`;
+          $("scenario-feedback").textContent = item.reasons[index];
+        });
+        $("scenario-answers").append(button);
+      });
+    }
+    $("scenario-picker").addEventListener("change", renderSituation);
+    document.querySelectorAll(".flip-card").forEach(button => button.addEventListener("click", () => {
+      const expanded = button.getAttribute("aria-expanded") !== "true"; button.setAttribute("aria-expanded", String(expanded));
+      button.querySelector(".back").hidden = !expanded;
+      button.querySelector(".fine").textContent = expanded ? "Select to hide" : "Select to reveal";
+    }));
+    const planItems = [
+      "Define exact service, SKU or model/version, deployment type, and target region/zone.",
+      "Record current quota/usage, additional and total demand with units, and peak dates.",
+      "Verify product/model support, placement constraints, and current deployability.",
+      "Agree residency, processing location, reliability, and permitted alternatives.",
+      "Identify the supported request route and gather error/diagnostic evidence.",
+      "Assign an owner, next update, fallback, and capacity revalidation checkpoint."
+    ];
+    planItems.forEach(text => {
+      const label = document.createElement("label"); const input = document.createElement("input"); input.type = "checkbox";
+      const span = document.createElement("span"); span.textContent = text; label.append(input, span); $("plan-checklist").append(label);
+      input.addEventListener("change", () => { $("plan-count").textContent = `${document.querySelectorAll("#plan-checklist input:checked").length} / ${planItems.length} prepared`; });
+    });
+    function planText() {
+      const inputs = [...document.querySelectorAll("#plan-checklist input")];
+      return [
+        "AZURE CAPACITY - CUSTOMER PLANNING CHECKLIST", `Created: ${new Date().toISOString()}`,
+        "Preparation aid only. Not live capacity validation, approval, or a service commitment.",
+        "", ...planItems.map((item, i) => `${inputs[i].checked ? "[x]" : "[ ]"} ${item}`),
+        "", "Complete in your authorized planning system:", "Owner: [agree]", "Next update: [agree date]", "Revalidation checkpoint: [agree]",
+        "", "PUBLIC RESOURCES", ...publicSources.map(([title, , url]) => `${title}: ${url}`),
+        "", "Quota approval is not a capacity guarantee. Public guidance and service behavior can change."
+      ].join("\r\n");
+    }
+    $("export-plan").addEventListener("click", () => {
+      const url = URL.createObjectURL(new Blob([planText()], { type: "text/plain;charset=utf-8" }));
+      const a = document.createElement("a"); a.href = url; a.download = "azure-capacity-customer-checklist.txt"; document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      notify("Checklist download requested. If downloads are blocked, use View / copy checklist.");
+    });
+    $("show-plan").addEventListener("click", () => { $("plan-copy").value = planText(); $("plan-dialog").showModal(); });
+    $("copy-plan").addEventListener("click", async () => {
+      try {
+        if (!navigator.clipboard) throw new Error("Clipboard access is unavailable.");
+        await navigator.clipboard.writeText($("plan-copy").value); notify("Planning checklist copied.");
+      } catch (error) {
+        console.warn("Clipboard unavailable:", error); $("plan-copy").focus(); $("plan-copy").select();
+        notify("Automatic copy is unavailable. The checklist is selected; use your device's copy command.");
+      }
+    });
+    publicSources.forEach(([title, text, url]) => {
+      const card = document.createElement("div"); card.className = "source-card";
+      const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = `${title} \u2197`; a.setAttribute("aria-label", `${title} (opens in a new tab)`);
+      const p = document.createElement("p"); p.textContent = text; card.append(a, p); $("public-source-grid").append(card);
+    });
+    document.querySelectorAll('a[target="_blank"]').forEach(a => { if (!a.hasAttribute("aria-label")) a.setAttribute("aria-label", `${a.textContent} (opens in a new tab)`); });
+    updateQuota(); renderReservation("billing"); renderAI("standard"); updateOptions(); updateRecovery(); renderRoute("quota"); renderSituation();
+    setMotion(reducedMotion.matches);
+    if (typeof Reveal !== "function") {
+      $("load-error").hidden = false;
+      console.error("Reveal.js is missing. Keep assets/reveal beside the customer tour.");
+    } else {
+      deck = new Reveal(document.querySelector(".reveal"), {
+        embedded: true, disableLayout: true, center: false,
+        controls: false, progress: false, hash: true, history: false,
+        keyboard: { 36: () => jump(0), 35: () => jump(slideElements.length - 1) },
+        keyboardCondition: event => !document.querySelector("dialog[open]") && !event.target.closest("input, select, textarea, button, a"),
+        overview: false, help: false, pause: false, touch: true,
+        scrollActivationWidth: null, navigationMode: "linear",
+        transition: reducedMotion.matches ? "none" : "slide", transitionSpeed: "default",
+        autoAnimate: !reducedMotion.matches, autoAnimateDuration: .7, autoAnimateEasing: "cubic-bezier(.22,1,.36,1)",
+        autoSlide: false, hideInactiveCursor: false, postMessage: false,
+        showNotes: false, respondToHashChanges: true
+      });
+      deck.on("slidechanged", event => {
+        event.currentSlide.scrollTop = 0; updateNavigation();
+        const heading = event.currentSlide.querySelector("h1, h2"); heading.setAttribute("tabindex", "-1");
+        heading.focus({ preventScroll: true });
+      });
+      deck.initialize().then(() => {
+        updateNavigation();
+        window.addEventListener("resize", updateNavigation);
+      }).catch(error => {
+        console.error("Tour initialization failed:", error); $("load-error").hidden = false;
+      });
+    }
+  </script>
+</body>
+</html>

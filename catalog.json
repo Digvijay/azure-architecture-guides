@@ -1,0 +1,25 @@
+[
+  {
+    "slug": "azure-capacity",
+    "title": "Beyond the Bottleneck",
+    "topic": "Azure Capacity",
+    "summary": "Explore quota, capacity, regional flexibility, AI sizing, and launch decisions through a self-guided interactive journey.",
+    "published": "2026-11-15",
+    "minutes": 15,
+    "chapters": 5,
+    "tags": [
+      "Quota",
+      "Capacity",
+      "AI",
+      "Multi-region"
+    ],
+    "files": [
+      "index.html",
+      "assets/reveal/reveal.js",
+      "assets/reveal/reveal.css",
+      "assets/reveal/LICENSE",
+      "assets/azure/azure-logo.svg",
+      "assets/azure/Microsoft_Terms_of_Use.pdf"
+    ]
+  }
+]
