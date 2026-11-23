@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A Microsoft Foundry overview for architects and engineers: models, agents, grounding, evaluation, security, architecture, and production readiness.">
+  <title>From Possibility to Production | Microsoft Foundry Journey</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--cp-bg); color: var(--cp-text); font: 16px/1.6 "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button, .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 16px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; background: var(--cp-surface); color: var(--cp-text); cursor: pointer; font-weight: 600; text-decoration: none; }
+    button:hover, .button:hover { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    button.primary { background: var(--cp-accent); border-color: var(--cp-accent); color: var(--cp-accent-fg); }
+    button.primary:hover { background: var(--cp-accent-hover); }
+    button:disabled { opacity: .45; cursor: default; }
+    a { color: var(--cp-link); text-underline-offset: 4px; }
+    :focus-visible { outline: 3px solid var(--cp-accent); outline-offset: 4px; }
+    h1, h2, h3, p { margin: 0; }
+    h1, h2 { font-weight: 750; line-height: 1.06; letter-spacing: -.05em; }
+    h1 { font-size: clamp(44px, 6.5vw, 88px); }
+    h2 { font-size: clamp(34px, 4.5vw, 60px); max-width: 1000px; }
+    h3 { font-size: 20px; letter-spacing: -.02em; line-height: 1.3; }
+    strong { font-weight: 700; }
+    .accent, .eyebrow { color: var(--cp-accent); }
+    .eyebrow { font-size: 12px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    .lead { max-width: 860px; color: var(--cp-text-soft); font-size: clamp(18px, 2vw, 22px); }
+    .fine { color: var(--cp-text-soft); font-size: 13px; }
+    .skip { position: fixed; top: -80px; left: 16px; z-index: 20; padding: 12px; background: var(--cp-surface); }
+    .skip:focus { top: 8px; }
+    header { min-height: 76px; padding: 16px 32px; border-bottom: 1px solid var(--cp-border); display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--cp-bg-elevated); }
+    .wordmark { font-weight: 750; letter-spacing: -.02em; }
+    .wordmark small { display: block; font-size: 11px; font-weight: 500; letter-spacing: .1em; color: var(--cp-text-soft); text-transform: uppercase; }
+    .toolbar, .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .toolbar button { font-size: 13px; }
+    .layout { display: grid; grid-template-columns: 196px minmax(0, 1fr); min-height: calc(100dvh - 160px); }
+    aside { min-width: 0; padding: 32px 16px; border-right: 1px solid var(--cp-border); }
+    aside nav { display: grid; gap: 8px; position: sticky; top: 24px; }
+    aside a { display: block; padding: 12px; border: 1px solid var(--cp-bg); border-radius: .625rem; color: var(--cp-text-soft); text-decoration: none; font-size: 14px; }
+    aside a[aria-current="step"] { border-color: var(--cp-accent); background: var(--cp-accent-soft); color: var(--cp-accent); font-weight: 700; }
+    main { min-width: 0; }
+    .panel { max-width: 1280px; margin: auto; padding: 48px clamp(24px, 4vw, 64px) 56px; display: grid; gap: 24px; align-content: center; min-height: calc(100dvh - 164px); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card { min-width: 0; border: 1px solid var(--cp-border); border-radius: 16px; background: var(--cp-surface); padding: 24px; display: grid; align-content: start; gap: 12px; }
+    .card p, li { color: var(--cp-text-soft); }
+    .card p { font-size: 15px; }
+    .card ul { margin: 0; padding-left: 20px; font-size: 15px; }
+    .number { color: var(--cp-accent); font-size: 36px; font-weight: 300; line-height: 1; }
+    .callout { padding: 16px 20px; background: var(--cp-accent-soft); border-left: 3px solid var(--cp-accent); border-radius: .625rem; font-size: 15px; }
+    .source { color: var(--cp-text-soft); font-size: 12px; }
+    .source a { margin-right: 12px; }
+    .hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; align-items: center; }
+    .hero-copy { display: grid; gap: 24px; }
+    .system { display: grid; gap: 12px; border: 1px solid var(--cp-accent); border-radius: 16px; padding: 24px; background: var(--cp-surface); }
+    .system .node { border: 1px solid var(--cp-border); padding: 16px; border-radius: .625rem; }
+    .system .node b { display: block; color: var(--cp-accent); }
+    .system .node small { display: block; color: var(--cp-text-soft); }
+    .tag { display: inline-block; border: 1px solid var(--cp-border); border-radius: .625rem; padding: 4px 10px; font-size: 12px; color: var(--cp-text-soft); width: fit-content; }
+    .chapter-link { display: grid; text-decoration: none; color: var(--cp-text); }
+    .chapter-link:hover { border-color: var(--cp-accent); }
+    .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    button[aria-pressed="true"] { background: var(--cp-accent); border-color: var(--cp-accent); color: var(--cp-accent-fg); }
+    .readout { padding: 24px; border: 1px solid var(--cp-accent); border-radius: 16px; background: var(--cp-bg-elevated); display: grid; gap: 12px; }
+    .readout p { color: var(--cp-text-soft); }
+    .flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 0; counter-reset: flow; }
+    .flow li { border-top: 2px solid var(--cp-accent); padding: 16px 8px 0 0; font-size: 15px; }
+    .flow li::before { counter-increment: flow; content: "0" counter(flow); display: block; font-size: 28px; color: var(--cp-accent); margin-bottom: 12px; }
+    .flow b { display: block; color: var(--cp-text); margin-bottom: 8px; }
+    label.field { display: grid; gap: 8px; font-weight: 600; font-size: 14px; }
+    select, input[type="number"], textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; background: var(--cp-bg-elevated); color: var(--cp-text); }
+    input[type="range"] { width: 100%; accent-color: var(--cp-accent); min-height: 36px; }
+    input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--cp-accent); }
+    .check { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; cursor: pointer; }
+    .check input { margin-top: 3px; }
+    .stat { font-size: clamp(32px, 4vw, 52px); font-weight: 750; letter-spacing: -.04em; line-height: 1.2; color: var(--cp-accent); overflow-wrap: anywhere; }
+    .status { font-size: 18px; font-weight: 750; }
+    .status.pass { color: var(--cp-success); }
+    .status.fail { color: var(--cp-danger); }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { padding: 12px 8px; border-bottom: 1px solid var(--cp-border); text-align: left; }
+    th { color: var(--cp-text); }
+    td { color: var(--cp-text-soft); }
+    .table-wrap { overflow-x: auto; }
+    .boundary { border: 1px dashed var(--cp-accent); border-radius: 16px; padding: 20px; display: grid; gap: 16px; }
+    .boundary > .eyebrow { font-size: 11px; }
+    .answer { justify-content: flex-start; text-align: left; width: 100%; }
+    .stack { display: grid; gap: 12px; }
+    details { border: 1px solid var(--cp-border); padding: 16px 20px; border-radius: .625rem; background: var(--cp-surface); }
+    summary { cursor: pointer; font-weight: 650; }
+    details p { margin-top: 12px; color: var(--cp-text-soft); font-size: 15px; }
+    footer { border-top: 1px solid var(--cp-border); background: var(--cp-bg-elevated); padding: 16px 32px; display: flex; gap: 16px; justify-content: space-between; align-items: center; }
+    .progress { display: grid; gap: 4px; flex: 1; max-width: 480px; }
+    progress { width: 100%; height: 6px; accent-color: var(--cp-accent); }
+    dialog { border: 1px solid var(--cp-border-strong); border-radius: 16px; padding: 24px; width: min(760px, calc(100% - 32px)); max-height: 85dvh; overflow: auto; background: var(--cp-surface); color: var(--cp-text); }
+    dialog::backdrop { background: var(--cp-overlay); }
+    dialog h2 { font-size: 32px; margin-bottom: 16px; }
+    dialog .actions { margin-top: 16px; }
+    dialog textarea { height: 280px; font: 13px/1.5 Consolas, "Courier New", Courier, monospace; }
+    #contents-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-left: 24px; }
+    #contents-list a { font-size: 14px; }
+    #notice { position: fixed; bottom: 96px; right: 24px; left: 24px; max-width: 760px; margin: auto; z-index: 30; border: 1px solid var(--cp-accent); border-radius: .625rem; background: var(--cp-surface); color: var(--cp-text); padding: 12px 20px; }
+    noscript p { padding: 24px; background: var(--cp-surface); border: 1px solid var(--cp-danger); }
+    @media (max-width: 1050px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      aside { border-right: 0; border-bottom: 1px solid var(--cp-border); padding: 8px 16px; }
+      aside nav { display: flex; position: static; overflow-x: auto; }
+      aside a { white-space: nowrap; padding: 8px 12px; }
+      .panel { min-height: calc(100dvh - 230px); }
+      .hero { grid-template-columns: 1fr; }
+      .hero .system { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 680px) {
+      header, footer { padding: 16px; align-items: flex-start; flex-wrap: wrap; }
+      .toolbar { width: 100%; }
+      .panel { padding: 32px 20px; }
+      .grid, .two, .hero .system, .flow { grid-template-columns: 1fr; }
+      .card { padding: 20px; }
+      footer .progress { width: 100%; flex-basis: 100%; max-width: none; }
+      #contents-list { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: var(--cp-bg); }
+      header, aside, footer, .actions, .choices, dialog, #notice, .skip, noscript { display: none !important; }
+      .layout { display: block; }
+      .panel, .panel[hidden] { display: grid !important; min-height: 0; padding: 24px 0; break-before: page; }
+      .panel:first-child { break-before: auto; }
+      .card, .readout, .boundary { break-inside: avoid; }
+      h1 { font-size: 48px; } h2 { font-size: 36px; }
+      a { overflow-wrap: anywhere; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#tour">Skip to current stop</a>
+  <header>
+    <a class="wordmark" href="../../index.html" aria-label="Back to all customer guides" title="All customer guides" style="color:var(--cp-text);text-decoration:none">Microsoft Foundry<small>Overview / For architects and engineers</small></a>
+    <div class="toolbar">
+      <button id="contents" type="button">Journey map</button>
+      <button id="theme" type="button" aria-label="Toggle dark theme" aria-pressed="false">Dark theme</button>
+      <button id="print" type="button">Print / PDF</button>
+    </div>
+  </header>
+  <noscript><p>This interactive tour needs JavaScript. Enable it and reload to navigate the journey and use its planning tools.</p></noscript>
+  <div class="layout">
+    <aside aria-label="Journey chapters">
+      <nav>
+        <a href="#platform" data-chapter="Overview">01 / Understand</a>
+        <a href="#models" data-chapter="Models">02 / Choose</a>
+        <a href="#agent-path" data-chapter="Agents">03 / Build</a>
+        <a href="#evaluation" data-chapter="Evaluation">04 / Prove</a>
+        <a href="#architecture" data-chapter="Architecture">05 / Govern</a>
+        <a href="#scenarios" data-chapter="Launch">06 / Launch</a>
+      </nav>
+    </aside>
+    <main id="tour" tabindex="-1">
+      <section class="panel" id="welcome" data-chapter="Overview" data-title="From possibility to production">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">From possibility to production</p>
+            <h1>Build the agent.<br><span class="accent">Earn the trust.</span></h1>
+            <p class="lead">Microsoft Foundry brings models, agents, and tools together. A production system also needs evidence, boundaries, and a team that can operate it.</p>
+            <div class="actions"><button class="primary" data-go="map">Start the journey &rarr;</button><button data-go="readiness">Go to launch checklist</button></div>
+            <p class="fine">6 chapters / 18 stops / About 25-35 minutes / Explore at your pace</p>
+          </div>
+          <div class="system" aria-label="Three layers of a trustworthy AI system">
+            <div class="node"><b>Possibility</b><small>Models + knowledge + tools</small></div>
+            <div class="node"><b>Proof</b><small>Task outcomes + evaluation + traces</small></div>
+            <div class="node"><b>Production</b><small>Identity + boundaries + operations</small></div>
+          </div>
+        </div>
+        <div class="callout">A self-guided architecture conversation, not a live Azure connection. All examples are fictional; controls here do not configure or deploy anything.</div>
+        <p class="fine">Source review: 23 November 2026. Features, availability, pricing, and portal experiences change. Verify linked guidance for your model, region, agent type, and API before implementation.</p>
+      </section>
+
+      <section class="panel" id="map" data-chapter="Overview" data-title="Choose your path" hidden>
+        <p class="eyebrow">Your journey / Six decisions</p>
+        <h2>Start with the outcome.<br><span class="accent">Finish with a plan.</span></h2>
+        <div class="grid two">
+          <a class="card chapter-link" href="#platform"><span class="number">01</span><h3>Understand the platform</h3><p>What belongs in Foundry, and what remains your responsibility?</p></a>
+          <a class="card chapter-link" href="#models"><span class="number">02</span><h3>Choose models deliberately</h3><p>Fit task quality, processing boundaries, latency, and demand.</p></a>
+          <a class="card chapter-link" href="#agent-path"><span class="number">03</span><h3>Build a bounded agent</h3><p>Choose an execution path, ground answers, and constrain tools.</p></a>
+          <a class="card chapter-link" href="#evaluation"><span class="number">04</span><h3>Prove the behavior</h3><p>Turn a convincing demonstration into repeatable evidence.</p></a>
+          <a class="card chapter-link" href="#architecture"><span class="number">05</span><h3>Govern the whole system</h3><p>Connect identity, networking, data controls, and cost.</p></a>
+          <a class="card chapter-link" href="#scenarios"><span class="number">06</span><h3>Make the launch decision</h3><p>Explore customer situations and take away a readiness checklist.</p></a>
+        </div>
+      </section>
+
+      <section class="panel" id="platform" data-chapter="Overview" data-title="A platform, not just a playground" hidden>
+        <p class="eyebrow">01 / Understand</p>
+        <h2>A platform.<br><span class="accent">Not just a playground.</span></h2>
+        <p class="lead">Use Microsoft Foundry to discover models, build agents, connect knowledge and tools, and evaluate and observe the resulting application.</p>
+        <div class="grid">
+          <article class="card"><span class="number">Model</span><h3>The capability</h3><p>Generates or transforms content. Choose for the task, supported modalities, tool use, quality, latency, and commercial terms.</p></article>
+          <article class="card"><span class="number">Agent</span><h3>The execution loop</h3><p>Combines a model with instructions, context, and tools. Can decide what to call next; its authority must be deliberately bounded.</p></article>
+          <article class="card"><span class="number">App</span><h3>The customer experience</h3><p>Your interface, business rules, user authorization, approvals, integrations, and support model still need to be designed.</p></article>
+        </div>
+        <div class="callout"><strong>Use the smallest system that works.</strong> A single model call can be enough for a fixed transformation. A deterministic workflow can be preferable when every step must follow an explicit sequence. Add an agent when adaptive tool selection creates real value.</div>
+        <details><summary>Coming from Azure AI Foundry or Azure AI Studio?</summary><p>Microsoft Foundry is the current brand. New Foundry projects and the classic hub-based experience coexist. Confirm which project, portal experience, SDK, and API your instructions target; do not combine classic Threads/Runs examples with newer Conversations/Responses examples indiscriminately.</p></details>
+        <p class="source">Sources: <a href="https://learn.microsoft.com/azure/foundry/what-is-foundry" target="_blank" rel="noopener noreferrer">Foundry overview</a><a href="https://learn.microsoft.com/azure/foundry/agents/overview" target="_blank" rel="noopener noreferrer">Agent Service</a></p>
+      </section>
+
+      <section class="panel" id="models" data-chapter="Models" data-title="Choose a model with evidence" hidden>
+        <p class="eyebrow">02 / Choose</p>
+        <h2>The best model?<br><span class="accent">For which task?</span></h2>
+        <p class="lead">Catalog benchmarks narrow the field. Your own representative tasks decide what is good enough.</p>
+        <div class="grid">
+          <article class="card"><h3>Task fit</h3><p>Languages, modalities, structured output, tool calling, reasoning needs, context window, and supported agent integrations.</p></article>
+          <article class="card"><h3>Operating fit</h3><p>Tail latency, load shape, token use, deployment types, processing location, quota, version lifecycle, and recovery options.</p></article>
+          <article class="card"><h3>Commercial fit</h3><p>Model provider terms, licensing, pricing meters, availability, and support. Do not assume every catalog model shares the same conditions.</p></article>
+        </div>
+        <label class="field">Explore a workload
+          <select id="workload"><option value="extract">Extract fields from repeatable documents</option><option value="reason">Resolve complex cases using business tools</option><option value="knowledge">Answer questions from changing internal policies</option></select>
+        </label>
+        <div class="readout" id="model-result" aria-live="polite"></div>
+        <p class="source">Source: <a href="https://learn.microsoft.com/azure/foundry/what-is-foundry" target="_blank" rel="noopener noreferrer">Models and developer surfaces</a><a href="https://learn.microsoft.com/azure/foundry/concepts/observability" target="_blank" rel="noopener noreferrer">Model selection and evaluation</a></p>
+      </section>
+
+      <section class="panel" id="deployment" data-chapter="Models" data-title="Where does inference happen?" hidden>
+        <p class="eyebrow">02 / Processing boundaries</p>
+        <h2>A resource location is<br><span class="accent">not the whole boundary.</span></h2>
+        <p class="lead">For supported serverless model deployments, processing scope and purchase model are separate decisions. These deployment types do not describe managed-compute model hosting.</p>
+        <div class="grid two">
+          <article class="card">
+            <label class="field">Processing scope<select id="processing"><option value="global">Global</option><option value="zone">Data Zone</option><option value="geography">Azure geography</option></select></label>
+            <label class="field">Workload / purchase pattern<select id="purchase"><option value="standard">Standard / pay per token</option><option value="provisioned">Provisioned throughput</option><option value="batch">Batch / asynchronous</option></select></label>
+          </article>
+          <div class="readout" id="deployment-result" aria-live="polite"></div>
+        </div>
+        <div class="callout"><strong>Validate end to end.</strong> Model inference, agent state, search indexes, external tools, logs, backups, and support processes may have different data-handling boundaries. A compliant model deployment cannot establish compliance for the whole application.</div>
+        <p class="fine">This explorer describes categories, not current availability. A category match is not proof of model/version support, available quota, capacity, or legal compliance.</p>
+        <p class="source">Source: <a href="https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types" target="_blank" rel="noopener noreferrer">Deployment types and processing locations</a></p>
+      </section>
+
+      <section class="panel" id="agent-path" data-chapter="Agents" data-title="Choose the execution path" hidden>
+        <p class="eyebrow">03 / Build</p>
+        <h2>Choose control.<br><span class="accent">Understand the ownership.</span></h2>
+        <div class="choices" role="group" aria-label="Agent execution paths">
+          <button data-agent="prompt" aria-pressed="true">Prompt agent</button>
+          <button data-agent="hosted" aria-pressed="false">Hosted agent</button>
+          <button data-agent="voice" aria-pressed="false">Voice experience</button>
+          <button data-agent="app" aria-pressed="false">Existing application</button>
+        </div>
+        <div class="readout" id="agent-result" aria-live="polite"></div>
+        <div class="grid two">
+          <article class="card"><h3>Managed does not mean unowned</h3><p>You still own task design, data access, tool permissions, evaluations, incident response, and the customer experience.</p></article>
+          <article class="card"><h3>Start with one bounded agent</h3><p>Introduce multiple agents only when role separation or independent skills justify the extra coordination, failure modes, latency, and cost.</p></article>
+        </div>
+        <p class="source">Source: <a href="https://learn.microsoft.com/azure/foundry/agents/overview" target="_blank" rel="noopener noreferrer">Agent types and responsibilities</a></p>
+      </section>
+
+      <section class="panel" id="agent-loop" data-chapter="Agents" data-title="Inside the agent loop" hidden>
+        <p class="eyebrow">03 / From request to action</p>
+        <h2>A tool call is a proposal.<br><span class="accent">Not permission.</span></h2>
+        <ol class="flow">
+          <li><b>Receive</b>Authenticate the caller. Establish identity, tenant, intent, and permitted scope outside the model.</li>
+          <li><b>Reason</b>Give the model task instructions, authorized context, and a small set of explicit tool contracts.</li>
+          <li><b>Authorize &amp; execute</b>The execution layer validates arguments, enforces policy, and obtains approval where required.</li>
+          <li><b>Observe &amp; stop</b>Return a bounded result, trace the outcome, and enforce step, time, and spend limits.</li>
+        </ol>
+        <div class="grid two">
+          <article class="card"><h3>Conversation state is not truth</h3><p>Messages carry context, not proof of authorization or current facts. Apply retention and deletion policies to conversation state and uploaded files.</p></article>
+          <article class="card"><h3>Retries are business events</h3><p>A repeated payment, ticket, or order is not harmless. Design idempotency, timeouts, retry limits, and reconciliation into side-effecting tools.</p></article>
+        </div>
+        <div class="callout">For consequential changes: separate read, propose, approve, and execute. Bind approval to the exact action and arguments, then recheck authorization at execution time.</div>
+        <p class="source">Platform context: <a href="https://learn.microsoft.com/azure/foundry/agents/overview" target="_blank" rel="noopener noreferrer">Agent Runtime, identity, and tools</a> Execution controls above are application design recommendations.</p>
+      </section>
+
+      <section class="panel" id="grounding" data-chapter="Agents" data-title="Ground answers, preserve access" hidden>
+        <p class="eyebrow">03 / Knowledge and retrieval</p>
+        <h2>Fresh answers.<br><span class="accent">Same access boundaries.</span></h2>
+        <p class="lead">Retrieval-augmented generation (RAG) brings relevant knowledge into a request. It does not retrain the model or automatically enforce document permissions.</p>
+        <div class="grid">
+          <article class="card"><span class="number">01</span><h3>Prepare knowledge</h3><p>Choose authoritative sources, extract and chunk content, index it, preserve access metadata, and define refresh and deletion behavior.</p></article>
+          <article class="card"><span class="number">02</span><h3>Retrieve within scope</h3><p>Resolve user access and apply permission-aware retrieval before content reaches the model. Test cross-user and cross-tenant access explicitly.</p></article>
+          <article class="card"><span class="number">03</span><h3>Answer with evidence</h3><p>Use retrieved context, cite sources the user can open, and allow abstention when evidence is missing, conflicting, or out of date.</p></article>
+        </div>
+        <details><summary>RAG, fine-tuning, or a longer prompt?</summary><p>Use retrieval for changing or private factual knowledge. Consider fine-tuning for repeatable behavior or style after a baseline and evaluation show a need. A longer prompt can help small, stable contexts but increases token use and does not remove access-control or freshness requirements.</p></details>
+        <div class="callout"><strong>Treat retrieved content as data, not authority.</strong> A document can contain misleading instructions. Keep tool authorization independent of the model's interpretation, and test indirect prompt-injection defenses.</div>
+        <p class="source">Sources: <a href="https://learn.microsoft.com/azure/foundry/agents/overview" target="_blank" rel="noopener noreferrer">Knowledge and tools</a><a href="https://learn.microsoft.com/azure/foundry/concepts/observability" target="_blank" rel="noopener noreferrer">RAG evaluation</a><a href="https://learn.microsoft.com/azure/foundry/guardrails/guardrails-overview" target="_blank" rel="noopener noreferrer">Guardrail coverage</a></p>
+      </section>
+
+      <section class="panel" id="tools" data-chapter="Agents" data-title="Connect tools without expanding trust" hidden>
+        <p class="eyebrow">03 / Tools, connections, and MCP</p>
+        <h2>Connectivity is easy.<br><span class="accent">Trust is a design decision.</span></h2>
+        <p class="lead">Built-in tools, custom functions, OpenAPI integrations, and Model Context Protocol (MCP) servers expose capabilities. Availability and authentication support depend on the chosen agent and tool.</p>
+        <div class="grid two">
+          <article class="card"><h3>Curate the surface</h3><p>A Foundry Toolbox can curate and share tools through a managed MCP endpoint. Review the server owner, tool schemas, authentication, data destination, versions, and network compatibility.</p></article>
+          <article class="card"><h3>Enforce the business boundary</h3><p>Prefer supported Entra, managed identity, or OAuth flows. Grant only needed actions; validate all arguments and results. An MCP connection is not a security certification.</p></article>
+        </div>
+        <div class="stack">
+          <details><summary>Read-only knowledge assistant</summary><p>Expose search and retrieval, not write APIs. Enforce document access with the caller's authorized scope. Do not use a shared service identity with broad access as a substitute for user authorization.</p></details>
+          <details><summary>Service agent that changes a business record</summary><p>Separate lookup from mutation. Use narrow scopes, server-side policy, explicit approval for consequential actions, idempotency keys, and an audit record of actor, request, approval, and result.</p></details>
+        </div>
+        <p class="source">Sources: <a href="https://learn.microsoft.com/azure/foundry/agents/overview" target="_blank" rel="noopener noreferrer">Toolboxes and integrations</a><a href="https://learn.microsoft.com/azure/foundry/agents/concepts/networking-options" target="_blank" rel="noopener noreferrer">Tool support under network isolation</a></p>
+      </section>
+
+      <section class="panel" id="evaluation" data-chapter="Evaluation" data-title="Replace impressions with evidence" hidden>
+        <p class="eyebrow">04 / Prove</p>
+        <h2>A good demo is a start.<br><span class="accent">Not a release gate.</span></h2>
+        <div class="grid">
+          <article class="card"><h3>Quality</h3><p>Task completion, relevance, groundedness, citation correctness, tool choice, and argument accuracy. Inspect failures, not just averages.</p></article>
+          <article class="card"><h3>Safety &amp; access</h3><p>Unauthorized retrieval, injection attempts, excessive tool authority, sensitive information exposure, and appropriate refusal or escalation.</p></article>
+          <article class="card"><h3>Operations</h3><p>End-to-end p95 latency, errors, throttling, token and tool use, cost per successful task, and recovery from dependency failures.</p></article>
+        </div>
+        <div class="callout">Build a versioned dataset of normal, difficult, ambiguous, multilingual, and adversarial cases. Keep a holdout set. Version the model, prompts, tool contracts, data snapshot, and evaluator configuration together.</div>
+        <p class="lead">Use deterministic checks where possible, AI-assisted evaluators where useful, and human review for business-critical judgments. Judge-model scores are measurements with limitations, not certificates.</p>
+        <p class="source">Source: <a href="https://learn.microsoft.com/azure/foundry/concepts/observability" target="_blank" rel="noopener noreferrer">Evaluation, monitoring, and tracing</a></p>
+      </section>
+
+      <section class="panel" id="release-gate" data-chapter="Evaluation" data-title="Try a release gate" hidden>
+        <p class="eyebrow">04 / Interactive release rehearsal</p>
+        <h2>Higher average.<br><span class="accent">Still the wrong release?</span></h2>
+        <p class="lead">A fictional 100-case regression run. Change the task-success threshold, then choose which candidate to inspect.</p>
+        <div class="grid two">
+          <article class="card">
+            <label class="field">Minimum task success: <output id="threshold-label" for="threshold">90%</output><input id="threshold" type="range" min="80" max="100" step="1" value="90"></label>
+            <label class="field">Candidate<select id="candidate"><option value="baseline">Baseline / conservative tools</option><option value="fast">Candidate / broader tool access</option><option value="balanced">Candidate / scoped tools</option></select></label>
+            <div class="table-wrap"><table><caption class="fine">Fictional observed outcomes, not Foundry benchmarks</caption><thead><tr><th>Version</th><th>Task success</th><th>Unauthorized actions</th></tr></thead><tbody><tr><td>Baseline</td><td>88 / 100</td><td>0</td></tr><tr><td>Broader tools</td><td>96 / 100</td><td>1</td></tr><tr><td>Scoped tools</td><td>93 / 100</td><td>0</td></tr></tbody></table></div>
+          </article>
+          <div class="readout" aria-live="polite"><p class="status" id="gate-status"></p><h3 id="gate-title"></h3><p id="gate-detail"></p></div>
+        </div>
+        <div class="callout">For this exercise: task success must meet the chosen threshold <strong>and</strong> unauthorized actions must equal zero. Passing these two checks only makes a candidate eligible for further review; it does not prove production safety.</div>
+        <p class="source">Method context: <a href="https://learn.microsoft.com/azure/foundry/concepts/observability" target="_blank" rel="noopener noreferrer">Evaluation throughout the lifecycle</a> Thresholds and outcomes here are illustrative, not Microsoft defaults.</p>
+      </section>
+
+      <section class="panel" id="architecture" data-chapter="Architecture" data-title="Map the governance boundaries" hidden>
+        <p class="eyebrow">05 / Govern</p>
+        <h2>One platform.<br><span class="accent">Several trust boundaries.</span></h2>
+        <div class="boundary">
+          <p class="eyebrow">Conceptual Foundry resource boundary</p>
+          <p>Resource-level governance, networking, model deployments, and scoped access.</p>
+          <div class="grid two"><article class="card"><h3>Project: customer support</h3><p>Agents, files, evaluations, and project-level permissions.</p></article><article class="card"><h3>Project: operations</h3><p>Separate use-case assets and access within the parent resource.</p></article></div>
+        </div>
+        <div class="grid">
+          <article class="card"><h3>Application boundary</h3><p>User identity, tenant separation, UI, API access, business policy, and human approvals.</p></article>
+          <article class="card"><h3>Connected data boundary</h3><p>Search, Storage, Cosmos DB, Key Vault, and business systems have their own permissions, networking, retention, and charges.</p></article>
+          <article class="card"><h3>Telemetry boundary</h3><p>Application Insights and logs need access controls, redaction, sampling, retention, and an incident owner.</p></article>
+        </div>
+        <div class="callout">A project is a useful development and access boundary, not a substitute for every required isolation boundary. Where policy demands separate subscriptions, resources, networks, or environments, design that separation explicitly.</div>
+        <p class="source">Source: <a href="https://learn.microsoft.com/azure/foundry/concepts/architecture" target="_blank" rel="noopener noreferrer">Foundry architecture and resource hierarchy</a></p>
+      </section>
+
+      <section class="panel" id="network" data-chapter="Architecture" data-title="Private inbound is only half the story" hidden>
+        <p class="eyebrow">05 / Network and processing controls</p>
+        <h2>Private inbound.<br><span class="accent">What about outbound?</span></h2>
+        <div class="grid two">
+          <article class="card">
+            <label class="check"><input id="private-inbound" type="checkbox"><span>Callers reach Foundry through a private endpoint.</span></label>
+            <label class="check"><input id="private-outbound" type="checkbox"><span>Agent egress uses a supported isolated VNet configuration.</span></label>
+            <p class="fine">Concept explorer only. Each option represents a separately configured and verified network path, not a deployment switch.</p>
+          </article>
+          <div class="readout" id="network-result" aria-live="polite"></div>
+        </div>
+        <div class="grid two">
+          <article class="card"><h3>Verify the dependency chain</h3><p>Private DNS, routes, firewall rules, delegated subnets where required, private endpoints for connected resources, and tool support all matter. Test from the actual caller and agent runtime.</p></article>
+          <article class="card"><h3>Decide early</h3><p>Compare public egress, bring-your-own VNet, and managed VNet. Some networking choices are create-time constraints. Verify the supported configuration before provisioning.</p></article>
+        </div>
+        <div class="callout">Network isolation does not change model processing-location semantics or grant data permissions. Review all three independently: <strong>network reachability, authorization, and data handling.</strong></div>
+        <p class="source">Source: <a href="https://learn.microsoft.com/azure/foundry/agents/concepts/networking-options" target="_blank" rel="noopener noreferrer">Networking options and limitations</a></p>
+      </section>
+
+      <section class="panel" id="safety" data-chapter="Architecture" data-title="Layer the controls" hidden>
+        <p class="eyebrow">05 / Identity, safety, and data governance</p>
+        <h2>No single setting<br><span class="accent">makes an agent safe.</span></h2>
+        <div class="grid">
+          <article class="card"><h3>Identity &amp; authorization</h3><p>Separate developer permissions, runtime identities, and end-user authority. Distinguish management-plane from data-plane access. Scope roles and downstream permissions narrowly.</p></article>
+          <article class="card"><h3>Guardrails &amp; policy</h3><p>Configure supported input, output, and agent tool controls. Test assigned policies explicitly; do not assume agent and model policies combine additively.</p></article>
+          <article class="card"><h3>Information lifecycle</h3><p>Classify prompts, retrieved data, files, conversation state, and traces. Agree retention, deletion, encryption, residency, and external-tool data sharing.</p></article>
+        </div>
+        <div class="stack">
+          <details><summary>Do content filters enforce business authorization?</summary><p>No. Detection and filtering help with covered risks; they do not prove a user can view a record or approve a transfer. Enforce permissions and business rules in the application and tool service.</p></details>
+          <details><summary>Are all guardrails available for all agents and models?</summary><p>No. Coverage depends on model, agent type, intervention point, and feature status. Agent content-safety guardrails and tool-call/tool-response scanning include preview capabilities. Confirm the current support matrix and test the policy actually assigned to the agent.</p></details>
+          <details><summary>Can we log every prompt and tool result?</summary><p>Only under an approved data-handling policy. Traces can contain personal data, secrets, or protected business content. Prefer minimum necessary telemetry, supported redaction, restricted access, and explicit retention.</p></details>
+        </div>
+        <p class="source">Sources: <a href="https://learn.microsoft.com/azure/foundry/guardrails/guardrails-overview" target="_blank" rel="noopener noreferrer">Guardrail scope and override behavior</a><a href="https://learn.microsoft.com/azure/foundry/concepts/architecture" target="_blank" rel="noopener noreferrer">RBAC and data architecture</a></p>
+      </section>
+
+      <section class="panel" id="operations" data-chapter="Architecture" data-title="Operate the task, not just the model" hidden>
+        <p class="eyebrow">05 / Reliability and economics</p>
+        <h2>Count the whole task.<br><span class="accent">Not just one answer.</span></h2>
+        <div class="grid two">
+          <article class="card">
+            <label class="field">Tasks per day<input id="tasks" type="number" min="1" max="1000000" step="1" value="1000"></label>
+            <label class="field">Average model calls per task<input id="calls" type="number" min="1" max="100" step="1" value="3"></label>
+            <p class="fine">Illustrative assumption: each call uses 1,200 input and 300 output tokens, over 30 days. Input includes context/history for that call. No cache discount or retries assumed.</p>
+          </article>
+          <div class="readout" id="usage-result" aria-live="polite"></div>
+        </div>
+        <div class="grid">
+          <article class="card"><h3>Budget the dependencies</h3><p>Model tokens or provisioned capacity, hosted compute where applicable, search, tool services, storage, networking, telemetry, and evaluation calls. Apply current rates and your contract separately.</p></article>
+          <article class="card"><h3>Trace end to end</h3><p>Use OpenTelemetry and Application Insights integration to correlate model and tool calls. Alert on failures, latency, token growth, and quality drift.</p></article>
+          <article class="card"><h3>Engineer recovery</h3><p>Bound retries and loops. Test throttling, tool failures, safe degradation, rollback, and regional recovery. Alternate models and regions need their own validation.</p></article>
+        </div>
+        <div class="callout">Watch <strong>cost per successful authorized task</strong>, not cost per request alone. More tool steps can increase token use, latency, and failure exposure. Quota approval does not reserve deployable capacity.</div>
+        <p class="source">Sources: <a href="https://learn.microsoft.com/azure/foundry/concepts/observability" target="_blank" rel="noopener noreferrer">Monitoring and tracing</a><a href="https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types" target="_blank" rel="noopener noreferrer">Throughput and deployment choices</a><a href="https://learn.microsoft.com/azure/foundry/concepts/architecture" target="_blank" rel="noopener noreferrer">Recovery responsibilities</a></p>
+      </section>
+
+      <section class="panel" id="scenarios" data-chapter="Launch" data-title="Make the customer decision" hidden>
+        <p class="eyebrow">06 / Launch conversations</p>
+        <h2>Three situations.<br><span class="accent">Choose the next move.</span></h2>
+        <label class="field">Customer situation<select id="scenario"><option value="knowledge">The internal knowledge assistant</option><option value="action">The agent that changes orders</option><option value="regulated">The regulated production rollout</option></select></label>
+        <div class="grid two"><article class="card" id="scenario-context"></article><div class="stack" id="scenario-answers" role="group" aria-label="Choose a next step"></div></div>
+        <div class="readout" id="scenario-result" aria-live="polite"><p>Choose a next step to explore its consequences.</p></div>
+        <p class="fine">Fictional architecture exercises. The explanation is a conversation aid, not a service commitment or compliance assessment.</p>
+      </section>
+
+      <section class="panel" id="readiness" data-chapter="Launch" data-title="Take away a readiness plan" hidden>
+        <p class="eyebrow">06 / Your next steps</p>
+        <h2>Leave with a decision.<br><span class="accent">And an owner.</span></h2>
+        <p class="lead">Check the evidence you have prepared. An unchecked item is a conversation to finish, not something to hide behind a successful demo.</p>
+        <div class="grid two"><div class="card stack" id="checklist"></div><article class="card"><p class="stat" id="prepared">0 / 8</p><h3>Evidence areas prepared</h3><p>Self-assessment only. This is not an automated readiness assessment, approval, or production certification.</p><div class="actions"><button class="primary" id="download">Download plan</button><button id="view-plan">View / copy plan</button></div><p class="fine">Selections stay in this page's memory until reload. No Azure access, analytics, or background requests. Download a copy to retain your plan. Do not put sensitive data into this tour.</p></article></div>
+        <div class="callout"><strong>Agree the next milestone:</strong> use case and success measure, accountable owner, evidence gaps, review date, rollout boundary, rollback trigger, and operational handover.</div>
+      </section>
+
+      <section class="panel" id="resources" data-chapter="Launch" data-title="Continue with official guidance" hidden>
+        <p class="eyebrow">Reference library / Public Microsoft guidance</p>
+        <h2>Keep the principles.<br><span class="accent">Recheck the specifics.</span></h2>
+        <p class="lead">Use the current documentation for feature status, model/version support, regions, APIs, and pricing. The tour deliberately avoids hardcoded model recommendations and price promises.</p>
+        <div class="grid two" id="source-library"></div>
+        <p class="fine">Independent educational guide; not an official Microsoft publication. Sources reviewed 23 November 2026. Opens entirely offline except when you choose an external documentation link. Print / PDF includes every stop, using the currently selected interactive examples; expand any details you want printed.</p>
+        <div class="actions"><button data-go="readiness">Back to your plan</button><button data-go="welcome">Return to the beginning</button></div>
+      </section>
+    </main>
+  </div>
+  <footer>
+    <div class="progress"><span class="fine" id="position" aria-live="polite"></span><progress id="progress" max="18" value="1" aria-label="Journey position"></progress></div>
+    <div class="actions"><button id="previous">&larr; Back</button><button class="primary" id="next">Next &rarr;</button></div>
+  </footer>
+  <dialog id="map-dialog" aria-labelledby="map-title"><h2 id="map-title">Your journey map</h2><ol id="contents-list"></ol><form method="dialog" class="actions"><button>Close map</button></form></dialog>
+  <dialog id="plan-dialog" aria-labelledby="plan-title"><h2 id="plan-title">Your readiness plan</h2><label class="field" for="plan-text">Copyable planning checklist</label><textarea id="plan-text" readonly></textarea><div class="actions"><button id="copy-plan">Copy text</button><form method="dialog"><button>Close plan</button></form></div></dialog>
+  <div id="notice" role="status" hidden></div>
+  <script>
+    "use strict";
+    const $ = id => document.getElementById(id);
+    const panels = [...document.querySelectorAll(".panel")];
+    let current = 0;
+    let noticeTimer;
+    function notify(text) {
+      $("notice").textContent = text; $("notice").hidden = false;
+      clearTimeout(noticeTimer);
+      noticeTimer = setTimeout(() => { $("notice").hidden = true; }, 6500);
+    }
+    function showPanel(focus = true) {
+      const target = panels.findIndex(panel => `#${panel.id}` === location.hash);
+      current = target < 0 ? 0 : target;
+      panels.forEach((panel, index) => { panel.hidden = index !== current; });
+      document.querySelectorAll("[data-chapter]").forEach(node => {
+        if (node.tagName === "A") {
+          if (node.dataset.chapter === panels[current].dataset.chapter) node.setAttribute("aria-current", "step");
+          else node.removeAttribute("aria-current");
+        }
+      });
+      $("position").textContent = `${String(current + 1).padStart(2, "0")} / ${panels.length} - ${panels[current].dataset.title}`;
+      $("progress").max = panels.length; $("progress").value = current + 1;
+      $("previous").disabled = current === 0; $("next").disabled = current === panels.length - 1;
+      document.title = `${panels[current].dataset.title} | Microsoft Foundry Journey`;
+      if (focus) {
+        const heading = panels[current].querySelector("h1, h2");
+        heading.tabIndex = -1; heading.focus({ preventScroll: true });
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+    }
+    function go(id) {
+      if (location.hash === `#${id}`) showPanel();
+      else location.hash = id;
+    }
+    document.querySelector(".skip").addEventListener("click", event => {
+      event.preventDefault(); $("tour").focus(); $("tour").scrollIntoView();
+    });
+    window.addEventListener("hashchange", () => showPanel());
+    $("previous").addEventListener("click", () => { if (current > 0) go(panels[current - 1].id); });
+    $("next").addEventListener("click", () => { if (current < panels.length - 1) go(panels[current + 1].id); });
+    document.querySelectorAll("[data-go]").forEach(button => button.addEventListener("click", () => go(button.dataset.go)));
+    panels.forEach(panel => {
+      const li = document.createElement("li"), link = document.createElement("a");
+      link.href = `#${panel.id}`; link.textContent = panel.dataset.title;
+      link.addEventListener("click", () => { $("map-dialog").close(); go(panel.id); });
+      li.append(link); $("contents-list").append(li);
+    });
+    $("contents").addEventListener("click", () => $("map-dialog").showModal());
+    function updateThemeButton() { $("theme").setAttribute("aria-pressed", String(document.documentElement.dataset.theme === "dark")); }
+    $("theme").addEventListener("click", () => {
+      document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      updateThemeButton();
+    });
+    $("print").addEventListener("click", () => window.print());
+    document.addEventListener("keydown", event => {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || document.querySelector("dialog[open]") || event.target.closest("input, select, textarea, button, a, summary, [contenteditable]")) return;
+      if (event.key === "ArrowRight" && current < panels.length - 1) { event.preventDefault(); go(panels[current + 1].id); }
+      if (event.key === "ArrowLeft" && current > 0) { event.preventDefault(); go(panels[current - 1].id); }
+    });
+    function readout(id, title, text, note) {
+      const heading = document.createElement("h3"), body = document.createElement("p");
+      heading.textContent = title; body.textContent = text;
+      $(id).replaceChildren(heading, body);
+      if (note) { const extra = document.createElement("p"); extra.className = "fine"; extra.textContent = note; $(id).append(extra); }
+    }
+    const modelAdvice = {
+      extract: ["Start with a fixed, measurable baseline.", "Compare a smaller capable model or a document-processing service against a stronger candidate. Measure field-level accuracy, schema validation, exceptions, and cost on representative documents. An agent loop may add little value."],
+      reason: ["Evaluate the complete tool-using task.", "Compare supported reasoning and tool-calling candidates on task success, argument accuracy, authorized actions, tail latency, and total cost. Start with narrow tools and a step budget; more reasoning is not automatically a better customer outcome."],
+      knowledge: ["Test retrieval before changing model size.", "Use authoritative, permission-aware retrieval with citations. Measure retrieval relevance, answer groundedness, abstention, and access isolation. A larger model cannot repair missing evidence or an unauthorized search result."]
+    };
+    function updateModel() { readout("model-result", ...modelAdvice[$("workload").value]); }
+    $("workload").addEventListener("change", updateModel);
+    const scopes = {
+      global: "Prompts and responses can be processed globally. A resource deployed in one location does not confine Global inference there.",
+      zone: "Processing stays within the Microsoft-defined data zone, not one chosen region or country. Check the current zone definition and model support.",
+      geography: "Standard and Regional Provisioned processing stays within the specified Azure geography; operational processing can cross regions within that geography."
+    };
+    const purchases = {
+      standard: "Pay per token. Validate model-specific TPM/RPM limits, load behavior, and latency under representative traffic.",
+      provisioned: "Provisioned throughput uses PTUs. Size for the model/version and workload; there is no universal PTU-to-TPM conversion. Available quota alone does not secure capacity.",
+      batch: "Asynchronous processing for delay-tolerant work. Validate support, enqueued-token limits, turnaround targets, and current pricing."
+    };
+    function updateDeployment() {
+      const scope = $("processing").value, purchase = $("purchase").value;
+      if (scope === "geography" && purchase === "batch") {
+        readout("deployment-result", "No geography-scoped Batch category in this comparison.", "The documented Batch options here are Global Batch and Data Zone Batch. Do not silently relax a geography requirement; investigate a supported compliant alternative.", "Availability remains model-, version-, region-, and subscription-dependent.");
+        return;
+      }
+      const names = { global: "Global", zone: "Data Zone", geography: "Geography-scoped" };
+      readout("deployment-result", `${names[scope]} / ${$("purchase").selectedOptions[0].textContent}`, scopes[scope], purchases[purchase]);
+    }
+    [$("processing"), $("purchase")].forEach(select => select.addEventListener("change", updateDeployment));
+    const agentAdvice = {
+      prompt: ["Prompt agent / configuration-first", "Define instructions, a supported model, and tools; Foundry manages the runtime. Useful when you do not need custom orchestration code.", "A prompt agent can optionally use the Microsoft Copilot harness (preview) for supported multi-step tools, skills, files, and command workflows. This is an explicit choice, not a property of every prompt agent."],
+      hosted: ["Hosted agent / code-first", "Bring your code and framework, packaged for Foundry hosting. Foundry provides managed hosting, endpoints, scaling, and identity; you own agent logic, dependencies, and application behavior.", "Use for custom orchestration or code integrations. Include container/runtime compute in the cost model, alongside inference and tools."],
+      voice: ["Voice-based prompt agent / real-time speech", "Configure a spoken experience and connect through Voice Live. Foundry manages the voice orchestration and agent lifecycle; you still design identity, interruption behavior, tools, escalation, and consent.", "Confirm supported models, regions, transport, channels, and feature status for your voice scenario. Voice and text flows have different latency and cost considerations."],
+      app: ["Existing application / API-led integration", "Keep orchestration in your application and use supported model and tool APIs. For a fixed task, a direct model call may be sufficient; a saved Foundry agent resource is not always necessary.", "You operate the application's hosting, state, retry logic, deployment, and integration with observability. Compare this with managed Agent Service rather than assuming either is mandatory."]
+    };
+    document.querySelectorAll("[data-agent]").forEach(button => button.addEventListener("click", () => {
+      document.querySelectorAll("[data-agent]").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
+      readout("agent-result", ...agentAdvice[button.dataset.agent]);
+    }));
+    function updateGate() {
+      const candidates = { baseline: [88, 0], fast: [96, 1], balanced: [93, 0] };
+      const [success, unauthorized] = candidates[$("candidate").value];
+      const threshold = Number($("threshold").value), quality = success >= threshold, pass = quality && unauthorized === 0;
+      $("threshold-label").value = `${threshold}%`;
+      $("gate-status").textContent = pass ? "PASS THESE TWO CHECKS" : "HOLD THIS RELEASE";
+      $("gate-status").className = `status ${pass ? "pass" : "fail"}`;
+      $("gate-title").textContent = `${success}% task success / ${unauthorized} unauthorized action${unauthorized === 1 ? "" : "s"}`;
+      $("gate-detail").textContent = unauthorized > 0
+        ? "The authorization gate fails regardless of the quality threshold. Investigate and fix the permission boundary, then rerun the regression set."
+        : !quality ? `Task success is below the ${threshold}% threshold. Inspect failed cases and improve the system; do not lower a real release threshold just to pass.`
+          : "Eligible for further review in this exercise. Still check safety coverage, access tests, representative load, cost, recovery, and human sign-off. Zero failures in 100 cases does not establish zero risk.";
+    }
+    [$("threshold"), $("candidate")].forEach(input => input.addEventListener("input", updateGate));
+    function updateNetwork() {
+      const inbound = $("private-inbound").checked, outbound = $("private-outbound").checked;
+      if (outbound && !inbound) readout("network-result", "Incomplete isolated configuration.", "The supported VNet-isolated patterns also use private inbound access. Outbound isolation without the required private endpoint is not a complete supported topology in this explorer.");
+      else if (inbound && outbound) readout("network-result", "Both paths are modeled as private.", "Now verify DNS, routing, supported tools, connected resources, identity, and permitted egress. This describes a design target, not a deployed or tested configuration.");
+      else if (inbound) readout("network-result", "Inbound restricted. Egress remains public.", "A private endpoint controls how callers reach Foundry. With public egress, the agent can still reach public destinations; that private endpoint alone does not isolate outbound tool traffic.");
+      else readout("network-result", "Public networking baseline.", "The endpoint is publicly reachable subject to authentication and authorization. Agent egress is not VNet-isolated. Do not treat credentials or a project boundary as private networking.");
+    }
+    [$("private-inbound"), $("private-outbound")].forEach(input => input.addEventListener("change", updateNetwork));
+    function updateUsage() {
+      const inputs = [$("tasks"), $("calls")];
+      if (inputs.some(input => !input.validity.valid || input.value.trim() === "")) {
+        readout("usage-result", "Enter valid whole-number inputs.", "Tasks must be 1-1,000,000 per day and model calls must be 1-100 per task. No estimate is shown for invalid values.");
+        return;
+      }
+      const calls = Number($("tasks").value) * Number($("calls").value) * 30;
+      const format = value => value.toLocaleString("en-US");
+      readout("usage-result", `${format(calls)} model calls / month`, `${format(calls * 1200)} input tokens + ${format(calls * 300)} output tokens.`, "Workload arithmetic only, not a price quote or capacity estimate. Retries, longer histories, embeddings, evaluation, tools, and infrastructure add consumption.");
+    }
+    [$("tasks"), $("calls")].forEach(input => input.addEventListener("input", updateUsage));
+    const scenarios = {
+      knowledge: {
+        title: "The internal knowledge assistant",
+        context: "The pilot answers policy questions well. Employees have different document permissions, and the team proposes indexing everything under one broad service account.",
+        answers: ["Launch now; citations demonstrate permission.", "Enforce permission-aware retrieval and test users with different access.", "Use a larger model to hide restricted details."],
+        reasons: ["A citation is evidence of a source, not proof the caller may see it. Enforce access before retrieved content reaches the model.", "A sound next step. Preserve access metadata, enforce the authorized user scope, and test cross-user isolation, stale permissions, deletion, citations, and abstention.", "Model size does not enforce document permissions. Authorization belongs in the retrieval and service layers, not a hope that the model will suppress restricted text."], best: 1
+      },
+      action: {
+        title: "The agent that changes orders",
+        context: "The agent can update an order and issue a refund. In a timeout test, a retry creates the refund twice. The team wants to solve this only by changing the prompt.",
+        answers: ["Add idempotent execution, narrow permissions, and explicit approval for consequential actions.", "Tell the model never to repeat itself, then launch.", "Remove all timeouts and let the loop continue until success."],
+        reasons: ["A sound next step. Use a server-enforced idempotency key and transaction/reconciliation design, validate arguments and authorization, bind approval to the action, and test timeout-after-success behavior.", "Instructions may help behavior but cannot guarantee exactly-once business effects. Fix the mutation API and retry contract, then rerun the failure cases.", "An unbounded loop can increase exposure, latency, and spend while still duplicating side effects. Keep bounded retries and provide a safe escalation path."], best: 0
+      },
+      regulated: {
+        title: "The regulated production rollout",
+        context: "The Foundry resource is in an approved region and has a private endpoint. Its model uses Global Standard, and an external tool sends data to another service.",
+        answers: ["Approve: the resource region controls all processing.", "Approve: a private endpoint prevents external tool calls.", "Review model processing scope, egress, tool data handling, and all dependent stores."],
+        reasons: ["Global inference is not confined to the resource's region. Validate the deployment's processing scope and all other data flows against the actual requirement.", "The private endpoint restricts inbound connectivity; it does not by itself isolate agent egress or establish an external service's data handling.", "A sound next step. Map every data flow, select supported compliant processing and network configurations, confirm tool terms and access, and obtain the required review before rollout."], best: 2
+      }
+    };
+    function updateScenario() {
+      const item = scenarios[$("scenario").value];
+      readout("scenario-context", item.title, item.context);
+      readout("scenario-result", "Your next move", "Choose a next step to explore its consequences.");
+      $("scenario-answers").replaceChildren();
+      item.answers.forEach((answer, index) => {
+        const button = document.createElement("button"); button.className = "answer"; button.textContent = `${String.fromCharCode(65 + index)}. ${answer}`; button.setAttribute("aria-pressed", "false");
+        button.addEventListener("click", () => {
+          $("scenario-answers").querySelectorAll("button").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
+          readout("scenario-result", index === item.best ? "A stronger next step." : "Revisit the assumption.", item.reasons[index]);
+        });
+        $("scenario-answers").append(button);
+      });
+    }
+    $("scenario").addEventListener("change", updateScenario);
+    const planItems = [
+      "Outcome: define the use case, accountable owner, authorized users, success measures, and excluded actions.",
+      "Model: record model/version, supported agent integration, deployment type, processing boundary, quota, capacity checks, and lifecycle plan.",
+      "Knowledge: identify authoritative sources, permission-aware retrieval, citations, refresh, retention, and deletion behavior.",
+      "Actions: document tool contracts, runtime identity, end-user authorization, approval, idempotency, and step/time limits.",
+      "Evidence: version representative and adversarial datasets, thresholds, failure analysis, holdout results, and human review.",
+      "Governance: review resource/project boundaries, private inbound and egress paths, connected-service controls, and data handling.",
+      "Operations: agree end-to-end traces, redaction, quality/latency/cost alerts, dependency recovery, rollback, and on-call ownership.",
+      "Rollout: approve a bounded pilot, budget and usage limits, escalation path, review date, and criteria to expand or stop."
+    ];
+    planItems.forEach(text => {
+      const label = document.createElement("label"); label.className = "check";
+      const input = document.createElement("input"); input.type = "checkbox";
+      const span = document.createElement("span"); span.textContent = text; label.append(input, span); $("checklist").append(label);
+      input.addEventListener("change", () => { $("prepared").textContent = `${$("checklist").querySelectorAll("input:checked").length} / ${planItems.length}`; });
+    });
+    const sources = [
+      ["Foundry overview", "Platform concepts, development surfaces, and classic versus new experiences.", "https://learn.microsoft.com/azure/foundry/what-is-foundry"],
+      ["Agent Service", "Prompt, hosted, and voice agents, tools, runtime, and ownership.", "https://learn.microsoft.com/azure/foundry/agents/overview"],
+      ["Model deployment types", "Processing locations, Standard, provisioned throughput, Batch, and support constraints.", "https://learn.microsoft.com/azure/foundry/foundry-models/concepts/deployment-types"],
+      ["Architecture", "Resources, projects, connected services, RBAC, data storage, and recovery.", "https://learn.microsoft.com/azure/foundry/concepts/architecture"],
+      ["Observability", "Evaluation, OpenTelemetry tracing, monitoring, and consumption considerations.", "https://learn.microsoft.com/azure/foundry/concepts/observability"],
+      ["Networking options", "Inbound versus egress, public, BYO VNet, managed VNet, and tool limitations.", "https://learn.microsoft.com/azure/foundry/agents/concepts/networking-options"],
+      ["Guardrails and controls", "Supported risks, intervention points, preview features, and policy override behavior.", "https://learn.microsoft.com/azure/foundry/guardrails/guardrails-overview"]
+    ];
+    sources.forEach(([title, description, url]) => {
+      const card = document.createElement("article"); card.className = "card";
+      const heading = document.createElement("h3"), link = document.createElement("a"), text = document.createElement("p");
+      link.textContent = `${title} \u2197`; link.href = url; link.target = "_blank"; link.rel = "noopener noreferrer";
+      text.textContent = description; heading.append(link); card.append(heading, text); $("source-library").append(card);
+    });
+    function planText() {
+      const checks = [...$("checklist").querySelectorAll("input")];
+      return [
+        "MICROSOFT FOUNDRY - CUSTOMER READINESS PLAN", `Created: ${new Date().toISOString()}`,
+        "Self-assessment and planning aid only. Not deployment validation, compliance approval, or a production certification.",
+        "", ...planItems.map((text, index) => `${checks[index].checked ? "[x]" : "[ ]"} ${text}`),
+        "", "AGREE IN YOUR AUTHORIZED PLANNING SYSTEM", "Use case: [agree]", "Accountable owner: [agree]",
+        "Evidence gaps: [record]", "Review date: [agree]", "Pilot boundary: [agree]", "Rollback trigger: [agree]",
+        "", "PUBLIC MICROSOFT REFERENCES (reviewed 2026-11-23)", ...sources.map(([title, , url]) => `${title}: ${url}`),
+        "", "Verify current model, region, agent, API, preview status, and commercial terms before implementation."
+      ].join("\r\n");
+    }
+    $("download").addEventListener("click", () => {
+      const url = URL.createObjectURL(new Blob([planText()], { type: "text/plain;charset=utf-8" }));
+      const link = document.createElement("a"); link.href = url; link.download = "microsoft-foundry-customer-readiness.txt";
+      document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      notify("Plan download requested. If downloads are blocked, use View / copy plan.");
+    });
+    $("view-plan").addEventListener("click", () => { $("plan-text").value = planText(); $("plan-dialog").showModal(); });
+    $("copy-plan").addEventListener("click", async () => {
+      try {
+        if (!navigator.clipboard) throw new Error("Clipboard API unavailable.");
+        await navigator.clipboard.writeText($("plan-text").value); notify("Readiness plan copied.");
+      } catch (error) {
+        console.warn("Clipboard copy unavailable:", error);
+        $("plan-text").focus(); $("plan-text").select();
+        notify("Automatic copy is unavailable. The text is selected; use your device's copy command.");
+      }
+    });
+    updateThemeButton(); updateModel(); updateDeployment(); readout("agent-result", ...agentAdvice.prompt);
+    updateGate(); updateNetwork(); updateUsage(); updateScenario(); showPanel(false);
+  </script>
+</body>
+</html>

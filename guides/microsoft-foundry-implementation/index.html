@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A bottom-up Microsoft Foundry implementation guide for architects and engineers: projects, identity, models, retrieval, tools, runtimes, voice, assurance, operations, and governance.">
+  <title>Foundry, From the Ground Up | Implementation Field Guide</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--cp-bg); color: var(--cp-text); font: 16px/1.65 "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; }
+    a { color: var(--cp-link); text-underline-offset: 4px; }
+    h1, h2, h3, p { margin: 0; }
+    h1, h2 { line-height: 1.08; letter-spacing: -.045em; font-weight: 750; }
+    h1 { font-size: clamp(42px, 5.6vw, 78px); } h2 { font-size: clamp(32px, 3.8vw, 54px); } h3 { font-size: 19px; line-height: 1.3; }
+    button, input, select, textarea { font: inherit; }
+    button, .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; min-height: 44px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; color: var(--cp-text); background: var(--cp-surface); cursor: pointer; font-size: 14px; font-weight: 650; text-decoration: none; }
+    button:hover, .button:hover { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    button.primary, button[aria-pressed="true"] { border-color: var(--cp-accent); background: var(--cp-accent); color: var(--cp-accent-fg); }
+    button:disabled { opacity: .4; cursor: default; }
+    :focus-visible { outline: 3px solid var(--cp-accent); outline-offset: 4px; }
+    header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 28px; border-bottom: 1px solid var(--cp-border); background: var(--cp-bg-elevated); }
+    .wordmark { font-weight: 750; letter-spacing: -.02em; }
+    .wordmark small { display: block; color: var(--cp-text-soft); text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 500; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: calc(100dvh - 156px); }
+    aside { padding: 24px 12px; min-width: 0; border-right: 1px solid var(--cp-border); }
+    aside nav { position: sticky; top: 16px; display: grid; gap: 4px; }
+    aside a { display: block; text-decoration: none; color: var(--cp-text-soft); padding: 8px 12px; font-size: 13px; border: 1px solid var(--cp-bg); border-radius: .625rem; }
+    aside a[aria-current="step"] { border-color: var(--cp-accent); background: var(--cp-accent-soft); color: var(--cp-accent); font-weight: 700; }
+    main { min-width: 0; }
+    .panel { max-width: 1380px; margin: auto; padding: 44px clamp(20px, 3.8vw, 60px) 52px; display: grid; gap: 24px; min-height: calc(100dvh - 158px); align-content: center; }
+    .eyebrow { color: var(--cp-accent); font-size: 12px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    .lead { max-width: 1000px; font-size: clamp(18px, 1.8vw, 22px); color: var(--cp-text-soft); }
+    .fine, .sources { font-size: 13px; color: var(--cp-text-soft); }
+    .sources { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+    #source-list p { overflow-wrap: anywhere; }
+    .accent { color: var(--cp-accent); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card { min-width: 0; display: grid; align-content: start; gap: 12px; padding: 24px; border: 1px solid var(--cp-border); border-radius: 16px; background: var(--cp-surface); }
+    .card p, .card li { font-size: 15px; color: var(--cp-text-soft); }
+    .callout { padding: 16px 20px; border-left: 3px solid var(--cp-accent); border-radius: .625rem; background: var(--cp-accent-soft); font-size: 15px; }
+    .callout.warning { border-color: var(--cp-warning); }
+    .steps { margin: 0; padding-left: 24px; display: grid; gap: 12px; }
+    .steps li { padding-left: 4px; }
+    .steps li::marker { color: var(--cp-accent); font-weight: 750; }
+    .stack { display: grid; gap: 12px; }
+    .flow { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+    .node { min-width: 130px; flex: 1; padding: 16px; border: 1px solid var(--cp-border); border-radius: .625rem; background: var(--cp-surface); }
+    .node b, .node small { display: block; } .node small { color: var(--cp-text-soft); font-size: 12px; }
+    .arrow { align-self: center; color: var(--cp-accent); }
+    .boundary { padding: 20px; border: 1px dashed var(--cp-accent); border-radius: 16px; display: grid; gap: 16px; }
+    code, pre, textarea { font-family: Consolas, "Courier New", Courier, monospace; }
+    code { font-size: .88em; background: var(--cp-surface-soft); color: var(--cp-text); padding: 2px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    pre { max-width: 100%; overflow-x: auto; padding: 20px; border: 1px solid var(--cp-border); border-radius: .625rem; background: var(--cp-surface); font-size: 13px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .table-wrap { max-width: 100%; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { padding: 12px; border-bottom: 1px solid var(--cp-border); text-align: left; vertical-align: top; }
+    td { color: var(--cp-text-soft); } th { font-weight: 700; }
+    .badge { display: inline-flex; width: fit-content; padding: 3px 10px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; font-size: 11px; font-weight: 650; color: var(--cp-text-soft); }
+    .readout { padding: 24px; border: 1px solid var(--cp-accent); background: var(--cp-bg-elevated); border-radius: 16px; display: grid; gap: 12px; }
+    .readout p { color: var(--cp-text-soft); }
+    label.field { display: grid; gap: 8px; font-weight: 650; font-size: 14px; }
+    input[type="text"], input[type="search"], input[type="number"], select, textarea { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; color: var(--cp-text); background: var(--cp-bg-elevated); }
+    input[type="range"] { width: 100%; min-height: 36px; accent-color: var(--cp-accent); }
+    input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; margin-top: 3px; accent-color: var(--cp-accent); }
+    .check { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 14px; }
+    .stat { color: var(--cp-accent); font-size: 42px; font-weight: 750; letter-spacing: -.04em; }
+    .pass { color: var(--cp-success); } .fail { color: var(--cp-danger); }
+    details { padding: 16px 20px; border: 1px solid var(--cp-border); border-radius: .625rem; background: var(--cp-surface); }
+    summary { font-weight: 650; cursor: pointer; } details p { margin-top: 12px; color: var(--cp-text-soft); }
+    .answer { justify-content: flex-start; text-align: left; width: 100%; }
+    footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 28px; background: var(--cp-bg-elevated); border-top: 1px solid var(--cp-border); }
+    .progress { flex: 1; min-width: 200px; max-width: 650px; display: grid; gap: 4px; }
+    progress { width: 100%; height: 6px; accent-color: var(--cp-accent); }
+    dialog { width: min(940px, calc(100% - 32px)); max-height: 85dvh; overflow: auto; border: 1px solid var(--cp-border-strong); border-radius: 16px; padding: 24px; color: var(--cp-text); background: var(--cp-surface); }
+    dialog::backdrop { background: var(--cp-overlay); } dialog h2 { font-size: 30px; margin-bottom: 20px; }
+    #map-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; padding-left: 24px; font-size: 14px; }
+    dialog .actions { margin-top: 16px; } dialog textarea { height: 320px; font-size: 13px; }
+    #notice { position: fixed; bottom: 96px; left: 20px; right: 20px; margin: auto; max-width: 800px; padding: 12px 20px; z-index: 20; border: 1px solid var(--cp-accent); border-radius: .625rem; background: var(--cp-surface); }
+    .skip { position: fixed; top: -90px; left: 16px; z-index: 30; padding: 12px; background: var(--cp-surface); } .skip:focus { top: 8px; }
+    .empty { padding: 24px; border: 1px dashed var(--cp-border-strong); }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      aside { border-right: 0; border-bottom: 1px solid var(--cp-border); padding: 8px 16px; }
+      aside nav { display: flex; overflow-x: auto; position: static; } aside a { white-space: nowrap; }
+      .panel { min-height: calc(100dvh - 226px); }
+    }
+    @media (max-width: 700px) {
+      header, footer { padding: 16px; } .grid, .two, #map-list { grid-template-columns: 1fr; }
+      .panel { padding: 28px 20px 36px; } .card { padding: 20px; }
+      footer .progress { flex-basis: 100%; } .arrow { display: none; }
+      .flow { display: grid; grid-template-columns: 1fr; }
+    }
+    @media print {
+      header, aside, footer, .actions, dialog, #notice, .skip, .lab-controls { display: none !important; }
+      .layout { display: block; }
+      .panel, .panel[hidden] { display: grid !important; min-height: 0; break-before: page; padding: 24px 0; }
+      .panel:first-child { break-before: auto; } h1 { font-size: 44px; } h2 { font-size: 32px; }
+      .card, .readout { break-inside: avoid; } a { overflow-wrap: anywhere; }
+      #atlas-results .card[hidden] { display: grid !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#tour">Skip to current stop</a>
+  <header><a class="wordmark" href="../../index.html" aria-label="Back to all customer guides" title="All customer guides" style="color:var(--cp-text);text-decoration:none">Foundry, from the ground up<small>Implementation / For architects and engineers</small></a><div class="actions"><button id="map-open">All stops</button><button id="atlas-open">Capability atlas</button><button id="theme" aria-pressed="false">Dark theme</button><button id="print">Print / PDF</button></div></header>
+  <noscript><p>This guide requires JavaScript to build its chapters and interactive architecture rehearsals. Enable it and reload. The file makes no background network requests.</p></noscript>
+  <div class="layout"><aside><nav id="chapters" aria-label="Bottom-up learning layers"></nav></aside><main id="tour" tabindex="-1"></main></div>
+  <footer><div class="progress"><span id="position" class="fine" aria-live="polite"></span><progress id="progress" max="1" value="1" aria-label="Guide position"></progress></div><div class="actions"><button id="back">&larr; Back</button><button id="next" class="primary">Next &rarr;</button></div></footer>
+  <dialog id="map-dialog" aria-labelledby="map-title"><h2 id="map-title">Bottom-up journey</h2><ol id="map-list"></ol><form method="dialog" class="actions"><button>Close map</button></form></dialog>
+  <dialog id="plan-dialog" aria-labelledby="plan-title"><h2 id="plan-title">Implementation evidence plan</h2><label class="field" for="plan-text">Copyable checklist</label><textarea id="plan-text" readonly></textarea><div class="actions"><button id="copy">Copy text</button><form method="dialog"><button>Close plan</button></form></div></dialog>
+  <div id="notice" role="status" hidden></div>
+  <script>
+    "use strict";
+    const $ = id => document.getElementById(id);
+    const base = "https://learn.microsoft.com/azure/foundry/";
+    const refs = {
+      scope: ["Capability reference", base + "concepts/capability-reference"],
+      ga: ["Feature readiness", base + "concepts/general-availability"],
+      projects: ["Create projects", base + "how-to/create-projects"],
+      architecture: ["Resource architecture", base + "concepts/architecture"],
+      roles: ["Foundry RBAC", base + "concepts/rbac-foundry"],
+      identity: ["Agent identity", base + "agents/concepts/agent-identity"],
+      delegate: ["User delegation", base + "agents/how-to/configure-user-delegation"],
+      network: ["Networking options", base + "agents/concepts/networking-options"],
+      private: ["Private connectivity", base + "how-to/configure-private-link"],
+      models: ["Models overview", base + "concepts/foundry-models-overview"],
+      deployment: ["Deployment types", base + "foundry-models/concepts/deployment-types"],
+      compute: ["Managed compute", base + "concepts/managed-compute-overview"],
+      router: ["Model router", base + "openai/concepts/model-router"],
+      tune: ["Fine-tuning", base + "openai/how-to/fine-tuning"],
+      iq: ["Foundry IQ", base + "agents/concepts/what-is-foundry-iq"],
+      kb: ["Create a knowledge base", "https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-create-knowledge-base"],
+      pipeline: ["Retrieval implementation", "https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-create-pipeline"],
+      acl: ["Document permissions", "https://learn.microsoft.com/azure/search/search-document-level-access-overview"],
+      mcp: ["MCP integration", base + "agents/how-to/tools/model-context-protocol"],
+      toolbox: ["Toolbox architecture", base + "agents/concepts/toolbox-overview"],
+      toolauth: ["Toolbox authentication", base + "agents/how-to/tools/tool-authentication"],
+      hostedtools: ["Hosted Toolbox integration", base + "agents/how-to/tools/use-toolbox-hosted-agent"],
+      agents: ["Agent Service", base + "agents/overview"],
+      runtime: ["Runtime components", base + "agents/concepts/runtime-components"],
+      hosted: ["Hosted agents", base + "agents/concepts/hosted-agents"],
+      harness: ["Copilot harness", base + "agents/how-to/use-tools-skills-copilot-harness"],
+      memory: ["Memory", base + "agents/concepts/what-is-memory"],
+      routines: ["Routines", base + "agents/concepts/routines"],
+      workflows: ["Workflow retirement", base + "agents/concepts/workflow"],
+      voice: ["Voice quickstart", base + "agents/quickstarts/prompt-voice-agent"],
+      voiceconfig: ["Voice configuration", base + "agents/how-to/configure-voice-agent"],
+      live: ["GPT-Live", base + "agents/how-to/gpt-live-integration"],
+      phone: ["Telephony channels", base + "agents/how-to/voice-agent-telephony-channels"],
+      observe: ["Observability", base + "concepts/observability"],
+      optimize: ["Agent optimizer", base + "agents/concepts/agent-optimizer-overview"],
+      guards: ["Guardrails", base + "guardrails/guardrails-overview"],
+      governance: ["Foundry governance", base + "control-plane/overview"],
+      costs: ["Cost controls", base + "concepts/cost-controls"],
+      ignite: ["Ignite 2026 Book of News", "https://news.microsoft.com/events/ignite/2026/book-of-news/"],
+      improvement26: ["Ignite: continuous improvement, 17 Nov", "https://azure.microsoft.com/en-us/blog/continuous-improvement-comes-to-microsoft-foundry/"],
+      models26: ["Ignite: models and training, 17 Nov", "https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/from-model-choice-to-your-durable-advantage-build-ai-that-keeps-improving/4573609"],
+      iq26: ["Ignite: knowledge graphs and retrieval, 17 Nov", "https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/foundry-iq-introducing-knowledge-graphs-engineered-for-agents/4572683"],
+      microsoftiq26: ["Ignite: Microsoft IQ, 17 Nov", "https://azure.microsoft.com/en-us/blog/introducing-the-new-microsoft-iq-putting-your-organizations-intelligence-to-work-in-every-agent/"],
+      agents26: ["Ignite: Agent Service, 18 Nov", "https://devblogs.microsoft.com/foundry/whats-new-in-foundry-agent-service-at-ignite-2026/"],
+      hosted26: ["Ignite: hosted agents, 18 Nov", "https://devblogs.microsoft.com/foundry/hosted-agents-foundry-agent-service-ignite-2026/"],
+      tools26: ["Ignite: tools and Toolboxes, 18 Nov", "https://devblogs.microsoft.com/foundry/build-once-reuse-across-your-agent-fleet-tools-and-toolboxes-in-foundry/"],
+      browser26: ["Ignite: Browser Automation, 18 Nov", "https://devblogs.microsoft.com/foundry/browser-automation-tool-ignite/"],
+      devpack26: ["Ignite: Foundry Dev Pack, 18 Nov", "https://devblogs.microsoft.com/foundry/the-foundry-dev-pack-is-here-build-foundry-agents-your-way/"],
+      voice26: ["Ignite: Voice Agents GA, 18 Nov", "https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/voice-agents-in-microsoft-foundry-agent-service-now-generally-available/4573013"],
+      autonomous26: ["Ignite: autonomous agents, 19 Nov", "https://devblogs.microsoft.com/foundry/build-trusted-autonomous-agents-for-your-team-with-microsoft-foundry/"],
+      compute26: ["Ignite: Managed Compute GA, 20 Nov", "https://devblogs.microsoft.com/foundry/managed-compute-ga/"],
+      aks26: ["Ignite: AI on AKS, 17 Nov", "https://techcommunity.microsoft.com/blog/appsonazureblog/run-models-and-agents-on-your-own-kubernetes-clusters-aks-at-microsoft-ignite-20/4573912"],
+      local26: ["Ignite: Sovereign Private Cloud, 17 Nov", "https://techcommunity.microsoft.com/blog/azurearcblog/whats-new-with-sovereign-private-cloud-at-microsoft-ignite-2026/4573886"],
+      gateway26: ["Ignite: Azure AI Gateway GA, 17 Nov", "https://techcommunity.microsoft.com/blog/integrationsonazureblog/azure-ai-gateway-is-now-generally-available-ship-faster-stay-in-control/4572644"],
+      connectors26: ["Ignite: Connector Namespace GA, 17 Nov", "https://techcommunity.microsoft.com/blog/integrationsonazureblog/connector-namespace-is-generally-available/4573019"],
+      controls26: ["Ignite: Agent Controls, 18 Nov", "https://commandline.microsoft.com/introducing-agent-controls-an-enterprise-control-plane-for-agent-behavior/"],
+      governance26: ["Ignite: governance capability/status examples", "https://github.com/microsoft-foundry/ignite-2026-demos/tree/main/foundry-and-a365"],
+      content: ["Content Understanding", "https://learn.microsoft.com/azure/ai-services/content-understanding/overview"]
+    };
+    const layers = [
+      ["Start", "Scope & release ledger"], ["Foundation", "01 / Projects & networks"], ["Identity", "02 / Principals & authority"],
+      ["Models", "03 / Serving & customization"], ["Knowledge", "04 / Retrieval & knowledge"],
+      ["Tools", "05 / MCP & Toolbox"], ["Runtime", "06 / Agent execution"], ["Voice", "07 / Voice & multimodal"],
+      ["Assurance", "08 / Evaluation & safety"], ["Operations", "09 / Operate & recover"], ["Enterprise", "10 / Ship & govern"], ["Reference", "11 / Labs & capability atlas"]
+    ];
+    function esc(value) { return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character])); }
+    const cards = items => `<div class="grid${items.length === 2 ? " two" : ""}">${items.map(([h,p])=>`<article class="card"><h3>${h}</h3><p>${p}</p></article>`).join("")}</div>`;
+    const steps = items => `<ol class="steps">${items.map(text=>`<li>${text}</li>`).join("")}</ol>`;
+    const note = text => `<div class="callout">${text}</div>`;
+    const flow = items => `<div class="flow">${items.map(([a,b],i)=>`${i ? '<span class="arrow" aria-hidden="true">&rarr;</span>' : ""}<div class="node"><b>${a}</b><small>${b}</small></div>`).join("")}</div>`;
+    const table = (heads, rows) => `<div class="table-wrap"><table><thead><tr>${heads.map(h=>`<th scope="col">${h}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(cell=>`<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const stops = [];
+    function add(id, layer, title, lead, content, sources, status = "Implementation pattern") { stops.push({ id, layer, title, lead, content, sources, status }); }
+
+    add("welcome", "Start", "Build it from the trust boundary up.", "For architects and engineers: make the right principal, endpoint, data contract, and runtime work together, then prove that they fail safely.", `
+      ${flow([["Foundation","Resource + project + network"],["Authority","Caller + agent + downstream"],["Capability","Models + knowledge + tools"],["Experience","Text + voice + automation"],["Evidence","Quality + safety + operations"]])}
+      ${cards([["Running case: an enterprise service desk","Employees ask policy questions and request changes; a spoken channel supports the same bounded tasks. We assemble this system layer by layer, without treating a successful model response as proof that the architecture is correct."],["What you will be able to do","Choose project boundaries, trace identities across service hops, assemble permission-aware retrieval, version a Toolbox, design a Voice Agent session, and produce release evidence and a recovery plan."],["Scope and prerequisites","Assumes Azure resource, Entra ID, OAuth, HTTP, and RAG fundamentals. Covers the documented Foundry capability families, not every model, SDK method, or provider contract. Allow several focused sessions rather than one introductory walkthrough."]])}
+      ${note("<strong>Architecture rehearsal, not a deployment.</strong> Recipes describe implementation order and expected evidence. All controls run locally; no subscription, microphone, credentials, or customer data are accessed. Use the linked current quickstarts for runnable SDK syntax.")}
+      <div class="actions"><button class="primary" data-go="resource-graph">Start at the foundation &rarr;</button><button data-go="release-ledger">Read status and announcement ledger</button><button data-go="atlas">Search all capabilities</button></div>
+      <p class="fine">Documentation and Ignite 2026 announcements reviewed 23 November 2026. Start with the separate overview tour for fundamentals; this edition focuses on implementation.</p>`, ["scope","ga","ignite"]);
+
+    add("release-ledger", "Start", "A product name is not an availability guarantee.", "Use three separate dates: when something was announced, when its API became available, and when your target region and SKU support it.", `
+      ${table(["Capability / surface","Verified documentation state","Implementation consequence"],[
+        ["New portal / core agents / Toolbox","Core portal and Toolbox GA; feature-specific exceptions remain.","Do not inherit a blanket GA label for every tool, guardrail, or network path."],
+        ["Foundry IQ knowledge bases","API capabilities partially GA; portal agentic retrieval experience remains preview.","Pin the Search API contract; the 2026-10-01 GA contract is not the same as older preview definitions."],
+        ["Voice Agents","Core Voice Agents GA according to feature-specific docs; portal readiness lists Voice Live preview.","Treat service, portal surface, transport, and optional feature status separately."],
+        ["GPT-Live, agent memory, Copilot harness","Preview; memory currently lacks VNet integration.","Require an approved preview path; do not make an unsupported isolated design depend on memory."],
+        ["Agent optimizer","Ignite 2026 announces core GA; portal readiness still lists limited preview. New skill/cost/insights optimization modes are preview.","Record this source discrepancy, confirm the supported target, isolate test resources and require human promotion."],
+        ["Foundry Workflows","Retiring 1 December 2026.","Use Microsoft Agent Framework for new orchestration; migrate existing graphs."],
+        ["Cost controls / fleet management surfaces","Preview coverage and exclusions apply.","A dashboard or an alert is not universal runtime enforcement."]
+      ])}
+      <div id="ignite-ledger" class="stack"><h3>Microsoft Ignite 2026: 17-20 November, San Francisco and online</h3><p>The next three stops inventory verified event announcements and their implementation consequences. Existing fundamentals remain in the bottom-up chapters; an event mention does not make an older capability new.</p><div class="actions"><button data-go="ignite-agents">Agents, tools and deployment</button><button data-go="ignite-models">Models, training and improvement</button><button data-go="ignite-context">Knowledge, safety and sovereign</button></div></div>
+      ${note("<strong>Do not mix years or availability dates.</strong> Voice Live API GA belongs to Ignite 2025; Voice Agents lifecycle GA belongs to Ignite 2026. Copilot harness preview originated on 28 October 2026; the Foundry CLI reached GA on 5 November. December announcements below are future commitments, not capabilities available on this guide's 23 November review date.")}`, ["ga","ignite","voice26","devpack26","improvement26"], "Mixed GA / Preview / Retirement");
+
+    add("ignite-agents", "Start", "Ignite 2026 / agents, tools and deployment.", "Announcement inventory as of 23 November 2026. GA refers to the named capability, not every integration, region or sub-feature.", `
+      ${table(["Announcement / dated primary post","Status at review","Engineering consequence"],[
+        ["Voice Agents / 18 Nov","GA; Realtime Flash 1 preview.","Agent lifecycle, voice-native tracing/evaluation and supported phone channels; GPT-Live remains a distinct preview path."],
+        ["Computer use and Browser Automation / 18 Nov","Core GA.","Browser VNet injection, proxy, Web Bot Auth/CAPTCHA and secrets remain preview; reusable profiles are preview, coming soon."],
+        ["A2A / 18 Nov","Tool GA; prompt-agent endpoints GA.","Hosted-agent A2A endpoints are preview, coming soon; do not assume endpoint parity."],
+        ["Web Search powered by Web IQ / 18 Nov","GA for prompt agents.","Toolbox support coming soon. Domain-restricted Bing Custom Search remains a separate path."],
+        ["Work IQ / Fabric IQ tools / 18 Nov","Preview.","Use the downstream user's allowed context; model access does not confer Microsoft 365 or Fabric rights."],
+        ["Toolboxes / 18 Nov","Expanded catalog and monitoring; tool policy preview.","Version shared MCP consumption; Snowflake, MongoDB and Databricks partners announced. Skills CRUD GA is coming soon; Shell skills preview; MCP Skills extension planned."],
+        ["Hosted runtime / 18 Nov","Shared subnet IPs, egress controls, long-running resiliency and idle-timeout controls GA.","Sandbox isolation persists despite IP sharing. Recovery reruns handlers; old sessions keep prior egress policy."],
+        ["Hosted runtime extensions / 18 Nov","Private CA trust, memory snapshots and Azure Policy egress governance preview.","Check new-session activation, target regions and exclusions; snapshots do not replace durable state."],
+        ["Hosted agents on your AKS / 17-18 Nov","Limited-preview signup; broader public preview targeted early December.","Not a generally available deployment target. Customer owns cluster, networking, registry and capacity."],
+        ["Microsoft 365 accounts for agents / 19 Nov","Preview, with rollout language differing across posts.","Entra agent user, mailbox/calendar/OneDrive/Teams resources and tenant approval; not ordinary user impersonation."],
+        ["Foundry Dev Pack / 18 Nov","GA.","Developer bundle for CLI, Foundry skill and supported editor integrations; not a new runtime or security boundary."],
+        ["Connector Namespace / 17 Nov","GA; custom-image Hosted MCP preview.","Per-user OAuth connections and supported managed identities; namespace VNet integration and richer observability are still roadmap."]
+      ])}
+      <div class="actions"><button data-go="browser-connectors">Browser and connector design</button><button data-go="hosted-isolation">Hosted runtime mechanics</button><button data-go="autonomous-identities">Autonomous identities</button></div>`, ["agents26","tools26","browser26","hosted26","aks26","voice26","autonomous26","devpack26","connectors26"], "Ignite 2026 / verified primary sources");
+
+    add("ignite-models", "Start", "Ignite 2026 / models and the improvement loop.", "Separate a model's availability in Foundry from its availability in GitHub or another product. Announced access is not a quota or capacity reservation.", `
+      ${table(["Announcement / date","Status at review","What to do with it"],[
+        ["Managed Compute / 20 Nov","GA; previously preview at Build 2026.","Plan accelerator quota, templates, serving compatibility and dedicated compute operations."],
+        ["Managed Training / 17 Nov","Available; renamed from managed fine-tuning.","Select the supported managed method and model; preserve training/holdout lineage."],
+        ["Programmed Training / 17 Nov","Public preview.","Python-authored recipes on serverless GPUs; validate environment, training permissions, checkpoints and serving path."],
+        ["Microsoft-Decision-1.1 / 17 Nov","GA.","Candidate decision/judge model, including Foundry Evaluations; calibrate against human labels rather than trusting its name."],
+        ["MAI-Code-2-Flash / 17 Nov","Limited/private preview in Foundry.","Do not confuse with MAI-Code-2 GA in GitHub; obtain the specific Foundry offer/access."],
+        ["MAI-Image-2.7 and 2.7-Flash / 17 Nov","Public preview.","Check generation/editing support, safety, image handling and provider terms."],
+        ["MAI-Cyber-2-Flash / 17 Nov","Preview through Codename MDASH.","Not a general Foundry production endpoint entitlement."],
+        ["fal video models / 17 Nov","Preview.","Kling, MiniMax and LTX offers have provider, modality and output-governance contracts."],
+        ["Baseten on Foundry / 17 Nov","Public preview; provisioned throughput starts December.","Validate provider routing and billing; do not plan November capacity around the future throughput offer."],
+        ["Meta Muse Wonder, Spark 1.3 and Ember / 17 Nov","Coming soon.","Track offers; do not present them as currently deployable."],
+        ["Model router Auto / 17-18 Nov","Preview; enabled by default in supported projects per models announcement.","Audit the actual eligible model pool and output contract. Pool counts and savings claims vary; benchmark your workload."],
+        ["Insights and multi-turn evaluation / 17 Nov","GA.","Turn recurring trace failures into measured candidate changes; supported external-framework visibility is also GA."],
+        ["Annotations, evaluation/golden datasets, safety rubrics / 17 Nov","Preview.","Version expert feedback and rubric provenance; keep a genuinely independent holdout."],
+        ["Agent optimizer / 17 Nov","Core GA in Book of News; insights-to-optimizer, skill and cost modes preview.","Read target-specific eligibility alongside older limited-preview readiness labels. Nothing reaches production until you apply it."],
+        ["Cost in Foundry / 17 Nov","Preview.","Cross-agent/model/tool spend, forecast and reports are visibility, not the same as runtime dollar limits."]
+      ])}
+      <div class="actions"><button data-go="training-recipe">Training implementation</button><button data-go="continuous-loop">Continuous improvement recipe</button><button data-go="budgets-gateway">Cost and gateway controls</button></div>`, ["ignite","models26","compute26","improvement26"], "Ignite 2026 / GA, preview and future offers");
+
+    add("ignite-context", "Start", "Ignite 2026 / context, safety and sovereign AI.", "Microsoft IQ brings together Work IQ, Fabric IQ, Web IQ and Foundry IQ. It does not merge their permissions, billing, data-plane contracts or availability.", `
+      ${table(["Announcement / dated source","Status at review","Boundary that matters"],[
+        ["Foundry IQ knowledge graphs / 17 Nov","Public preview.","Ontology-driven entities/relationships with citations, natural-language or GQL queries, and embedding-derived topics."],
+        ["Microsoft Retriever 1 / 17 Nov","Public preview.","Specialized retrieval planner on an existing index; no frontier planner deployment required for this supported path."],
+        ["Indexed SharePoint, Azure SQL and file-upload knowledge sources / 17 Nov","GA.","Supported source permissions are evaluated under the caller; indexing content is not permission bypass."],
+        ["Semantic chunking and image descriptions / 17 Nov","GA.","Document Intelligence/Content Understanding enrichment; validate extraction and image-description evidence."],
+        ["Fabric knowledge sources / 17 Nov","Public preview.","Fabric IQ semantic models, OneLake shortcuts/mirrored items and item-level permissions have distinct support."],
+        ["Purview sensitivity-label enforcement / 17 Nov","Public preview.","The announced retrieval policy fails closed when it cannot verify labels; not a universal behavior of every Foundry integration."],
+        ["Foundry IQ Serverless / 17 Nov","GA announced for December 2026.","Future GA, not GA on 23 November. Assess scale-to-zero economics, limits, regions and SLA when available."],
+        ["Managed Foundry IQ in new projects / 17 Nov","Public preview announced for December 2026.","Signup/future rollout; do not assume every current project already has a managed knowledge resource."],
+        ["Web IQ and Microsoft IQ business plugins / 17 Nov","Web IQ broadly available; plugins announced.","Govern web scopes/licensing and the exact plugin/MCP permissions. Fabric IQ integration into the combined Work IQ API is to follow."],
+        ["Azure AI Gateway / 17 Nov","Standalone service GA.","Former APIM AI Gateway tier; Private Link, private-backend VNet integration, router and selected Foundry connections remain preview."],
+        ["Agent Controls / 18 Nov","Public preview.","ACS policies return allow/deny/transform decisions and policy-version receipts; verify the runtime actually enforces them."],
+        ["Custom guardrail policies / event examples","Private preview.","Deterministic rules plus contextual judges are not automatically enabled for all agents."],
+        ["Foundry Compliance / event examples","Policy management public preview; ACS integration private preview.","Azure Policy create/update Deny is distinct from runtime enforcement. Tenant-wide Agent 365 policy integration is preannouncement."],
+        ["Foundry Local on Azure Local / 17 Nov","Local inference GA; agent service and guardrails preview.","Customer-operated connected/disconnected deployment with its own catalog, retrieval and operational responsibilities."],
+        ["Models to AKS / 17 Nov","Limited preview.","Customer-managed cluster and model capacity; not identical to Foundry-managed GPU serving."]
+      ])}
+      ${note("<strong>Evidence boundary:</strong> this is a dated, primary-source inventory, not a promise to enumerate every partner SKU or future API. No new Ignite attribution was found for basic project/resource architecture or project managed identity. An inaccessible GPT-image-2.6 event post could not be verified and is not promoted here as a confirmed announcement. Microsoft performance/cost claims are not independent benchmarks.")}
+      <div class="actions"><button data-go="knowledge-graphs">Graph-grounding recipe</button><button data-go="runtime-controls">Runtime policy mechanics</button><button data-go="sovereign-choice">Local versus hosted infrastructure</button><button data-go="resource-graph">Begin bottom-up implementation</button></div>`, ["iq26","microsoftiq26","gateway26","controls26","governance26","local26","aks26"], "Ignite 2026 / dated availability, not blanket GA");
+
+    add("resource-graph", "Foundation", "Draw the resource graph before opening a playground.", "A Foundry resource is an Azure governance boundary; a project is an application-development boundary beneath it. Neither erases the boundaries of connected services.", `
+      <div class="boundary"><p class="eyebrow">Subscription / resource group / Foundry account (AIServices)</p>${flow([["Account","Model deployments + network + policies"],["Project","Agents + connections + files + evaluations"],["Agent version","Instructions + model binding + tool definitions"]])}</div>
+      ${cards([["Separate resources when the boundary demands it","Use distinct accounts or subscriptions for incompatible networking, residency, administrative control, or environment isolation. Multiple projects can share account-level deployments and governance; do not assume project separation gives independent capacity or network policies."],["Keep connected resources explicit","Search, Storage, Cosmos DB, Key Vault, Application Insights, registry, API gateways, and business systems have independent lifecycles, charges, identities, RBAC, network rules, and retention. Record which are platform-managed versus customer-provided."],["Choose new versus classic deliberately","Foundry projects use the current Cognitive Services account/project model. Classic hub-based resources and older assistants have different contracts. Do not mix hub-specific setup, Threads/Runs payloads, and new Conversations/Responses examples in one recipe."]])}
+      ${note("<strong>Evidence to retain:</strong> resolved ARM IDs, tenant/subscription, project endpoint from project details, model deployment identifiers, dependency owners, and a data-flow diagram. An endpoint string is not an ARM scope and a model catalog ID is not a deployment name.")}`, ["architecture","projects","runtime"]);
+
+    add("project-recipe", "Foundation", "Create a usable project, not just an empty container.", "Work from infrastructure and access toward the first verified request. Use the advanced creation path or IaC when organizational policy requires controlled names, regions, tags, or networks.", `
+      ${steps([
+        "<strong>Fix the design inputs.</strong> Select tenant, subscription, environment, resource group, approved regions, model/agent support, naming, tags, and public-versus-private network topology. Decide account sharing before creation.",
+        "<strong>Create or select the Foundry account and project.</strong> In the new portal, use the project picker and Create new project; inspect advanced options. For repeatability, use the documented ARM/Bicep/Terraform route. Record the actual created account and child-project IDs.",
+        "<strong>Record identities and grant scoped access.</strong> Distinguish the deployment principal, builder, consumer, project managed identity, and agent identity. Give each only its required data/control actions; role-assignment rights are a separate prerequisite.",
+        "<strong>Add the minimum dependencies.</strong> Make one approved model callable, create a narrow nonproduction connection, and choose telemetry. Do not create Search, storage, or a vector database by habit if the selected setup does not require customer-provided instances.",
+        "<strong>Prove both positive and negative paths.</strong> Invoke with the intended consumer; deny agent editing for that consumer; test a downstream read from the deployed runtime; verify one trace without sensitive content."
+      ])}
+      ${note("<strong>Acceptance record:</strong> creation succeeded, identity object IDs are known, endpoints resolve from the intended network, inference and tool calls work under their intended principals, and unauthorized operations are denied. A portal test under an administrator's identity does not satisfy this record.")}`, ["projects","roles","architecture"]);
+
+    add("network-paths", "Foundation", "There are more than two network hops.", "Design caller-to-Foundry ingress, runtime-to-tool egress, Search-to-source access, model calls, telemetry, and image delivery as separate paths.", `
+      ${table(["Path","Choose and configure","Prove"],[
+        ["Caller to Foundry","Public with appropriate restrictions, or private endpoint with correct private DNS and authorized network access.","Resolve DNS and establish TLS from the actual application host; public access disabled must reject an outside caller."],
+        ["Agent to private services","Supported BYO VNet or managed VNet topology, plus dependency endpoints, routes and firewall rules.","Run a deployed tool call, not a ping from an unrelated workstation."],
+        ["Search to source / embedding / planner","Search-specific outbound private or supported trusted-service routes; permissions on each target.","Separately verify ingestion, query vectorization, and LLM query planning."],
+        ["Hosted runtime / registry / logs","Supported image pull path and instrumentation destination.","Cold start and scale-out successfully; confirm logs arrive under least privilege."]
+      ])}
+      ${cards([["Plan before provisioning","Some VNet injection choices are create-time constraints. BYO VNet requires dedicated delegation and address planning; prompt agents and hosted sessions consume addresses differently. Size for concurrency, upgrades, and all projects, not just the first agent."],["Check feature eligibility","An available private endpoint is not proof every attached tool, evaluator, trace surface, or memory API supports isolation. Older projects can have different private-registry support. Record region, project creation constraints, tier, and feature compatibility."]])}
+      ${note("<strong>Do not solve a private-endpoint timeout by broadening permissions or silently re-enabling public access.</strong> Separate DNS/routing failures from HTTP authentication/authorization. A private endpoint secures ingress; it does not by itself isolate agent egress or change inference processing geography.")}`, ["network","private","iq","ga"]);
+
+    add("sovereign-choice", "Foundation", "Choose who operates the infrastructure.", "Azure-hosted Foundry, Foundry workloads on your AKS, and Foundry Local on Azure Local are separate deployment and operating models.", `
+      ${table(["Choice","Platform versus customer responsibility","Implementation gate"],[
+        ["Foundry-managed serving and agents","Azure operates the supported runtime; you configure models, identities, policies, dependencies and application recovery.","Confirm feature/region/network compatibility, capacity and the correct project generation."],
+        ["Foundry models or hosted agents on your AKS","Preview access paths; you operate cluster upgrades, node/GPU capacity, networking, registry and workload isolation.","Obtain the specific preview, validate runtime/API support and load/recovery behavior. Model deployment and hosted-agent deployment are distinct offers."],
+        ["Foundry Local on Azure Local","Local inference GA; local agent service and guardrails preview. Customer controls connected or disconnected infrastructure.","Validate supported hardware/catalog, local ingestion/search/MCP, identity, updates, logs, backup and operation without cloud dependencies."],
+        ["Developer-device local inference","A local SDK/model execution scenario, not automatically the same as Azure Local sovereign deployment.","Check device acceleration, model licenses and distribution; do not inherit Azure-hosted service SLAs."]
+      ])}
+      ${steps(["Write the actual residency and disconnected-operation requirements, including licensing, updates, telemetry and support access.","Inventory every cloud dependency in authentication, retrieval, model calls, tools, evaluations and observability; remove or replace it for a truly disconnected design.","Record the operator for capacity, patches, model artifacts, policy distribution, recovery and incident response. Test loss of the assumed control plane."])}
+      ${note("<strong>Local does not mean automatically compliant.</strong> Data access, content safety, model provenance and human approval still need enforceable controls. A cloud private endpoint is not an air gap, and a new preview deployment target is not migration parity.")}`, ["architecture","local26","aks26","hosted26"], "Deployment-model comparison / mixed availability");
+
+    add("principal-map", "Identity", "Name the principal at every hop.", "A managed identity, an Entra agent identity, a human caller, and a connection credential are different security actors.", `
+      ${table(["Actor","Responsibility","Common mistake"],[
+        ["Deployment principal","Create/configure Azure resources; separately assign roles if authorized.","Assuming Contributor or Owner automatically grants every Foundry data-plane operation."],
+        ["Builder / consumer","Builders author/test; consumers invoke allowed agent endpoints.","Giving every end user Foundry User rather than the narrower Foundry Agent Consumer role."],
+        ["Project managed identity","Used by integrations explicitly configured for project identity.","Granting it Search access while the connection actually authenticates as an agent identity."],
+        ["Agent identity / blueprint","Current agents have their own blueprint and default instance identity; downstream rights start empty.","Treating this identity as the project's managed identity, or assuming inherited legacy grants migrate."],
+        ["Search / other service identity","Search accesses sources, embedding and planning models under its configured identity.","Granting only the agent access and overlooking Search's outbound calls."],
+        ["End-user delegated authority","Preserve user permissions on supported tool paths.","Using an application-only service token and expecting per-user document authorization automatically."]
+      ])}
+      ${note("<strong>Hosted code caveat:</strong> the current hosted token service provides the associated agent instance's tokens; the project managed identity is not available to hosted code. A project-identity connection is a platform-managed path, not permission to impersonate that identity from your container.")}`, ["identity","roles","toolauth"]);
+
+    add("permission-matrix", "Identity", "Grant to the actor that actually authenticates.", "Separate resource management, agent invocation, tool execution, and source authorization. A project role does not grant data access to every connected service.", `
+      ${table(["Intended operation","Typical assignment / configuration","Validation"],[
+        ["Build and test agents","Foundry User at the intended project scope; additional authoring rights where the operation requires them.","Builder can create/invoke; cannot perform unrelated account management."],
+        ["Invoke only","Foundry Agent Consumer at supported project or agent scope; use the documented assignment surface.","Consumer can invoke the intended endpoint, not modify agents or reach unrelated agents."],
+        ["Read Search content with app-only identity","Search Index Data Reader for the chosen connection identity; configure Search for role-based access.","Read succeeds, write fails. User-level trimming needs its own supported authorization flow."],
+        ["Create Search objects / ingest content","Search Service Contributor for object management; Search Index Data Contributor for data writes, as needed.","An ingestion identity is not reused as a read-only runtime identity."],
+        ["Search calls a model","Assign the Search identity the documented model data-plane role on the model resource for that contract.","Exercise query planning and vectorization separately."],
+        ["Read a Blob / Cosmos record","Use Storage data roles or Cosmos-specific data-plane roles as the target requires.","Management-plane Reader is not treated as content access."]
+      ])}
+      ${steps(["Resolve the real principal object ID and target resource scope; do not confuse client ID with object ID.", "Inspect the connection's authentication mode and audience before changing grants.", "Apply the narrow role/action set, allow for propagation, and test with the deployed identity.", "Remove unnecessary test grants. Keep a negative test for forbidden writes and a second user with less access."])}
+      <p class="fine">Role names were renamed from Azure AI to Foundry. Effective actions, assignment scope, endpoint scheme, and service-specific authorization are authoritative; legacy examples may differ.</p>`, ["roles","identity","pipeline"]);
+
+    add("identity-lab", "Identity", "Trace a tool call across two authorization boundaries.", "The agent authenticates to Toolbox. The tool connection independently chooses whose authority reaches the downstream system.", `
+      ${flow([["Caller","Endpoint authorization"],["Agent","Platform / Toolbox token"],["Connection","Auth mode + target audience"],["Downstream","RBAC, app roles, ACLs"]])}
+      <div class="grid two"><article class="card lab-controls"><label class="field">Connection authentication<select id="auth-mode"><option value="agentic-identity">agentic-identity</option><option value="project-managed-identity">project-managed-identity</option><option value="oauth2">oauth2</option><option value="user-entra-token">user-entra-token</option><option value="custom-keys">custom-keys</option><option value="none">none</option></select></label><label class="check"><input id="caller-context" type="checkbox" checked><span>The runtime preserves the current caller context.</span></label><label class="check"><input id="downstream-grant" type="checkbox"><span>The selected actor has the required downstream permission / consent.</span></label></article><div id="auth-result" class="readout" aria-live="polite"></div></div>
+      ${note("<strong>App-only is not delegated.</strong> For supported per-user hosted-tool access, use the hosting integration that forwards the current request context (including the current call ID). Never hardcode or reuse another request's context. Test two users concurrently with different access; a successful HTTP 200 alone is insufficient.")}
+      <p class="fine">Concept model only. Authentication modes have target-specific support and consent requirements; this explorer does not mint tokens or validate a real connection.</p>`, ["toolauth","hostedtools","delegate"]);
+
+    add("autonomous-identities", "Identity", "An autonomous colleague needs its own lifecycle.", "The Microsoft 365 agent-account preview is not a shared human account and is not the same as granting a project managed identity Microsoft Graph access.", `
+      ${flow([["Blueprint","Approved agent class"],["Instance","Own Entra Agent ID + agent user"],["Resources","Approved mailbox/calendar/files/Teams"],["Oversight","Owner, tenant policy and disable path"]])}
+      ${steps([
+        "<strong>Approve the blueprint and intended tasks.</strong> Identify sponsor/manager, tenant administrator, permitted population, channels, allowed data and prohibited actions. Blueprint approval alone grants no business-resource permissions.",
+        "<strong>Create an approved instance.</strong> Record the distinct agent identity and agent-user/resource identifiers. Check current preview enrollment, licensing, Microsoft 365 Resources for Agents prerequisites and rollout; a standard Foundry agent does not automatically receive a mailbox.",
+        "<strong>Grant specific downstream rights.</strong> Distinguish application permissions, resource-specific access and delegated-user operations. An agent's mailbox/calendar workspace is not entitlement to every employee's content.",
+        "<strong>Bound autonomous work.</strong> Require exact-action approvals for sensitive actions, durable operation IDs, bounded schedules/retries and auditable initiator/actor attribution. Do not equate autonomous operation with unlimited execution.",
+        "<strong>Test lifecycle control.</strong> Revoke one instance, disable a blueprint class, handle a departed sponsor and preserve permitted audit records. Verify that cached credentials and running jobs cannot continue unauthorized work."
+      ])}
+      ${note("<strong>Availability caveat:</strong> the Ignite summary says preview while the Agent Service post uses future rollout language. Treat tenant eligibility as an explicit gate. The Hermes cookbook is available; its self-hosted-on-Foundry option is coming soon, not a general production contract.")}`, ["identity","autonomous26","agents26","improvement26"], "Microsoft 365 agent resources / preview rollout");
+
+    add("model-serving", "Models", "Choose the serving contract before the model name.", "Provider, deployment mode, model/version, region, processing scope, and inference protocol all affect what the application can do.", `
+      ${cards([["Pay per token / provisioned / batch","For supported models, Standard serves variable traffic; PTUs provision model-processing capacity; Batch handles delay-tolerant asynchronous work. Global, Data Zone, and geography scopes describe processing boundaries, not project locations."],["Managed compute","Open/community models run on dedicated accelerator capacity using versioned deployment templates. Model instance count is not GPU count. Accelerator quota is separate from VM-family, TPM/RPM, and PTU quota. Runtime/API compatibility and content-filter integration differ."],["Instant access / provider offers","Instant access is preview and does not require a separate deployment for supported models. Partner and community offers have distinct licensing, metering, regions, API support, and data terms. A unified catalog is not uniform semantics."]])}
+      ${steps(["Compare representative task quality and required capabilities: embeddings, reranking, structured output, reasoning, multimodal, tool calling, or realtime audio.", "Confirm the model/version supports the required agent and protocol. A chat-completions endpoint does not guarantee every Responses feature.", "Copy the endpoint and deployment identifier from the actual deployment; use the documented SDK/client for that route.", "Run schema, stream, cancellation, error, and load tests; pin upgrade behavior and a retirement response."])}
+      ${note("<strong>Managed compute exception:</strong> current documentation says built-in Azure AI Content Safety filtering is not in that compute path. Add appropriate application-side safety controls where needed; do not infer filtering from a catalog listing.")}`, ["models","deployment","compute"]);
+
+    add("capacity-routing", "Models", "Quota, capacity, routing, and spend are separate controls.", "Sizing starts with prompt shape and concurrency, not a universal token-to-GPU or PTU conversion.", `
+      ${table(["Mechanism","Use it for","Boundary"],[
+        ["TPM / RPM and service limits","Rate and deployment-limit planning.","Quota does not reserve deployable capacity or remove runtime throttling."],
+        ["PTUs","Predictable sustained model throughput for a measured workload.","Size by model/version, input/output ratio, caching, and concurrency; deployed capacity incurs charges."],
+        ["Managed compute instances","Dedicated open-model serving.","Instances x accelerators per template determines GPU requirement and hourly footprint."],
+        ["Model router","Supported dynamic quality/cost routing.","Validate candidate model set, privacy, output compatibility, trace attribution, and fallback behavior; routing is not your entire DR design."],
+        ["Priority / Flex / Batch","Supported request-level latency or asynchronous cost trade-offs.","Check model and deployment eligibility; do not copy turnaround or SLA assumptions between modes."]
+      ])}
+      ${cards([["Benchmark the distribution","Measure time to first token, p50/p95 completion latency, output length, concurrency, retries, and useful successful tasks. Simulate long histories and tool loops, not just short single-turn prompts."],["Design a compliant fallback","Alternate model or region requires its own approved processing scope, deployment, quota/capacity, tool compatibility, and regression evidence. A Global deployment does not automatically make the stateful application multi-region."]])}`, ["deployment","compute","router","costs"]);
+
+    add("customization", "Models", "Optimize the failing layer.", "Do not fine-tune away a retrieval, authorization, schema, or orchestration bug.", `
+      ${table(["Observed gap","First intervention","Evidence required"],[
+        ["Missing or stale enterprise facts","Fix source coverage, ingestion, permission-aware retrieval, and citation behavior.","Retrieval recall/relevance and grounded answer quality on current sources."],
+        ["Inconsistent style or repeatable task behavior","Improve prompts and examples; consider supported supervised fine-tuning or distillation after a baseline.","Held-out examples, licensing/consent, deduplication and leakage checks."],
+        ["Preference / reward-driven behavior","Use supported DPO or reinforcement fine-tuning where model and region allow.","Calibrated preference/reward data, grader robustness and tests against reward hacking."],
+        ["Poor instructions / tool descriptions / model choice","Use evaluation-driven prompt or agent optimization.","Separate optimization and holdout sets; inspect changes, per-evaluator regressions, cost and latency."],
+        ["Specialized open weights / adapters","Select a compatible managed-compute template and supported adapter path.","Base/version compatibility, license, capacity and serving validation; adapters include preview paths."]
+      ])}
+      ${note("<strong>Optimization executes behavior.</strong> Optimizer/evaluation runs can invoke tools and modify real resources before you promote any candidate. Point tools and identities at isolated or read-only test systems. Hosted optimization needs an optimizer-ready configuration and supported Responses protocol; prompt optimization currently excludes the Copilot harness.")}
+      <p class="fine">Track dataset lineage, model/version, prompt/skill/tool schema, grader model/configuration, training job, deployment, and post-deployment drift as one release record.</p>`, ["tune","optimize","compute"]);
+
+    add("training-recipe", "Models", "Train only after the experiment is reproducible.", "Managed Training supplies supported training methods; Programmed Training gives you Python-level recipe control on serverless GPUs in public preview.", `
+      ${steps([
+        "<strong>Capture the baseline.</strong> Freeze task slices, model/version, prompt/tools, latency and cost per successful task. First eliminate retrieval, authorization, schema and orchestration defects.",
+        "<strong>Build authorized, separated datasets.</strong> Define input/output schemas, license/PII handling, sample provenance and train/validation/holdout splits. Deduplicate correlated customer conversations across splits.",
+        "<strong>Choose the training surface.</strong> Use Managed Training for a supported model/method. Use Programmed Training only when custom Python recipes justify owning dependencies, training logic, reward correctness and preview constraints.",
+        "<strong>Make a minimal job work.</strong> Validate data access from the training identity, environment/image, GPU availability, checkpoint/artifact destination and failure logs. Track parameters, seeds where meaningful, grader versions and spend.",
+        "<strong>Evaluate the artifact, not the training loss.</strong> Compare holdout task success, refusals, safety, tool schemas, latency and serving cost. Reward/label quality needs independent human calibration.",
+        "<strong>Deploy a compatible candidate.</strong> Confirm the resulting model/adapter can be served on the target template and accelerator. Canary it behind an explicit version binding and retain the prior deployment for rollback."
+      ])}
+      ${cards([["Weight updates versus skill updates","Skills change reusable instructions/procedures and resources; model training changes weights or adapters. A skill improvement can be cheaper and easier to roll back, but still needs permission and task validation."],["Provider-specific access","A model announced in Foundry may need limited-preview approval and may support a different training or serving path than the same family in another product. Catalog presence is not training entitlement."]])}`, ["tune","models26","compute26","improvement26"], "Managed Training / Programmed Training preview");
+
+    add("knowledge-components", "Knowledge", "Index, knowledge source, and knowledge base are not synonyms.", "Foundry IQ exposes both direct Search APIs and a higher-level agentic retrieval contract. Choose the simplest level that meets the task.", `
+      ${flow([["Source","Documents, tables, collaboration data"],["Ingestion","Extract, chunk, embed, ACL metadata"],["Index / remote source","Searchable data or delegated query"],["Knowledge base","Source selection + retrieval policy"],["Agent","Uses evidence and citations"]])}
+      ${cards([["Index","Schema, keys, searchable/filterable fields, vectors, semantic configuration, and freshness belong to the Search layer. An index is not automatically a knowledge base."],["Knowledge source","Connects a knowledge base to an existing index or supported remote/indexed source. Source type controls ingestion, permission synchronization, and query semantics."],["Knowledge base","References sources and retrieval behavior. Can plan/decompose queries where supported and return extractive evidence or synthesized answers with citations and activity metadata. It can be reused by multiple agents."]])}
+      ${note("<strong>Choose the right state.</strong> File search/vector stores suit interaction uploads; curated knowledge bases suit organizational evidence; long-term memory suits learned user context. Fabric IQ adds business semantics/analytics; Work IQ adds Microsoft 365 context. They are complementary products, not interchangeable stores.")}`, ["iq","kb","memory","toolbox"]);
+
+    add("knowledge-recipe", "Knowledge", "Build retrieval from the data outward.", "Verify ingestion and retrieval independently before putting an agent in front of the pipeline.", `
+      ${steps([
+        "<strong>Source contract.</strong> Identify owner, refresh target, delete/revoke propagation, data classification, document IDs, citation fields, ACLs and supported connector behavior. Choose indexed versus remote retrieval per source.",
+        "<strong>Search service and schema.</strong> Choose supported tier/region, enable intended identity and RBAC, create fields and vector/semantic configuration. Size replicas/partitions to your service requirements; do not treat a free proof of concept as a production sizing result.",
+        "<strong>Ingest and test.</strong> Parse, chunk, enrich and embed where appropriate. Preserve parent/child IDs, source URI, version and access metadata. Inspect representative chunks; verify refresh, deletions and permissions, not just document counts.",
+        "<strong>Create source then knowledge base.</strong> Bind an existing index/source, configure retrieval reasoning and output mode, and attach supported planning/embedding deployments only when needed. Pin the Search API/SDK contract.",
+        "<strong>Connect the agent.</strong> Create the project connection to the knowledge-base endpoint using the chosen actor; attach the supported retrieval/MCP integration. Keep agent-to-Search identity distinct from Search-to-model/source identities.",
+        "<strong>Prove evidence flow.</strong> Run known-answer and no-answer queries directly; inspect source IDs, citations, activity and latency. Then repeat through the deployed agent under users with different permissions."
+      ])}
+      ${note("<strong>Version trap:</strong> the current knowledge-base guide documents GA <code>2026-10-01</code> behavior; older <code>2026-04-01</code> has narrower minimal/extractive support. Do not migrate a preview definition by changing only its version string. Limits/default properties also differ across contracts.")}`, ["pipeline","kb","acl","iq"]);
+
+    add("retrieval-lab", "Knowledge", "Tune retrieval without losing the permission boundary.", "Query planning, evidence selection, and answer synthesis are separate work. Low latency on a model-free request does not validate the planner's credentials.", `
+      ${table(["Choice","Behavior to validate","Failure signal"],[
+        ["Minimal retrieval","Direct/model-free extractive path where supported.","Successful retrieval is incorrectly treated as proof the LLM planner is reachable."],
+        ["Low / medium reasoning","Supported planning and source selection/decomposition.","Missing planning activity, planner 401/403, token growth, or unnecessary query fan-out."],
+        ["Extractive evidence","Return content, references and activity to the caller/agent.","Citation mapping missing, evidence budget truncates crucial constraints."],
+        ["Answer synthesis","Knowledge-base LLM forms an answer where supported.","Double synthesis adds latency and drops citations when the outer agent rewrites."],
+        ["ACL / source authorization","Query-time user permissions on supported sources.","Service-level read succeeds but restricted documents leak to a different user."]
+      ])}
+      <div class="grid two"><article class="card lab-controls"><label class="field">Test query path<select id="retrieval-path"><option value="minimal">Minimal / extractive</option><option value="planned">Planned / extractive</option><option value="synthesized">Planned / synthesized</option></select></label><label class="check"><input id="planner-access" type="checkbox"><span>Search identity can call its configured planning model.</span></label><label class="check"><input id="source-auth" type="checkbox"><span>Supported source authorization and current user context are verified.</span></label></article><div class="readout" id="retrieval-result" aria-live="polite"></div></div>
+      <p class="fine">Lab outcomes are conceptual, not an actual Search request. A shared Search reader role alone does not establish per-document authorization.</p>`, ["kb","acl","iq"]);
+
+    add("knowledge-graphs", "Knowledge", "Add relationships only when the question needs them.", "The Ignite knowledge-graph preview adds entities and topics to Foundry IQ; it does not replace source provenance, permissions or a measured retrieval baseline.", `
+      ${flow([["Source","Documents + permissions"],["Enrichment","Chunks + images + ontology"],["Graph/index","Entities, sourced edges, topics"],["Knowledge base","Plan and retrieve"],["Answer","Evidence + citations"]])}
+      ${steps([
+        "<strong>Establish a non-graph baseline.</strong> Use the same supported sources, caller identities and question set. Include multi-document relationship questions and broad corpus-summary questions, not just entity lookup.",
+        "<strong>Choose the graph representation.</strong> Add a graph configuration and reviewed domain ontology to a supported knowledge source, or bring an existing graph. Version entity types, relationship meanings and source mapping.",
+        "<strong>Inspect the enrichment.</strong> Check entity resolution, duplicate names, incorrect edges, contradictory documents and citations. Automatically derived topics/subtopics use existing embeddings; review any proposed ontology before accepting it.",
+        "<strong>Select the query contract.</strong> Query the knowledge base in natural language, or use supported GQL for direct graph queries. Graph lookup, planner reasoning and final synthesis remain distinct responsibilities.",
+        "<strong>Choose a planner deliberately.</strong> The Microsoft Retriever 1 preview plans retrieval on an existing index without a frontier-model deployment. This is a distinct supported path, not proof that older LLM-planner identity/network prerequisites vanished.",
+        "<strong>Prove permissions and improvement.</strong> Test restricted nodes/edges, source revocation/deletion, citation validity and broad-query leakage. Compare task success, query count, freshness and cost with the same holdout."
+      ])}
+      ${note("<strong>December is not now.</strong> Serverless GA and managed Foundry IQ in new projects were announced for December 2026. Until the target is actually supported, provision and operate the currently documented resource path. Preview Purview label enforcement fails closed on unverifiable policy; configure and test that specific integration.")}`, ["iq26","iq","kb","acl"], "Knowledge graphs / Microsoft Retriever 1 preview");
+
+    add("mcp-contract", "Tools", "MCP is a protocol boundary, not a permission model.", "The server advertises tools and their schemas; the runtime discovers, selects, authorizes, invokes, and handles results.", `
+      ${flow([["Connect","Supported remote transport + TLS + auth"],["Discover","tools/list + schema and metadata"],["Select","Allowlist + relevant tool exposure"],["Invoke","tools/call + arguments + identity"],["Handle","Result, error, consent, audit"]])}
+      ${cards([["Design the server contract","Use narrow business operations rather than unrestricted database or shell access. Define required fields, types, enums, size limits and structured error semantics. Validate arguments and resource ownership server-side even if the model emits valid JSON."],["Separate the two auth legs","A token to Foundry/Toolbox does not grant access to the MCP server's API. Configure the correct audience and connection auth. Use app-only authority only when the task allows it; supported delegated paths preserve a user and consent boundary."],["Treat results as untrusted input","Do not execute instructions embedded in tool descriptions or data. Bound response size, timeouts, redirects and retries; keep secrets out of descriptions and prompts. Track server owner, contract version, allowed tools and data destination."]])}
+      ${note("<strong>Direct MCP versus Toolbox:</strong> direct integration can be appropriate for a small explicit tool set; Toolbox centralizes reuse and connection management. A generic MCP client does not automatically handle Foundry consent, caller context, or approval semantics. Local stdio server behavior is not a remote Agent Service deployment contract.")}`, ["mcp","toolauth","hostedtools"]);
+
+    add("toolbox-recipe", "Tools", "A Toolbox is a versioned dependency.", "Tools, project connections, and the consuming agent are independently versioned or configured. Promote them as a tested compatibility set.", `
+      ${steps([
+        "<strong>Create connections first.</strong> Record target endpoint, audience, auth mode, owner and required grants/consent. Secrets belong in supported connection storage, not agent code or prompts.",
+        "<strong>Create a Toolbox version.</strong> Add the required tool types, connection references, labels and allowed operations. Keep descriptions distinct enough for selection. Skills, A2A, knowledge and other integrations have their own eligibility.",
+        "<strong>Test the immutable version.</strong> Discover tools through the version-specific developer endpoint, invoke a read-only operation with the deployed identity, and deliberately test a forbidden operation.",
+        "<strong>Integrate the runtime.</strong> With supported hosted frameworks, use the Foundry Toolbox hosting helper to authenticate and preserve per-request caller context. A successful local developer credential is not proof of deployed permissions.",
+        "<strong>Promote deliberately.</strong> The consumer endpoint follows default_version; promotion changes behavior for all consumers using it. A version-pinned client behaves differently. Canary consumers and keep a rollback version."
+      ])}
+      <pre aria-label="Illustrative endpoint shapes; not executable requests">Project host/path: &lt;account&gt;.services.ai.azure.com/api/projects/&lt;project&gt;
+Consumer: &lt;project-endpoint&gt;/toolboxes/&lt;name&gt;/mcp?api-version=v1
+Test:     &lt;project-endpoint&gt;/toolboxes/&lt;name&gt;/versions/&lt;version&gt;/mcp?api-version=v1
+Platform token scope for the hosted Toolbox path: https://ai.azure.com/.default</pre>
+      <p>Supported hosting integrations include Python <code>FoundryToolbox</code> and .NET <code>AddFoundryToolboxes</code>. Preserve the current request context, including <code>x-agent-foundry-call-id</code>, through the supported helper. Never cache or reuse one caller's context across concurrent requests; a platform access token alone does not establish delegated user authority.</p>
+      ${note("<strong>Discovery is a separate failure domain.</strong> A broken source can make aggregate tool enumeration/readiness fail. Diagnose default version, tool-name allowlists, connection rights, remote availability, consent and response/header limits before debugging model selection.")}`, ["toolbox","hostedtools","toolauth"]);
+
+    add("approval-lab", "Tools", "Approval metadata does not execute an approval workflow.", "For hosted Toolbox consumers, require_approval is runtime-visible policy metadata; the Toolbox endpoint itself does not block tools/call until a human approves.", `
+      <div class="grid two"><article class="card lab-controls"><label class="check"><input id="approval-flag" type="checkbox" checked><span>Tool metadata says require_approval: always.</span></label><label class="check"><input id="approval-runtime" type="checkbox"><span>The runtime pauses, presents exact tool arguments, and enforces the decision.</span></label><label class="check"><input id="approval-human" type="checkbox"><span>The human approves this exact proposed action.</span></label><label class="check"><input id="approval-server" type="checkbox"><span>The tool server rechecks authorization, policy and idempotency.</span></label></article><div id="approval-result" class="readout" aria-live="polite"></div></div>
+      ${steps(["Enumerate tool metadata and refuse unsupported consequential tools at integration time.", "Capture proposed tool name, arguments, actor, purpose, expiry and a unique operation identifier; obtain approval out of band from model text.", "After approval, execute only that bound proposal. Recheck user access and business constraints on the tool server; handle a timeout after commit without duplicate side effects.", "Audit approval, denial, execution and reconciliation independently. Test bypass attempts at the runtime and API boundaries."])}
+      ${note("<strong>Implementation gate:</strong> if the runtime cannot enforce approval, do not expose a consequential operation on the assumption the flag protects it. Use a read/propose-only tool or a separately enforced approval service. Prompt instructions are not enforcement.")}`, ["hostedtools","toolbox"]);
+
+    add("tool-selection", "Tools", "Choose the tool surface that matches the work.", "A tool is an executable capability; a skill packages reusable procedure. Tool discovery does not grant permission to execute it.", `
+      ${table(["Family","Use and implementation consideration","Boundary"],[
+        ["Functions / OpenAPI / Azure Functions","Structured business APIs; function calling is client-executed, OpenAPI describes remote operations, Azure Functions integration has its own execution contract.","Function calling is not a Toolbox-hosted tool in the current support matrix."],
+        ["MCP / A2A","MCP exposes tools; A2A delegates work to another agent with a distinct identity and task lifecycle.","Apply independent authorization, timeouts and cancellation; an agent card is not a trust certificate."],
+        ["File search / code interpreter","Managed vector stores for uploads; sandboxed code for supported analytical tasks.","Track file retention, vector-store lifecycle, sandbox limits, generated files and execution charges."],
+        ["Web / browser / computer use / images","Web evidence, website automation, desktop operations and media generation are different capabilities.","Preview and direct-versus-Toolbox support differ; isolate credentials and consequential actions."],
+        ["Skills / tool search","Version reusable workflow instructions; expose only relevant tools, pin critical ones and test discovery terminology.","Skills are preview. Validate supporting runtime/resources; discovery success does not prove SKILL resource access."],
+        ["Foundry Tools / enterprise IQ","Speech, Language, Translator, vision/document/content processing; Work IQ and Fabric IQ for their supported enterprise contexts.","Review separate licensing, regions, delegated auth, endpoint scopes and data processing."]
+      ])}
+      ${note("<strong>Scale exposure, not authority.</strong> Tool search can reduce context and selection ambiguity for large catalogs. Maintain allowlists and negative tests; do not make the entire enterprise API surface reachable because discovery can hide it.")}`, ["toolbox","scope","mcp"]);
+
+    add("browser-connectors", "Tools", "Prefer a narrow API; isolate UI automation when necessary.", "Browser Automation, computer use, Connector Namespace and Toolbox solve different layers. GA of the core service does not make every private-network or credential feature GA.", `
+      ${table(["Surface","Use and configure","Acceptance evidence"],[
+        ["Browser Automation","Isolated cloud browser through Azure Playwright Workspaces/MCP. Scope allowed destinations, accounts, actions and session lifetime.","Test untrusted page content, cross-user sessions, destructive-action approval, logout and expired credentials. Live View/Take control and opt-in recording are distinct controls."],
+        ["Computer use","Desktop-level interaction with a supported model/tool; not browser API parity.","Constrain host/application access and verify actions rather than trusting screenshots or narrated success."],
+        ["Connector Namespace","Separate Azure resource owns connections, operations, triggers and MCP configurations.","Verify connection owner, per-user versus shared auth, access policies and downstream audit identity."],
+        ["Per-user connector OAuth","Supported OAuth connector creates/resolves a user's own connection; downstream acts as that user.","Run simultaneous users, consent/revocation and denied-resource tests. Do not swap to a shared connection on failure."],
+        ["Custom-image Hosted MCP","Preview managed MCP hosting within the namespace, not a hosted Foundry agent.","Validate image provenance, server health, authentication, scaling, data handling and operational ownership."]
+      ])}
+      ${note("<strong>Preview and roadmap boundaries:</strong> Browser Automation private networking, proxy, Web Bot Auth/CAPTCHA and secret handling remain preview; reusable profiles are coming soon. The Connector Namespace GA post still lists namespace VNet integration and richer observability as future work. A private function polling a trigger does not prove that the namespace itself has private inbound/outbound connectivity.")}
+      <p>Enable browser <code>run-code</code> only for reviewed scenarios. Opt-in recordings go to your storage and need authorized access/retention. Prefer one narrow approved connector/API operation over a broad session that can navigate and mutate many systems.</p>`, ["browser26","tools26","connectors26","toolbox"], "Core GA / sub-feature previews and roadmap");
+
+    add("runtime-choice", "Runtime", "Pick the runtime and protocol independently.", "The saved definition, conversation state, execution protocol, and deployment artifact serve different purposes.", `
+      ${table(["Runtime path","You configure / own","Contract to verify"],[
+        ["Prompt agent","Instructions, model and attached tools; Foundry executes the loop.","Agent versions, Conversations/Responses, tool support, endpoint authorization."],
+        ["Prompt + Copilot harness (preview)","Explicit managed harness selection for supported tools, skills, files and command workflows.","Not the default for every prompt agent. Check safety, egress, skill and optimization support."],
+        ["Hosted agent","Your code/framework and dependencies, packaged for managed execution.","Responses, Invocations, or invocations_ws as appropriate; readiness, streaming, session state, cancellation and token service."],
+        ["Voice agent","Server-side spoken definition and selected model/voice pipeline.","kind: voice; realtime versus live subtype, session transport and supported controls."],
+        ["External / app-hosted agent","Your app hosting and orchestration.","Call model APIs directly where appropriate; external registration adds supported observability/governance, not Foundry hosting."]
+      ])}
+      ${note("<strong>State is not authorization.</strong> A conversation can hold history across responses, and a hosted session can persist execution state. Bind state access to the correct user/tenant; never trust an arbitrary conversation ID, file ID, or prior model statement as proof of ownership.")}`, ["runtime","hosted","harness","voice"]);
+
+    add("hosted-isolation", "Runtime", "Session isolation, IP allocation and durability are different.", "Ignite's hosted-runtime changes improve concurrency and recovery, but they do not remove quota, policy rollout or application idempotency responsibilities.", `
+      ${table(["Mechanism","Current contract","Implementation requirement"],[
+        ["Shared subnet IPs / GA","Sessions share IPs while retaining VM-isolated sandboxes.","Do not use IP identity as tenant/user authorization. Size subnet, routes and regional session quota; blog capacity figures are estimates, not guarantees."],
+        ["Egress controls / GA core","Policy enforcement happens outside the sandbox; running sessions retain their old policy.","Audit real destinations, then enforce an allowlist; create fresh sessions for policy verification. Transform and secret-backed headers remain preview."],
+        ["Private CA trust / preview","Resource-level CA registration through Key Vault; applies to supported paths/new sessions.","Validate chain/hostname/rotation and access. Do not assume remote builds or mutual TLS are covered."],
+        ["Long-running resiliency / GA","Opt-in recovery can rerun the handler after failure or redeployment.","Checkpoint progress in durable state and bind side effects to an operation ID. A resumed handler is not exactly-once execution."],
+        ["Idle timeout / GA","Per-version configurable 2 minutes to 4 hours; 15-minute default at review.","Release idle compute deliberately; measure reconnection, state restoration and cost. It is not a maximum business-task lifetime."],
+        ["Memory snapshots / preview","Configured per agent version; can improve startup.","Keep required state external. Test what survives crash, idle release, snapshot changes, version rollout and regional loss."]
+      ])}
+      ${steps(["Cold-start a new version under the real agent identity and restricted network; verify image pull, token service, tool access and trace emission.","Interrupt a side-effecting job after commit but before response; recovery must reconcile the operation rather than repeat it.","Change an egress rule, compare existing versus new sessions, and capture the policy/version evidence. A failed policy evaluation must not silently open outbound access."])}
+      ${note("<strong>Quota remains real.</strong> The announcement quotes default regional session quotas in the 1,000-2,000 range per subscription/region; inspect your actual quota instead of treating subnet address-sharing estimates as an entitlement. Azure Policy egress governance is preview with region restrictions.")}`, ["hosted26","hosted","guards","network"], "Hosted runtime / GA core with preview extensions");
+
+    add("state-memory", "Runtime", "Store durable context with an explicit lifecycle.", "Conversation history, files, vector stores, agent memory, and business records need separate ownership and retention.", `
+      ${cards([["Conversation and runtime state","Decide what is stored, who can retrieve it, how long it lives, and what happens on retry, session expiry, or regional recovery. Stateful APIs do not relieve the application of user/tenant authorization."],["Long-term memory (preview)","Profile, chat-summary, and procedural memories have extraction, consolidation and retrieval behavior. Set supported TTL and deletion/forget behavior; test correction and poisoned-memory cases. Memory is learned context, not an authoritative employee directory."],["Scope and network limits","Low-level memory APIs require explicit scope. Automatic caller scoping is limited to the supported memory search tool path with its user placeholder. VNet integration for memory stores is currently unsupported; do not quietly add memory to an all-private design."]])}
+      ${steps(["Classify each state store and define subject identifiers outside model output.", "Enforce scope from the authenticated caller rather than a user-supplied memory key.", "Test access, update, conflict handling and deletion across users and sessions.", "Trace state references with minimal content; verify data erasure and recovery procedures against every dependent store."])}
+      ${note("For the service desk: policies live in the knowledge base; the order system remains the record of truth; an optional language preference can live in approved user memory. A remembered approval must never authorize a new business action.")}`, ["memory","runtime","architecture"]);
+
+    add("orchestration", "Runtime", "Triggering, coordinating, and delegating are different jobs.", "Choose one agent, a routine, code orchestration, or agent-to-agent delegation based on control flow and accountability.", `
+      ${cards([["Routines: when to run","One trigger invokes one prompt or hosted agent. Timers, recurring schedules and supported events are project-native automation. Agent identity is the default dispatch authority; creator identity is an explicit create-time choice, not arbitrary future-user delegation."],["Framework orchestration: how work connects","Use code/framework orchestration for branching, checkpoints, human approval, parallelism and compensation. Foundry Workflows retire on 1 December 2026; use Microsoft Agent Framework for new development. A routine can invoke an agent that owns its internal graph."],["A2A: delegate a bounded task","Authenticate to another agent and define the task/result contract. Propagate approved context only; bound retries, nested delegation, tool authority and cost. Correlate traces across agents without assuming all runtimes emit equivalent telemetry."]])}
+      ${note("<strong>Routines limitations matter:</strong> no CMK support; region exclusions apply. Delivery retries and dispatch timeouts are not the business task's own exactly-once guarantee. Creator dispatch, connector identity and downstream tool identity are separate. A routine does not support the preview AgentBlueprint endpoint scheme.")}
+      <p class="fine">For scheduled employee tasks, verify the intended delegated-user support before enabling automation. Design disable/pause, duplicate delivery, missed trigger and creator-offboarding behavior.</p>`, ["routines","workflows","identity","scope"]);
+
+    add("voice-architecture", "Voice", "Voice has two independent design axes.", "Choose who operates the model deployment, then choose native speech-to-speech or a cascaded speech pipeline. Self-deployed model does not mean self-hosted voice orchestration.", `
+      ${table(["Axis","Option","Engineering consequence"],[
+        ["Model operation","Managed model","Foundry handles the service-managed selection; verify available models, processing terms and region."],
+        ["Model operation","Self-deployed model","Reuse a supported Foundry deployment, quota/PTUs or customization; you manage capacity/version lifecycle."],
+        ["Speech path","Native speech-to-speech","A compatible realtime model consumes and emits audio; test prosody, interruption, tool support and audio billing."],
+        ["Speech path","Cascaded STT -> text model -> TTS","Choose supported text models, including compatible provider/open models; independently tune recognition, model reasoning and synthesized voice."],
+        ["Protocol","realtime versus live","kind: voice with realtime covers native and cascaded paths. live selects GPT-Live (preview), with a distinct full-duplex contract."]
+      ])}
+      ${note("<strong>Do not conflate four products:</strong> a Voice Agent definition, the Voice Live runtime/integration, a realtime model deployment, and a custom hosted real-time agent are not interchangeable. An existing text agent plus a legacy Voice Live integration has a separate migration path.")}
+      <div class="grid two"><article class="card lab-controls"><label class="field">Speech path<select id="voice-path"><option value="native">Native speech-to-speech</option><option value="cascade">Cascaded STT / LLM / TTS</option><option value="live">GPT-Live / full duplex (preview)</option></select></label><label class="field">Model management<select id="voice-model"><option value="managed">Service-managed</option><option value="own">Existing supported deployment</option></select></label></article><div id="voice-result" class="readout" aria-live="polite"></div></div>`, ["voiceconfig","voice","live"]);
+
+    add("voice-recipe", "Voice", "Get one spoken turn working before adding tools.", "Make audio format, agent definition, model access, and client transport independently observable.", `
+      ${steps([
+        "<strong>Confirm prerequisites.</strong> Foundry project, supported subscription/region, authoring/invocation rights, available voice/model configuration, client runtime, and microphone permission for browser tests. Keep service keys out of untrusted clients.",
+        "<strong>Create with Voice interaction mode.</strong> Select a stable name; text/voice interaction mode cannot be switched in place. Configure instructions, model_type/model, greeting, audio input/output, transcription, turn detection and storage policy.",
+        "<strong>Save an immutable version.</strong> Record the version and selected serving endpoint behavior. Use the feature quickstart's current SDK and WebSocket/session helper rather than copying a text Responses payload into a live socket.",
+        "<strong>Connect and exchange audio.</strong> Match codec, channel count and sample rate in both directions. The starter example uses PCM16 mono at 24 kHz, but the negotiated configuration is authoritative. Handle audio deltas, completion, cancellation, errors and disconnect.",
+        "<strong>Verify the first turn.</strong> Confirm recognition/transcript, correct language/voice, short grounded replies, first-audio latency, interruptions and silence. End the session before editing portal configuration.",
+        "<strong>Add one read-only tool.</strong> Verify exact invocation/result correlation and spoken failure behavior before adding knowledge, writes, telephony, avatar or multi-agent handoff."
+      ])}
+      ${note("<strong>Session configuration nuance:</strong> the quickstart relies on server-side agent defaults and does not need an initial client session.update. The configuration guide permits supported audio/avatar session overrides. Do not send unsupported overrides or assume every property is mutable mid-call.")}`, ["voice","voiceconfig"]);
+
+    add("voice-turns", "Voice", "Turn-taking is part of the application contract.", "Endpointing, interruptions, audio playback, and business execution advance on different clocks.", `
+      ${cards([["Input and endpointing","Silence-based server_vad and supported semantic VAD variants make different trade-offs. Tune activation sensitivity, prefix padding, silence duration and minimum speech. Test long pauses, accents, code-switching, background speakers, music and silence."],["Barge-in and output","Detect caller speech, stop stale playback, and coordinate response cancellation/truncation using the supported protocol. The client must not keep playing obsolete buffered audio. Interruption of speech does not mean a business mutation was cancelled."],["Noise, echo and voice","Select supported noise suppression and echo cancellation for headset/speaker/phone conditions. Match language and voice type; custom/personal voices require their own eligibility and consent. Test numbers, names and identifiers with realistic audio."]])}
+      <div class="grid two"><article class="card lab-controls"><label class="field">Silence endpointing budget (ms)<input id="vad-ms" type="range" min="200" max="1500" step="100" value="600"></label><label class="field">Model + tool critical path (ms)<input id="model-ms" type="range" min="100" max="2500" step="100" value="800"></label><p class="fine">Teaching model: first-audio delay = chosen silence + chosen critical path + 250 ms assumed transport/playback. It is not a measured SLA or native/live latency model.</p></article><div id="latency-result" class="readout" aria-live="polite"></div></div>
+      ${note("Measure from the user's actual end of speech to audible useful output. Interim responses can acknowledge a slow tool but must not claim completion. Evaluate false interruptions and clipped utterances separately from average latency.")}`, ["voiceconfig","live"]);
+
+    add("voice-tools", "Voice", "A natural voice is not an authenticated user.", "Caller ID, a spoken name, transcription text, and the agent's identity do not establish the employee's authority.", `
+      ${table(["Tool type in Voice Agents","Who executes","What to engineer"],[
+        ["function","Your client","Receive proposed call over the live session, authorize/validate, execute and return the correlated result. Implement disconnect and duplicate-call handling."],
+        ["mcp","Service","Remote endpoint and configured authentication. Verify caller authority, consent and network support independently."],
+        ["toolbox","Service","Agent references a Toolbox name and immutable version in the voice definition. Do not assume it follows the unversioned consumer endpoint's default-promotion behavior."],
+        ["system","Service","Supported conversation and phone actions such as ending the conversation; transfer/handoff eligibility and preview status vary."]
+      ])}
+      ${steps(["Authenticate the person through an approved out-of-band or client login path before exposing protected data or mutations.", "Read back only the minimum non-sensitive action summary. Bind approval to exact server-side arguments, actor and operation ID; speech confirmation is a UX event, not a universal identity factor.", "On interruption, disconnect or timeout, reconcile whether the backend committed. Use idempotency and safe retry; never say a change succeeded until the tool confirms it.", "Test how consent requests, errors, parallel calls and late tool results are presented in speech. A voice-only caller may not be able to complete a browser OAuth consent flow."])}
+      ${note("<strong>Version distinction:</strong> the voice configuration guide pins Toolbox versions; hosted consumers may follow default_version via an unversioned endpoint. Record both bindings so a central Toolbox promotion does not create false expectations for the voice channel.")}`, ["voiceconfig","toolauth","hostedtools","identity"]);
+
+    add("voice-channels", "Voice", "Transport, channel, and model features have separate readiness.", "Browser speech, phone connectivity, avatars, GPT-Live and custom hosted media protocols solve different integration problems.", `
+      ${cards([["Phone and contact workflows","Supported Teams Phone extensibility and Twilio paths bind phone numbers to agents; call-job APIs cover supported outbound operations. SIP, transfers, campaigns and related writes include preview features. Validate provider setup, region, number ownership, webhook/event validation and human fallback."],["GPT-Live and delegation","GPT-Live (preview) listens and speaks concurrently using sub_protocol: live and native event semantics. Inline subagents/handoff and session operations have their own opt-in/support requirements. Do not reuse realtime VAD, audio or tool assumptions without the live-specific reference."],["Avatar and custom media","Supported avatars add visual/audio synchronization and their own settings/constraints. If you require a custom duplex protocol or wrapper that calls another hosted agent, validate invocations_ws and each independently deployed service rather than treating a speech model as a complete application."]])}
+      ${steps(["Choose the channel and verify its supported model, protocol, region, auth and feature status matrix.", "Design greeting/disclosure, consent, recording/transcript storage, PII handling, transfer destinations, operating hours and disconnect policy.", "Test inbound/outbound lifecycle, busy/no-answer, human handoff failure, tool latency, call termination and duplicate post-call event delivery.", "Separate audio, transcript, agent/tool and carrier metrics. Reconcile provider charges, model/audio usage and any hosted dependencies."])}
+      ${note("<strong>Ignite additions need component-level checks:</strong> Microsoft Realtime Flash 1 is preview; HD V3 voices, azure_semantic_vad v2 and VASA-2 Photo Avatar are described in the voice announcement. Validate each model, locale, region and channel combination rather than inheriting core Voice Agents GA.")}
+      ${note("<strong>Post-call is not the transaction boundary.</strong> Post-call delivery includes preview paths. Use it for supported downstream summaries/events with deduplication; business mutations must have been authorized and committed independently during execution.")}`, ["voiceconfig","phone","live","hosted","voice26"]);
+
+    add("task-services", "Voice", "Use a task API when the job is extraction, not conversation.", "Speech, Language, Translator, Vision, Document Intelligence and Content Understanding are capability families with their own model, endpoint, data and pricing contracts.", `
+      ${table(["Task","Candidate surface","Bottom-up implementation checks"],[
+        ["Transcribe/translate/synthesize speech","Speech task APIs; custom speech/voice/avatar where supported.","Choose batch versus streaming, locales, audio format and model; test domain names, consent, attribution and custom-model lifecycle. Voice Agent access is not every Speech entitlement."],
+        ["Classify, extract entities, redact or translate text","Language / PII and Translator task APIs.","Define schema/offset handling, language coverage, confidence thresholds and human-review rules. Redaction before an external call differs from detection afterward."],
+        ["Read forms or structured documents","Document Intelligence or Content Understanding analyzers.","Version field/table schemas, classify/segment inputs, retain grounding/page coordinates and route low-confidence fields to review."],
+        ["Understand mixed documents, images, audio and video","Content Understanding.","Choose analyzer and generative-model dependencies, asynchronous result handling, source grounding and modality-specific limits."],
+        ["Describe/index images or semantic document chunks","Supported Vision / Document Intelligence / Content Understanding enrichment.","Measure extraction quality before RAG. Generated image descriptions are derived evidence, not the original source or automatic truth."]
+      ])}
+      ${steps(["Define the machine-readable output contract and a representative labeled sample, including unreadable, unsupported and sensitive inputs.","Call the smallest supported API under its intended identity and network; inspect confidence, grounding, errors and asynchronous completion where applicable.","Persist only approved outputs with provenance and retention. Add an agent only if dialog, disambiguation or tool coordination adds value."])}
+      ${note("<strong>Version and surface matter.</strong> Content Understanding's stable production contract differs from preview API features. Confirm supported region/model mappings and processing location. A feature absent from the new portal can still have a supported service API; portal readiness is not the whole product lifecycle.")}`, ["content","scope","iq26","voiceconfig"]);
+
+    add("evaluation-design", "Assurance", "Build an executable specification of acceptable behavior.", "Evaluate the end-to-end agent trajectory, not just whether the final text sounds helpful.", `
+      ${table(["Test slice","Assertions","Data and isolation"],[
+        ["Retrieval","Allowed source, relevant evidence, correct citation, no-answer behavior, revoke/delete propagation.","Golden questions, missing/conflicting sources, two users with distinct access."],
+        ["Tools and agent loop","Correct tool/arguments, authorized action, approval honored, step/time budget, idempotency.","Deterministic server assertions and an isolated business backend."],
+        ["Voice","Recognition, first useful audio, interruption/cancellation, spoken privacy, successful transfer.","Recorded or controlled live test turns, pauses/noise/languages; text-only tests are insufficient."],
+        ["Safety / abuse","Injection resistance, data boundaries, overbroad authority, consent failures and refusal.","Adversarial datasets and automated red teaming plus human review."],
+        ["Operations","Latency percentiles, errors, token/compute/tool footprint and recovery.","Representative concurrency and dependency-failure injection."]
+      ])}
+      ${steps(["Version inputs, expected assertions, permitted resources, personas and evaluation configuration.", "Use built-in quality/RAG/agent/safety evaluators where supported; add deterministic and custom domain graders.", "Keep holdout and optimization datasets separate. Record judge model/version and adjudicate ambiguous/high-impact cases.", "Gate on hard authorization and safety constraints separately from weighted quality averages; inspect failures by slice before rollout."])}
+      ${note("A zero-failure finite test run does not establish zero risk. Red teaming probes for failure; guardrails intervene at runtime; neither replaces service authorization or a release decision.")}`, ["observe","optimize","guards"]);
+
+    add("continuous-loop", "Assurance", "Make improvement a controlled release loop.", "Establish, identify, optimize, validate and repeat. 'Learns from use' does not mean production weights, permissions or tools should change autonomously.", `
+      ${steps([
+        "<strong>Establish the bar.</strong> Version business-task slices, hard permission/safety assertions and calibrated evaluators. Expert annotations on approved traces can become evaluation cases; record consent, provenance and any generated rubric.",
+        "<strong>Lock a baseline and holdout.</strong> A golden dataset is a governed quality bar, not a replacement for an unseen test set. Freeze target, evaluator/model version, tool fixtures and expected business outcomes.",
+        "<strong>Identify the dominant failure.</strong> GA Insights groups recurring trace issues with evidence. Link an issue to exact agent/model/tool/knowledge versions and check whether it is genuinely a prompt/skill/model problem.",
+        "<strong>Optimize in isolation.</strong> Compare candidate instructions, skills or models; preview skill/cost/insights integrations need eligibility checks. Restrict real tools because candidate evaluation may execute them before promotion.",
+        "<strong>Validate the candidate.</strong> Compare holdout task success, multi-turn trajectory, user-permission isolation, safety, latency and cost per successful task. Inspect statistical uncertainty and harmed slices, not just the mean.",
+        "<strong>Apply, canary and monitor.</strong> A human approves the compatible artifact set. Retain the prior version, feed sampled production evaluation/feedback into the next issue, and stop or roll back on hard-constraint violations."
+      ])}
+      ${cards([["Judge calibration","Microsoft-Decision-1.1 is one GA judge option, not objective truth. Measure agreement with qualified reviewers, label leakage and sensitivity to prompt/model changes."],["Cost is an outcome with scope","The preview Cost experience adds cross-agent/model/tool spend and forecasts. Reconcile billing meters; lower token cost can still increase total cost through retries, tools or longer hosted sessions."]])}
+      ${note("<strong>Status reconciliation:</strong> Ignite announces core optimizer GA, while a portal readiness page still says limited preview. New insights-to-optimizer, skill optimization, cost optimization, trace annotations, golden datasets and safety rubrics are preview. Confirm the specific target/mode instead of inheriting a single product-wide label.")}`, ["improvement26","ignite","observe","optimize"], "Continuous improvement / GA core and preview modes");
+
+    add("guardrail-matrix", "Assurance", "Locate the intervention point and enforcement owner.", "Model filtering, agent content controls, network egress, Azure Policy checks, and tool-server authorization do not enforce the same thing.", `
+      ${table(["Control","Where it acts","Important limitation"],[
+        ["Model guardrail","Supported inference inputs/outputs.","Not universal across model offers and managed-compute paths."],
+        ["Agent guardrail","Assigned agent input/output; supported tool-call and response intervention points.","Agent content-safety and tool points include preview. Explicit agent policy overrides rather than simply adds to model policy."],
+        ["Prompt Shields / task adherence / PII / protected material","Supported risks and feature-specific intervention points.","Check the current applicability matrix; risk coverage differs for agents, models and previews."],
+        ["Network egress guardrail","Supported agent outbound calls.","Runtime restrictions and Azure Policy governance have different coverage and configuration requirements."],
+        ["Business authorization","Application and downstream tool service.","A content classifier cannot authorize a refund, enforce record ownership or guarantee idempotency."]
+      ])}
+      ${note("<strong>Lifecycle warning:</strong> the documented Azure OpenAI groundedness detection preview retires 30 April 2027. Do not confuse that runtime detector with groundedness evaluation metrics. Record migration work for affected filters instead of assuming every similarly named capability retires.")}
+      <p class="fine">Test the effective assigned policy with known allow/block examples at each supported intervention point, including tool responses. Log policy identifiers and nonsecret outcomes without capturing unnecessary sensitive content.</p>`, ["guards","compute","governance"]);
+
+    add("runtime-controls", "Assurance", "A runtime policy needs an unskippable enforcement point.", "Agent Controls public preview uses the Agent Control Specification and Agent Hooks to evaluate proposed actions/content. A policy receipt is evidence of a decision, not proof the business action obeyed it.", `
+      ${flow([["Hook","Pause before an action"],["Evaluate","Evidence + versioned policy"],["Verdict","Allow / deny / transform + receipt"],["Enforce","Runtime applies decision"],["Tool","Own auth + validation + idempotency"]])}
+      ${steps([
+        "<strong>Separate control types.</strong> Model content classification, deterministic business limits, contextual LLM judgments, network egress and Azure Policy configuration checks act at different points.",
+        "<strong>Choose and bind the policy.</strong> Record scope, policy version, action schema, annotators and allowed transformations. Deterministic limits should not rely solely on a probabilistic judge.",
+        "<strong>Verify runtime integration.</strong> Supported Foundry runtimes integrate enforcement; external hosts must enforce the returned verdict themselves through the appropriate hook contract. Ensure every relevant execution path reaches the hook.",
+        "<strong>Test failure behavior.</strong> Deny a prohibited action, reject malformed verdicts, expire stale decisions and prevent transformed arguments from bypassing validation. Specify timeout/unavailable behavior for each risk rather than assuming a universal default.",
+        "<strong>Retain an audit chain.</strong> Correlate initiator, agent identity, proposal, policy receipt, exact executed arguments and downstream result without leaking sensitive content. Keep server authorization and human approval where required."
+      ])}
+      ${table(["Related surface","Status at review","Do not confuse it with"],[
+        ["Custom policies in Foundry guardrails","Private preview; deterministic rules and contextual judges.","Universal availability of custom runtime rules."],
+        ["Foundry Compliance policy management","Public preview; Azure Policy audit/deny where supported.","Stopping all existing agent runs when a configuration is noncompliant."],
+        ["ACS integration in Foundry Compliance","Private preview; stricter verdict wins where both configured scopes apply.","The separate agent-versus-model guardrail override contract."],
+        ["Agent 365 tenant-wide Foundry policies","Preannouncement in event examples.","An available tenant-wide enforcement feature today."]
+      ])}
+      ${note("<strong>Do not generalize precedence.</strong> ACS scope-combination semantics and agent content-guardrail override semantics are different contracts. Prove the effective policy at the actual intervention point. No policy layer removes the downstream service's authorization responsibility.")}`, ["controls26","governance26","guards"], "Agent Controls public preview / related private previews");
+
+    add("traces-debug", "Operations", "Debug the failing hop, not the last symptom.", "Tracing, monitoring, evaluation, and feedback answer different questions; configure their data sources and access separately.", `
+      ${table(["Symptom","Inspect first","Evidence"],[
+        ["401 / 403 from tool","Agent-to-Toolbox boundary, then connection audience and downstream actor/grants/consent.","Sanitized status and endpoint, identity object ID, target scope, correlation ID; never copy tokens."],
+        ["No tools / startup not ready","Default/pinned Toolbox version, tools/list, remote source health and allowed-tool names.","Separate discovery failure from selection and invocation."],
+        ["Wrong user's data despite HTTP 200","Caller-context forwarding, delegated mode, source authorization and concurrent-user tests.","Compare users/tenants and result access, not only request success."],
+        ["Slow voice turn","End-of-speech detection, transport, planner, retrieval/tool latency, model and playback.","Trace-linked timing plus user-perceived audio metrics."],
+        ["429","Rate quota, gateway policy, or Foundry cost-control error.","Cost-control blocks include x-ms-budget-cause: budget_exceeded; streaming errors need event handling."]
+      ])}
+      ${cards([["Instrument and correlate","Use supported OpenTelemetry/Application Insights integration for agent, model, retrieval and tool spans. Record deployment/version, outcome and latency; restrict sensitive prompts, tool payloads and recordings."],["Improve from evidence","Use supported trace replay, human feedback, trace-to-dataset and continuous evaluation. Replay may re-execute tools: use test resources. Missing traces or quality metrics mean telemetry/evaluation gaps, not zero incidents."]])}`, ["observe","hostedtools","costs","scope"]);
+
+    add("budgets-gateway", "Operations", "A spending alert is not a kill switch.", "Map every cost meter and explicitly choose where requests can be rejected.", `
+      ${table(["Mechanism","What it controls","What it does not guarantee"],[
+        ["Azure Cost Management budget","Delayed billed-cost tracking and alerts/automation.","Does not itself stop inference or tool execution."],
+        ["Foundry cost controls (preview)","Configured token/spending budgets and alert/block actions for supported usage.","Current exclusions include PTU, tool charges and hosted compute; provider/model/router coverage is limited."],
+        ["Quota / rate limits","TPM/RPM, deployment capacities and service-specific limits.","A cost ceiling, deployment capacity reservation or uniform cross-model throughput."],
+        ["AI Gateway / APIM","Supported traffic routed through the gateway: rate/token limits, routing, auth and observability.","Traffic that bypasses it or downstream tool business authorization."],
+        ["Application budgets","Per-task steps, tokens, wall time, concurrency and tool-call limits.","Exact invoice reconciliation without tracking every dependent meter."]
+      ])}
+      ${note("<strong>Cost-control failure semantics:</strong> a threshold-crossing request can complete; updates can take up to 15 minutes; documentation says a request can run if the check cannot complete in time. Project-level chat-completions blocking also has exceptions. Treat preview controls as bounded coverage, not an absolute financial guarantee.")}
+      ${note("<strong>Azure AI Gateway changed at Ignite 2026.</strong> The former APIM AI Gateway tier is now a standalone GA service; existing API Management AI policies remain a distinct choice. Configure approved model aliases/MCP tools, caller access, explicit routing and enforced limits, then prove a denied call and an unapproved direct-backend path. Private Link, private-backend VNet integration and selected Foundry model connections remain preview. Gateway limits cover routed traffic, not every Foundry or Azure charge.")}
+      <p class="fine">Budget for input/output/reasoning/audio tokens as applicable, provisioned/accelerator capacity, hosted sessions, Search, embeddings, tools, carrier services, storage, networking, evaluations and telemetry. Optimize cost per successful authorized business task.</p>`, ["costs","governance","deployment","compute","gateway26"]);
+
+    add("reliability", "Operations", "Recover state and authority, not just an endpoint.", "Separate transient retries, application degradation, version rollback, and regional disaster recovery.", `
+      ${steps([
+        "<strong>Classify failures.</strong> Retry bounded transient failures with jitter and server guidance. Do not blindly retry invalid arguments, denied consent, forbidden actions, or budget blocks.",
+        "<strong>Contain side effects.</strong> Use operation IDs and idempotent downstream mutations. Timeouts after commit need status lookup/reconciliation, not another unconditional write.",
+        "<strong>Define safe degradation.</strong> An unavailable knowledge source should produce an explicit limitation, not an invented answer. If approval/identity is unavailable, do not downgrade to a shared powerful credential.",
+        "<strong>Prepare recovery dependencies.</strong> Model/version and processing scope, quota/capacity, knowledge freshness, conversation/business state, tool connectivity, secrets, identity grants and telemetry must work in the target.",
+        "<strong>Exercise rollback and failover.</strong> Test agent version, Toolbox version, model deployment, retrieval schema and client compatibility. Measure RTO/RPO for each state store and document user-visible recovery behavior."
+      ])}
+      ${note("Foundry resource location and Global model routing do not automatically replicate project state or fail over the entire application. A separately provisioned region is a recovery candidate only after compliant capacity, data, identity and routing are proven. In voice, reconnecting a media session is not equivalent to resuming a business transaction.")}`, ["architecture","deployment","hosted","network"]);
+
+    add("ship", "Enterprise", "Release a compatibility manifest.", "Infrastructure, agents, models, connections, knowledge schemas, Toolbox versions, and clients need one reproducible release record.", `
+      ${cards([["Build","Use portal exploration to establish the pattern, then version supported IaC and agent definitions. Pin SDK/runtime dependencies and API versions; source-control prompts, tool schemas, skills and evaluation configuration. Keep secrets in approved stores/connections."],["Validate","Use isolated test data and least-privilege deployment identities. Validate infrastructure policy and permissions, private runtime paths, read-only smoke calls, deterministic tool assertions, quality/safety/voice suites, latency and budget behavior."],["Promote","Deploy dependencies before consumers, promote immutable versions deliberately, canary with known users, and monitor outcome slices. Record differing bindings: model deployment, pinned Voice Toolbox, hosted default-following Toolbox, client protocol and knowledge schema."]])}
+      ${steps(["Record nonsecret artifact IDs, versions, region/processing scope, identities, feature status and evidence links.", "Gate production on signed-off preview dependencies, ownership, incident plan and rollback compatibility.", "Choose channels deliberately: application endpoint, Microsoft Copilot/Teams publishing, external runtime registration or supported telephony. Publishing changes reach and identity expectations.", "Test a user through the final channel, not only a playground administrator; confirm telemetry correlation and user authorization end to end."])}
+      ${note("Azure Developer CLI, SDKs, Foundry Toolkit/VS Code, Agent Canvas, templates and coding-agent/MCP integrations are authoring surfaces. Their presence does not alter production permissions or make generated code deployment-ready.")}`, ["scope","agents","hostedtools","voiceconfig","ga"]);
+
+    add("fleet-governance", "Enterprise", "Govern configuration and runtime separately.", "Foundry governance (formerly Control Plane) combines native identity, access, cost and safety controls with optional specialized integrations.", `
+      ${table(["Layer","Implementation focus","Do not assume"],[
+        ["Native policy / project controls","Approved models/deployment types, agent kinds/images, tools and egress within supported scope.","An Azure Policy assignment automatically configures every runtime tool restriction."],
+        ["Fleet / Operations / Cost / Compliance","Scope by the actual subscription/resource/project, time range and permissions.","Every missing metric is zero, or every view is one automatically correlated incident."],
+        ["Agent 365","Supported enterprise agent inventory, management, observability and lifecycle integration.","External registered agents are hosted by Foundry or support identical administrative actions."],
+        ["Purview","Supported data security, audit, retention/DLP and compliance integrations with licensing and configuration.","Audit visibility equals blocking, or all channels and identities have identical coverage."],
+        ["Defender","Configured posture recommendations, threat detection and response integrations.","A recommendation itself enforces protection or establishes compromise."],
+        ["Gateway","Traffic governance for routed model/tool paths.","A gateway is required for every native governance control, or all traffic necessarily traverses it."]
+      ])}
+      ${note("<strong>Environment matrix:</strong> repeat the feature/region/provider/network check for sovereign/Azure Government environments. Add customer-managed-key, retention, private connectivity and enterprise preview restrictions where required. Integration names alone do not establish licensing, coverage or compliance.")}`, ["governance","ga","scope"]);
+
+    add("capstone", "Reference", "Assemble the service desk. Then break it deliberately.", "Use this implementation sequence as a practical lab with your own approved nonproduction subscription and test data. This page itself never provisions resources.", `
+      ${steps([
+        "<strong>Foundation gate:</strong> create an approved Foundry account/project and one model; record endpoints/ARM IDs, principals and network decisions. Prove builder/consumer separation.",
+        "<strong>Knowledge gate:</strong> ingest a public-to-staff policy and a restricted policy into a supported knowledge source. Prove two users get different permitted evidence; revoke one document and measure propagation.",
+        "<strong>Tool gate:</strong> expose read-order and propose-change through a narrow test MCP API. Configure connection identity, test a versioned Toolbox, and implement server-side authorization/idempotency and exact-action approval.",
+        "<strong>Runtime gate:</strong> bind one prompt or hosted agent. Trace model -> retrieval -> tools; verify caller-context preservation, bounded loops, timeouts and consent handling.",
+        "<strong>Voice gate:</strong> create a separate Voice Agent with one supported model, short instructions and the tested knowledge/tool path. Pin its Toolbox version. Test barge-in, long pauses, no evidence, tool timeout-after-commit and a disconnected caller.",
+        "<strong>Release gate:</strong> run your holdout and adversarial suites; include forbidden-user, replayed approval, unavailable private dependency, stale ACL, wrong-audience token and budget-block cases. Keep mutations in isolated test resources.",
+        "<strong>Operations gate:</strong> show a trace, a failing assertion, an approved rollback and a reconciled backend result. Test the final client/channel under a restricted consumer before expanding."
+      ])}
+      ${note("<strong>Deliverables:</strong> dependency/data-flow diagram; principal-to-target matrix; version manifest; sanitized positive/negative evidence; dataset and evaluator lineage; preview exception register; cost model; RTO/RPO and rollback runbook. A working greeting is not the acceptance test.")}`, ["projects","pipeline","hostedtools","voice","observe"]);
+
+    add("failure-drills", "Reference", "Find the missing boundary.", "These fictional cases test the implementation distinctions. Select the corrective action and inspect the reasoning.", `
+      <label class="field lab-controls">Failure drill<select id="drill"></select></label>
+      <div class="grid two"><article class="card" id="drill-context"></article><div class="stack" id="drill-options" role="group" aria-label="Corrective actions"></div></div><div class="readout" id="drill-result" aria-live="polite"></div>`, ["identity","kb","hostedtools","voiceconfig","costs"]);
+
+    add("evidence-plan", "Reference", "Take away the implementation evidence plan.", "Check only what your team has actually verified. The selections are a local self-assessment, not automated proof.", `
+      <div class="grid two"><div class="card stack" id="checklist"></div><article class="card"><p class="stat" id="plan-count"></p><h3>Evidence areas prepared</h3><p>Assign an accountable owner, nonproduction test target, evidence location, gap and review date for every area. Retain the plan in an authorized system.</p><div class="actions"><button class="primary" id="download">Download plan</button><button id="view-plan">View / copy</button></div><p class="fine">Choices live only in page memory until reload. No cookies, analytics, Azure calls or microphone access. Download to retain a copy; do not enter sensitive data into this guide.</p></article></div>`, ["scope","ga"]);
+
+    add("atlas", "Reference", "The capability atlas.", "Browse capability families and dated announcement entries, including less-common authoring, media, safety, sovereign, and integration surfaces. Each entry links to official guidance or its primary announcement.", `
+      <div class="grid two lab-controls"><label class="field">Search names and considerations<input id="atlas-query" type="search" placeholder="Try: memory, voice, fine-tuning, quota, Purview"></label><label class="field">Area<select id="atlas-area"><option value="">All areas</option></select></label></div>
+      <p class="fine" id="atlas-count" aria-live="polite"></p><div id="atlas-empty" class="empty" hidden>No matching capabilities. Clear the query or select another area.</div><div class="grid two" id="atlas-results"></div>
+      ${note("Coverage is anchored to Microsoft's capability reference plus feature-specific documentation. This is a finite, dated family-level index, not a claim that every model, regional SKU, preview API field, partner offer or future announcement has been enumerated. Availability must be checked at the linked feature level.")}`, ["scope","ga"]);
+
+    add("sources", "Reference", "Follow the contract, not the screenshot.", "This guide is an independent educational synthesis. Official documentation governs the current API, feature status, supported identity path and operational limits.", `
+      <div class="grid two" id="source-list"></div>
+      <p class="fine">Reviewed 23 November 2026. Feature-specific pages can differ from portal readiness labels; those distinctions are called out rather than flattened into a blanket GA promise. External links require connectivity; the guide and rehearsals otherwise work offline. Print / PDF includes every stop and all capability entries; expand any details you need printed.</p>
+      <div class="actions"><button data-go="evidence-plan">Return to evidence plan</button><button data-go="welcome">Return to start</button></div>`, ["scope","ga"]);
+
+    const atlasGroups = [
+      ["Build surfaces", [
+        ["Foundry portal and playgrounds","concepts/concept-playgrounds","Prototype with the right portal/project generation; move reproducible definitions into source control."],
+        ["SDKs and inference APIs","how-to/develop/sdk-overview","Pin language package/API contracts; distinguish project, inference and resource-management endpoints."],
+        ["Azure Developer CLI","agents/concepts/cli-agent-development","Scaffold, run, deploy and manage environments; verify extensions and current supported command surface."],
+        ["VS Code / Foundry Toolkit","how-to/develop/get-started-projects-vs-code","Develop and debug against the correct project; local credentials are not production identity."],
+        ["Foundry Agent Canvas","agents/concepts/foundry-agent-canvas","Visual composition/inspection surface; distinguish tooling UX from runtime capabilities."],
+        ["Coding agents and Foundry MCP","agents/how-to/use-cli-with-coding-agents","Developer automation is separate from the MCP tools your production agent exposes."],
+        ["Templates and samples","how-to/develop/ai-template-get-started","Review generated infrastructure, runtime, identities and preview dependencies before deployment."],
+        ["LangChain / LangGraph integration","how-to/develop/langchain","Use supported hosting, Toolbox, memory and tracing adapters; test request context propagation."],
+        ["Foundry Dev Pack (GA)","https://devblogs.microsoft.com/foundry/the-foundry-dev-pack-is-here-build-foundry-agents-your-way/","CLI, Foundry skill and supported coding/editor integrations; developer convenience does not change runtime identity."]
+      ]],
+      ["Models", [
+        ["Catalog / model-provider offers","concepts/foundry-models-overview","Compare task fit, provider terms, modalities, licensing, regional support and billing."],
+        ["Model deployment and endpoints","foundry-models/how-to/create-model-deployments","Record deployment name and endpoint route, not just model catalog identity."],
+        ["Standard / Global / Data Zone / Batch / PTU","foundry-models/concepts/deployment-types","Separate processing scope, request pattern, throughput and capacity; confirm model/version support."],
+        ["Priority and Flex processing","foundry-models/concepts/deployment-types","Request-level processing choices have model/deployment eligibility and different latency trade-offs."],
+        ["Managed compute","concepts/managed-compute-overview","Versioned templates, runtime compatibility, instance/GPU counts, dedicated capacity and separate quota."],
+        ["Instant access models (preview)","concepts/instant-models","Supported model calls without a deployment; review enterprise allowlists and cost-control coverage."],
+        ["Model router","openai/concepts/model-router","Validate model pool, quality/cost behavior, privacy, output compatibility and incomplete cost-control coverage."],
+        ["Benchmarks and leaderboards","concepts/model-benchmarks","Use public scores as a shortlist; evaluate the representative business task."],
+        ["Fine-tuning / distillation / preference / reinforcement","openai/how-to/fine-tuning","Choose supported model/method/region, approved data, calibrated graders, holdouts and serving path."],
+        ["Versions, upgrades and retirement","foundry-models/concepts/model-versions","Pin update policy; rerun regression tests before model or runtime change."],
+        ["Healthcare models","how-to/healthcare-ai/healthcare-ai-models","Domain use, intended purpose, validation and access constraints are not generic chat assumptions."],
+        ["Hugging Face model collection","foundry-models/how-to/hugging-face-models","Check license, template, modality, runtime and accelerator availability."],
+        ["Fireworks and custom model offers","how-to/fireworks/enable-fireworks-models","Provider-specific import, deployment, auth, billing and supported voice/agent integration."],
+        ["Managed-compute LoRA adapters (preview)","concepts/adapter-deployment-overview","Validate adapter/base-model version and template compatibility independently."],
+        ["Quota and regional support","foundry-models/quotas-limits","TPM/RPM, PTUs, accelerator counts and VM quotas are different mechanisms."],
+        ["Managed Training",refs.models26[1],"Renamed managed fine-tuning; choose supported model/method and preserve dataset/checkpoint lineage."],
+        ["Programmed Training (preview)",refs.models26[1],"Custom Python training recipes on serverless GPUs; own recipe, dependencies, rewards and output compatibility."],
+        ["Microsoft-Decision-1.1 (GA)",refs.models26[1],"Decision/judge model, including evaluation; calibrate against human labels and task-specific criteria."],
+        ["MAI-Code-2-Flash (limited Foundry preview)",refs.models26[1],"Foundry access is not MAI-Code-2 GA in GitHub; validate offer, training and serving eligibility."],
+        ["MAI-Image-2.7 / 2.7-Flash (preview)",refs.models26[1],"Image creation/editing offer, modality limits, safety and output rights."],
+        ["MAI-Cyber-2-Flash (MDASH preview)",refs.models26[1],"Specific security-model access path, not a general production endpoint entitlement."],
+        ["fal video generation (preview)",refs.models26[1],"Kling, MiniMax and LTX provider contracts, media governance and usage charges."],
+        ["Baseten on Foundry (preview)",refs.models26[1],"Provider access and serving contract; provisioned throughput starts December, not at review."],
+        ["Meta Muse family (coming soon)",refs.models26[1],"Wonder, Spark 1.3 and Ember are announcements, not deployable availability guarantees."]
+      ]],
+      ["Agents and state", [
+        ["Agent Service and runtime","agents/overview","Choose saved prompt, hosted, voice or application-owned logic based on responsibility."],
+        ["Prompt agents","agents/quickstarts/prompt-agent","Version instructions/model/tools; no custom runtime needed for supported declarative execution."],
+        ["Hosted agents","agents/concepts/hosted-agents","Own code/dependencies; verify isolation, readiness, scaling, protocol, state and token service."],
+        ["Copilot harness (preview)","agents/how-to/use-tools-skills-copilot-harness","Explicit prompt-agent runtime choice; tools/skills/files/commands have support boundaries."],
+        ["Agent development lifecycle","agents/concepts/development-lifecycle","Build, validate, publish, operate and iterate with versioned evidence."],
+        ["Conversations and Responses","agents/concepts/runtime-components","Persist history and results without confusing state IDs with authorization."],
+        ["Agent identities and blueprints","agents/concepts/agent-identity","Current per-agent identity, legacy shared identity and project managed identity are distinct."],
+        ["Delegation and endpoint authorization","agents/how-to/configure-user-delegation","Incoming agent authentication and downstream delegated actor require compatible endpoint/connection schemes."],
+        ["Routines and reminders","agents/concepts/routines","One trigger -> one agent; dispatch identity, retries, region exclusions and no-CMK limitation."],
+        ["Workflows / migration","agents/concepts/workflow","Retiring 1 December 2026; use Microsoft Agent Framework for new orchestration."],
+        ["A2A","agents/how-to/tools/agent-to-agent","Task delegation, remote identity, trust, timeouts and trace continuity."],
+        ["CI/CD","agents/quickstarts/set-up-cicd-hosted-agent","Ship immutable compatible agent, model, tool and knowledge artifacts."],
+        ["Agent Inspector","agents/how-to/agent-inspector","Debug locally/cloud with the right credentials; a local pass does not prove deployed grants."],
+        ["Agent 365","agents/concepts/agent-365-integration","Enterprise lifecycle/observability integration has workload and licensing prerequisites."],
+        ["Publishing to Copilot and Teams","agents/how-to/publish-copilot","Validate final-channel user authority, consent, version and consumer access."],
+        ["External agent registration","agents/how-to/register-external-agent","Adds supported visibility/governance; does not migrate hosting into Foundry."],
+        ["Microsoft 365 agent accounts (preview rollout)",refs.autonomous26[1],"Agent user/mailbox/calendar/OneDrive/Teams resources, tenant approval, sponsor and instance/blueprint disable paths."],
+        ["Hosted runtime resiliency and idle controls",refs.hosted26[1],"Recovery can rerun handlers; externalize durable state and make mutations idempotent."],
+        ["Hosted snapshots and private CA (preview)",refs.hosted26[1],"Per-version snapshots, resource-level CA trust and new-session activation; verify exclusions."]
+      ]],
+      ["Tools and actions", [
+        ["Tool catalog","agents/concepts/tool-catalog","Check each tool's agent type, status, region, auth and network prerequisites."],
+        ["Function calling","agents/how-to/tools/function-calling","Client executes structured calls; implement authorization, errors, idempotency and bounded retries."],
+        ["OpenAPI","agents/how-to/tools/openapi","Narrow API operations, schemas and connection auth; valid JSON is not business authorization."],
+        ["Azure Functions","agents/how-to/tools/azure-functions","Review execution/trigger contract and direct-integration eligibility."],
+        ["MCP","agents/how-to/tools/model-context-protocol","Remote discovery/invocation, schemas, allowlists, audience and result handling."],
+        ["MCP authentication","agents/how-to/mcp-authentication","Choose server-supported key, project/agent identity, or delegated OAuth mode."],
+        ["Toolbox","agents/concepts/toolbox-overview","Curated multi-protocol MCP endpoint; test immutable versions before default promotion."],
+        ["Toolbox authentication","agents/how-to/tools/tool-authentication","Connection controls downstream actor; preserve per-request caller context."],
+        ["Hosted Toolbox approval","agents/how-to/tools/use-toolbox-hosted-agent","Runtime must enforce require_approval metadata; endpoint alone does not block invocation."],
+        ["Tool search","agents/how-to/tools/tool-search","Relevant discovery, pinning and naming reduce context; permission remains independent."],
+        ["Skills (mixed preview / future CRUD GA)","agents/how-to/tools/skills","Versioned procedures/resources; Shell skills preview, CRUD GA coming soon, MCP Skills extension planned."],
+        ["Code interpreter","agents/how-to/tools/code-interpreter","Sandbox lifecycle, files, execution limits, output handling and charges."],
+        ["File search and vector stores","agents/how-to/tools/file-search","Upload indexing, retrieval, citations, access and file/vector-store retention."],
+        ["Web search and Bing grounding","agents/how-to/tools/web-overview","Current web evidence; attribution, public-data terms and direct/Toolbox support differ."],
+        ["Browser automation (core GA)","agents/how-to/tools/browser-automation","Isolate browsing credentials/untrusted pages; private networking, proxy and secret sub-features remain preview."],
+        ["Computer use (GA)","agents/how-to/tools/computer-use","Desktop interaction is not browser automation; apply isolation and confirmations."],
+        ["Image generation (preview)","agents/how-to/tools/image-generation","Review model, safety, output rights and integration support."],
+        ["Connector Namespace (GA; preview extensions)",refs.connectors26[1],"Per-user OAuth, supported managed identities and custom connectors; custom-image Hosted MCP preview; VNet still roadmap."],
+        ["Foundry Tools / Speech / Language / Translator","agents/how-to/tools/azure-ai-speech","Task APIs for speech, language, PII and translation have their own endpoint and billing contracts."],
+        ["Vision / document / content processing","concepts/capability-reference","Use task-specific services; a classic-only portal surface is not the same as a preview service API."],
+        ["Toolbox monitoring and tool policy",refs.tools26[1],"Adoption/success/error dashboard; preview policy governs approved tool configurations."],
+        ["Web Search powered by Web IQ (GA)",refs.tools26[1],"GA for prompt agents; Toolbox support coming soon. Domain-restricted Bing Custom Search remains separate."]
+      ]],
+      ["Knowledge", [
+        ["RAG patterns","concepts/retrieval-augmented-generation","Measure ingestion, retrieval and answer quality separately."],
+        ["Foundry IQ / Azure AI Search","agents/concepts/what-is-foundry-iq","Direct Search and knowledge-base APIs; API partial GA versus portal preview."],
+        ["Knowledge bases","https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-create-knowledge-base","Pin API; choose sources, reasoning effort and extractive/synthesized output."],
+        ["Knowledge sources","https://learn.microsoft.com/azure/search/agentic-knowledge-source-overview","Indexed/remote source type controls freshness, permission support and retrieval semantics."],
+        ["Agentic retrieval","https://learn.microsoft.com/azure/search/agentic-retrieval-overview","Optional planning, query decomposition, search/reranking, references and activity metadata."],
+        ["Document-level access","https://learn.microsoft.com/azure/search/search-document-level-access-overview","Supported ACL/source authorization and query-time caller context; test revoke/delete."],
+        ["Private agentic retrieval","https://learn.microsoft.com/azure/search/agentic-retrieval-network-security","Protect Search inbound and each source/model/storage outbound path separately."],
+        ["Vector stores","agents/concepts/vector-stores","Managed file-search indexing is different from your Search index or knowledge base."],
+        ["Fabric IQ (preview integration)","agents/how-to/tools/fabric-iq","Ontologies, semantic models and data agents require service-specific delegated rights."],
+        ["Work IQ (preview integration)","agents/how-to/tools/work-iq","Microsoft 365 context, supported scopes/consent and per-user access."],
+        ["Memory (preview)","agents/concepts/what-is-memory","User profiles, summaries, procedural memory, scope, TTL/forget; currently no VNet support."],
+        ["Foundry IQ knowledge graphs (preview)",refs.iq26[1],"Ontology-driven entities, sourced relationships, natural-language/GQL queries and embedding-derived topics."],
+        ["Microsoft Retriever 1 (preview)",refs.iq26[1],"Specialized retrieval planner on an existing index without a frontier planner-model deployment."],
+        ["Foundry IQ Serverless (December GA announced)",refs.iq26[1],"Future GA at review date; validate usage pricing, scale-to-zero, limits, regions and SLA on release."],
+        ["Managed IQ in new projects (December preview announced)",refs.iq26[1],"Future managed-resource rollout; do not assume an existing project already has it."],
+        ["Microsoft IQ and business plugins",refs.microsoftiq26[1],"Work/Fabric/Web/Foundry IQ context and MCP plugins retain distinct permissions and availability."],
+        ["Source enrichment and permissions",refs.iq26[1],"GA indexed SharePoint/SQL/upload sources and semantic/image enrichment; OneLake/label integrations retain preview limits."]
+      ]],
+      ["Voice and media", [
+        ["Voice Agent creation","agents/quickstarts/prompt-voice-agent","Create Voice mode explicitly; verify region, model, version and one spoken turn."],
+        ["Voice configuration","agents/how-to/configure-voice-agent","Managed/self-deployed model; native/cascaded audio; VAD, noise, voice, tools and storage."],
+        ["GPT-Live (preview)","agents/how-to/gpt-live-integration","Full-duplex live protocol, native events and distinct supported configuration."],
+        ["Voice telephony","agents/how-to/voice-agent-telephony-channels","Teams Phone extensibility/Twilio setup, bindings, inbound/outbound and preview controls."],
+        ["Voice system tools","agents/how-to/voice-agent-system-tools","Conversation termination and supported phone controls need explicit policy and testing."],
+        ["Avatar / soundscape / interim response / post-call","agents/how-to/configure-voice-agent","Separate client/channel support and preview status; stored transcripts and post-call events need privacy/deduplication."],
+        ["Legacy Voice Live migration","agents/how-to/migrate-from-voice-live","Existing text-agent integration is not identical to the new Voice Agent definition."],
+        ["Hosted real-time / invocations_ws","agents/concepts/hosted-agents","Custom duplex protocol requires a hosted runtime contract, not just a voice model."],
+        ["Realtime Flash 1 and voice extensions",refs.voice26[1],"Realtime Flash 1 preview; HD V3 voices, semantic VAD v2 and photo avatars need component-level eligibility checks."],
+        ["Speech / custom speech, voice and avatar","https://learn.microsoft.com/azure/ai-services/speech-service/overview","Batch/streaming, locale/audio contracts, custom-model eligibility and consent are separate from Voice Agent lifecycle."],
+        ["Language / PII and Translator","https://learn.microsoft.com/azure/ai-services/language-service/overview","Task extraction, text classification, redaction and translation require schema, confidence and data-boundary decisions."],
+        ["Document Intelligence","https://learn.microsoft.com/azure/ai-services/document-intelligence/overview","Layout, tables/fields, grounding coordinates, model version and human review."],
+        ["Content Understanding",refs.content[1],"Multimodal analyzers, classification/segmentation, confidence/grounding and stable-versus-preview API contracts."]
+      ]],
+      ["Observe and improve", [
+        ["Observability","concepts/observability","Tracing, monitoring and evaluation complement rather than replace one another."],
+        ["Tracing and replay","observability/concepts/trace-agent-concept","OpenTelemetry, client-side spans, context propagation and replay side effects."],
+        ["Agent monitoring","observability/how-to/how-to-monitor-agents-dashboard","Metrics/quality depend on configured data collection and evaluator availability."],
+        ["Model deployment monitoring","foundry-models/how-to/monitor-models","Throughput, latency, throttling, errors and model lifecycle."],
+        ["Feedback logging","observability/how-to/log-end-user-feedback","Link feedback to versioned outcomes with appropriate content privacy."],
+        ["Notification Center","concepts/concept-notification-center","Service/resource notices supplement, not replace, operational alerts."],
+        ["Diagnostic logs","how-to/diagnostic-logging","Route platform telemetry with access, retention, sampling and cost controls."],
+        ["Evaluations","how-to/evaluate-generative-ai-app","Version datasets, targets and criteria; isolate side-effecting tools."],
+        ["Built-in and custom evaluators","concepts/built-in-evaluators","Quality/RAG/agent/safety/rubric support varies; calibrate judge-based scores."],
+        ["Agent trajectory evaluation","observability/how-to/evaluate-agent","Tool choice, arguments, task completion and hard permission assertions."],
+        ["Continuous evaluation","observability/how-to/cloud-evaluation","Sampled production traffic with approved privacy, regions and evaluator cost."],
+        ["Synthetic and trace-derived datasets","observability/how-to/evaluation-dataset-synthetic","Track lineage and holdouts; generated data is not independent truth."],
+        ["Human evaluation","observability/how-to/human-evaluation","Adjudicate high-impact/ambiguous cases; document reviewer rubric."],
+        ["Prompt optimizer","observability/how-to/prompt-optimizer","Use measured failures and separate holdouts, not prompt length as improvement."],
+        ["Agent optimizer / skill optimization","agents/concepts/agent-optimizer-overview","Ignite announces core GA despite older readiness labels; new skill/cost/insights modes preview. Isolate real tools."],
+        ["Automated red teaming","concepts/ai-red-teaming-agent","Controlled adversarial scans and human review; no proof of absence of vulnerabilities."],
+        ["Evaluation in CI/CD","how-to/evaluation-github-action","Gate on hard safety constraints plus task-quality and performance slices."],
+        ["Insights and external-framework visibility (GA)",refs.improvement26[1],"Group recurring trace issues with evidence; supported LangGraph/LangChain/CrewAI visibility."],
+        ["Multi-turn evaluation (GA)",refs.ignite[1],"Assess whole conversations and tool trajectories, not just independent final-text answers."],
+        ["Trace annotations / golden datasets (preview)",refs.improvement26[1],"Version expert feedback, dataset/rubric lineage and independent holdouts."],
+        ["Cost in Foundry (preview)",refs.improvement26[1],"Cross-agent/model/tool spend, forecasts and reports; not a universal enforced budget."]
+      ]],
+      ["Safety and responsible AI", [
+        ["Guardrails and content controls","guardrails/guardrails-overview","Check risk, intervention point, model/agent applicability, policy override and preview status."],
+        ["Custom filters / blocklists","guardrails/how-to-create-guardrails","Version settings; test known allow/block cases and false positives."],
+        ["Task adherence","guardrails/task-adherence","Detect drift within supported contexts; not a business authorization engine."],
+        ["Guided Guardrail (preview)","guardrails/guided-set-up","Guided configuration still needs coverage and effective-policy validation."],
+        ["Third-party guardrails","guardrails/third-party-integrations","Additional provider data flows, latency, failure semantics and permissions."],
+        ["Transparency and responsible use","responsible-ai/agents/transparency-note","Understand intended use, limitations and human oversight."],
+        ["Customer Copyright Commitment","responsible-ai/openai/customer-copyright-commitment","Review covered services, required mitigations and terms; not a universal rights guarantee."],
+        ["Agent Controls / ACS (public preview)",refs.controls26[1],"Versioned runtime policy decisions, hooks and receipts require an enforcing runtime and downstream authorization."],
+        ["Custom guardrail rules (private preview)",refs.governance26[1],"Deterministic checks and contextual judges need preview access and intervention-point validation."]
+      ]],
+      ["Secure and govern", [
+        ["Resources and projects","how-to/create-projects","Select environment, boundary, regions, network and current project generation."],
+        ["Foundry governance / Control Plane","control-plane/overview","Identity/access/cost/safety foundation with optional specialized integrations."],
+        ["Fleet monitoring","control-plane/monitoring-across-fleet","Selected scope, collected telemetry and heterogeneous runtime coverage."],
+        ["Token-limit enforcement","control-plane/how-to-enforce-limits-models","Gateway/runtime budget controls differ from deployment eligibility."],
+        ["Azure AI Gateway (GA) / API Management",refs.gateway26[1],"Standalone gateway after Ignite; APIM AI policies remain distinct. Private networking/selected connections preview; controls cover routed traffic."],
+        ["Foundry RBAC and keyless auth","concepts/rbac-foundry","Management/data planes, scope, builders/consumers and runtime identity rights."],
+        ["Network isolation","agents/concepts/networking-options","Ingress/egress/dependency paths, DNS, create-time constraints and support matrix."],
+        ["Customer-managed keys","concepts/encryption-keys-portal","Key ownership, identity access, lifecycle and feature-specific exclusions such as routines."],
+        ["Azure Policy","how-to/model-deployment-policy","Configuration-time model/deployment rules are not universal runtime tool checks."],
+        ["Cost visibility and FinOps","concepts/manage-costs","Reconcile all meters using billing data; token usage alone is not the invoice."],
+        ["Cost controls (preview)","concepts/cost-controls","Alert/block thresholds, exclusions, delay and fail-open cases."],
+        ["High availability / disaster recovery","how-to/high-availability-resiliency","State, identity, data freshness and compatible capacity need an explicit recovery design."],
+        ["Azure Government","concepts/foundry-azure-government","Sovereign cloud capabilities and regions are not inherited from public Azure."],
+        ["Infrastructure as code","how-to/create-resource-template","Repeatable provisioning, identity grants, network policies and environment separation."],
+        ["Purview / Defender integrations","control-plane/overview","Licensing and configured coverage determine audit, DLP, posture and threat response."],
+        ["Preview restrictions / classic migration","concepts/general-availability","Portal GA does not make every feature GA; preserve a documented migration/exception path."],
+        ["Foundry Compliance (public/private previews)",refs.governance26[1],"Policy management public preview; ACS integration private preview. Configuration Deny is not runtime termination."],
+        ["Tenant-wide Agent 365 Foundry policies (preannouncement)",refs.governance26[1],"Future policy/assignment integration, not an available tenant-wide feature."],
+        ["Foundry Local on Azure Local",refs.local26[1],"Local inference GA; local agents/guardrails preview; customer operates connected/disconnected infrastructure."],
+        ["Foundry workloads on your AKS (preview paths)",refs.aks26[1],"Models limited preview; hosted agents limited signup/future public preview. Own cluster, networking and capacity."],
+        ["Hosted network egress and shared IPs",refs.hosted26[1],"GA core controls/isolation; Transform, secret headers and Azure Policy governance retain preview boundaries."]
+      ]]
+    ];
+
+    for (const stop of stops) {
+      const section = document.createElement("section"); section.className = "panel"; section.id = stop.id; section.hidden = stop.id !== "welcome";
+      section.innerHTML = `<p class="eyebrow">${esc(layers.find(([key])=>key===stop.layer)[1])}</p><h${stop.id==="welcome"?"1":"2"} tabindex="-1">${stop.title}</h${stop.id==="welcome"?"1":"2"}><p class="lead">${stop.lead}</p><span class="badge">${stop.status}</span>${stop.content}<div class="sources" aria-label="Official sources">${stop.sources.map(key=>`<a href="${refs[key][1]}" target="_blank" rel="noopener noreferrer">${refs[key][0]} &nearr;</a>`).join("")}</div>`;
+      $("tour").append(section);
+    }
+    layers.forEach(([key,label]) => {
+      const target = stops.find(stop=>stop.layer===key);
+      const link = document.createElement("a"); link.href = `#${target.id}`; link.textContent = label; link.dataset.layer = key; $("chapters").append(link);
+    });
+    let current = 0, noticeTimer;
+    function notify(text) { $("notice").textContent=text; $("notice").hidden=false; clearTimeout(noticeTimer); noticeTimer=setTimeout(()=>$("notice").hidden=true,6500); }
+    function show(focus=true) {
+      const found=stops.findIndex(stop=>`#${stop.id}`===location.hash); current=found<0?0:found;
+      stops.forEach((stop,index)=>$(stop.id).hidden=index!==current);
+      document.querySelectorAll("[data-layer]").forEach(link=>{if(link.dataset.layer===stops[current].layer)link.setAttribute("aria-current","step");else link.removeAttribute("aria-current");});
+      $("position").textContent=`${String(current+1).padStart(2,"0")} / ${stops.length} - ${stops[current].title}`;
+      $("progress").max=stops.length; $("progress").value=current+1; $("back").disabled=current===0; $("next").disabled=current===stops.length-1;
+      document.title=`${stops[current].title} | Foundry Implementation`;
+      if(focus){$(stops[current].id).querySelector("h1,h2").focus({preventScroll:true});window.scrollTo({top:0,behavior:"instant"});}
+    }
+    function go(id){if(location.hash===`#${id}`)show();else location.hash=id;}
+    window.addEventListener("hashchange",()=>show());
+    $("back").addEventListener("click",()=>{if(current>0)go(stops[current-1].id);});
+    $("next").addEventListener("click",()=>{if(current<stops.length-1)go(stops[current+1].id);});
+    document.querySelectorAll("[data-go]").forEach(button=>button.addEventListener("click",()=>go(button.dataset.go)));
+    document.querySelector(".skip").addEventListener("click",event=>{event.preventDefault();$("tour").focus();$("tour").scrollIntoView();});
+    stops.forEach(stop=>{const li=document.createElement("li"),a=document.createElement("a");a.href=`#${stop.id}`;a.textContent=stop.title;a.addEventListener("click",()=>{$("map-dialog").close();go(stop.id);});li.append(a);$("map-list").append(li);});
+    $("map-open").addEventListener("click",()=>$("map-dialog").showModal()); $("atlas-open").addEventListener("click",()=>go("atlas"));
+    function themeState(){$("theme").setAttribute("aria-pressed",String(document.documentElement.dataset.theme==="dark"));}
+    $("theme").addEventListener("click",()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark";themeState();});
+    $("print").addEventListener("click",()=>window.print());
+    document.addEventListener("keydown",event=>{if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||document.querySelector("dialog[open]")||event.target.closest("input,select,textarea,button,a,summary,[contenteditable]"))return;if(event.key==="ArrowRight"&&current<stops.length-1){event.preventDefault();go(stops[current+1].id);}if(event.key==="ArrowLeft"&&current>0){event.preventDefault();go(stops[current-1].id);}});
+    function output(id,title,text,extra){const h=document.createElement("h3"),p=document.createElement("p");h.textContent=title;p.textContent=text;$(id).replaceChildren(h,p);if(extra){const detail=document.createElement("p");detail.className="fine";detail.textContent=extra;$(id).append(detail);}}
+    function authLab(){
+      const mode=$("auth-mode").value,user=["oauth2","user-entra-token"].includes(mode),context=$("caller-context").checked,grant=$("downstream-grant").checked;
+      const actors={"agentic-identity":"The agent's own identity","project-managed-identity":"The project's managed identity",oauth2:"The user who completes OAuth authorization","user-entra-token":"The signed-in user via a supported audience-specific Entra token","custom-keys":"The shared key/header credential",none:"An anonymous caller"};
+      if(user&&!context)output("auth-result","STOP: per-user context is missing.",`${actors[mode]} is intended, but correct per-user resolution has not been established. Do not substitute a shared credential to make the call succeed.`,"The exact supported delegation flow also requires the correct endpoint scheme, target support, tenant, consent and consumer role.");
+      else if(!grant)output("auth-result","Authentication mode chosen. Authorization unproven.",`${actors[mode]} reaches the downstream boundary in this conceptual path. Verify required permissions or public anonymous eligibility; changing the agent's project role is not a universal downstream fix.`);
+      else output("auth-result",user?"Per-user path ready for isolation testing.":"Application/public path ready for scoped testing.",`${actors[mode]} is the configured downstream actor. ${user?"Prove concurrent users see only their own allowed data.":"This is not delegated end-user authority; enforce any user/business restriction separately."}`,"Conceptual checks only, not a real token or permission verification.");
+    }
+    ["auth-mode","caller-context","downstream-grant"].forEach(id=>$(id).addEventListener("change",authLab));
+    function retrievalLab(){const path=$("retrieval-path").value,planner=$("planner-access").checked,auth=$("source-auth").checked;if(path!=="minimal"&&!planner)output("retrieval-result","Planner access is a separate failing dependency.","Minimal retrieval could still succeed. Fix the Search-to-planning-model identity, audience, network and supported model configuration before claiming planned retrieval works.");else if(!auth)output("retrieval-result","Retrieval success is not a permission proof.","Supported source authorization and current caller context are not verified. Do not expose protected content just because the Search service accepted a request.");else output("retrieval-result",path==="minimal"?"Minimal path ready for evidence tests.":"Planned path ready for evidence tests.",path==="minimal"?"Check evidence, references, freshness and user isolation. This still does not exercise planner access.":path==="synthesized"?"Inspect planning activity, source access, citations and synthesis. Measure whether an outer agent performs unnecessary second synthesis.":"Inspect planning activity, query fan-out, evidence budget, references, user isolation and latency.");}
+    ["retrieval-path","planner-access","source-auth"].forEach(id=>$(id).addEventListener("change",retrievalLab));
+    function approvalLab(){const flag=$("approval-flag").checked,runtime=$("approval-runtime").checked,human=$("approval-human").checked,server=$("approval-server").checked;if(!runtime)output("approval-result","UNSAFE: no enforceable approval boundary.",`${flag?"The metadata requests approval, but":"No approval metadata is set and"} the runtime has not implemented it. The Toolbox endpoint alone does not stop the tool call. Remove the mutation or route through a separately enforced approval service.`);else if(!human)output("approval-result","PAUSED: do not invoke the mutation.","The runtime must wait for an explicit approval bound to this exact operation and arguments. A prior approval or a model-generated confirmation is not enough.");else if(!server)output("approval-result","HOLD: downstream authorization is still required.","Human approval cannot grant permissions the actor lacks or replace server-side policy, validation and idempotency.");else output("approval-result","Eligible for the bounded test execution.","The runtime has exact-action approval and the server checks its own policy. Test denial, argument changes, stale approval, duplicate delivery and timeout-after-commit before release.","This is a fictional rehearsal, not an authorization decision for a real operation.");}
+    ["approval-flag","approval-runtime","approval-human","approval-server"].forEach(id=>$(id).addEventListener("change",approvalLab));
+    function voiceLab(){const path=$("voice-path").value,own=$("voice-model").value==="own";if(path==="live")output("voice-result","GPT-Live / distinct preview contract.","Use sub_protocol: live with a supported GPT-Live model and preview opt-in. Validate its model requirements, full-duplex event flow, tools, session configuration and channels in the live-specific documentation.",`The ${own?"existing-deployment":"managed-model"} selection is not proof that this combination is supported. Do not apply generic realtime/cascaded assumptions.`);else output("voice-result",path==="native"?"Native audio pipeline / realtime protocol":"STT -> text model -> TTS / realtime protocol",`${own?"Validate your compatible model deployment, quota/capacity, version and processing scope.":"Use an eligible service-managed model and verify its processing terms and availability."} ${path==="native"?"Measure native audio behavior, interruptions and tool performance.":"Measure each speech and text-model stage; choose supported language/voice and text-model tool behavior."}`,"Both choices retain Foundry-managed Voice Agent orchestration; self-deployed describes the model, not the voice runtime.");}
+    ["voice-path","voice-model"].forEach(id=>$(id).addEventListener("change",voiceLab));
+    function latencyLab(){const vad=Number($("vad-ms").value),model=Number($("model-ms").value);output("latency-result",`${(vad+model+250).toLocaleString("en-US")} ms illustrative first-audio delay`,`${vad} ms endpointing + ${model} ms model/tool critical path + 250 ms assumed transport/playback.`,vad<500?"Short endpointing can clip thoughtful pauses. Test false ends rather than optimizing this number alone.":"Longer endpointing tolerates pauses but adds perceived delay. Test semantic VAD and real audio rather than assuming this simple sum predicts production.");}
+    ["vad-ms","model-ms"].forEach(id=>$(id).addEventListener("input",latencyLab));
+    const drills=[
+      ["Project works; hosted tool gets 403","A developer can read Search in the portal. The deployed tool uses agentic-identity, but only the project managed identity has Search rights.",["Give the portal user Owner everywhere.","Grant the actual agent identity the required narrow Search data role and verify the connection/audience.","Put the developer's key in the prompt."],1,"The authenticated downstream actor determines the grant. Project identity and agent identity are not interchangeable; validate from the deployed runtime."],
+      ["One employee sees another's records","A custom hosted MCP client uses per-user OAuth connections, but does not preserve the current hosted request context.",["Use one shared service account for consistency.","Change to a larger model.","Use the supported context-forwarding integration and test concurrent users with different permissions."],2,"The actor-to-Toolbox token and downstream user context are separate. A successful call can still use the wrong authority."],
+      ["The approval flag was ignored","A hosted runtime invokes a mutation directly after receiving require_approval: always.",["Implement runtime pause/approve/reject plus server-side policy; remove mutation access until enforced.","Rewrite the prompt to be more emphatic.","Assume Toolbox blocks the request anyway."],0,"The endpoint does not enforce that metadata by itself. Bind exact-action approval, recheck authorization and make execution idempotent."],
+      ["Minimal Search works; planner fails","Minimal extractive retrieval returns evidence, but planned retrieval fails calling the model.",["Increase the outer agent's context window.","Test Search identity/model/network access and inspect query-planning activity.","Disable source ACL checks."],1,"Minimal retrieval can bypass the LLM planner. It cannot verify planner permissions, connectivity or model support."],
+      ["A spoken cancellation duplicated a change","The caller interrupted, the tool timed out, and a retry repeated a committed business action.",["Treat interrupted audio as rollback.","Remove timeouts and wait forever.","Reconcile by operation ID and make the downstream mutation idempotent."],2,"Playback cancellation and business commit are different events. Verify backend state before retrying and never announce unconfirmed success."],
+      ["Toolbox promotion missed voice","The hosted client follows the Toolbox consumer default. The Voice Agent still uses an older immutable Toolbox version.",["Update and test the Voice Agent's version binding explicitly.","Restart the model until it notices.","Grant the voice user subscription Owner."],0,"A pinned Voice Toolbox version does not automatically follow default-version promotion used by an unversioned hosted consumer."],
+      ["The budget did not stop all costs","A preview cost control blocks supported model requests, but hosted compute and web-tool charges continue.",["Assume the bill is wrong.","Map excluded meters and add appropriate runtime/service controls and billing alerts.","Raise model TPM to enforce the dollar limit."],1,"Current cost-control coverage excludes tool charges and hosted compute, among other limits. Quota, alerts, budgets and enforced runtime bounds solve different problems."]
+    ];
+    drills.forEach(([title],index)=>{const option=document.createElement("option");option.value=String(index);option.textContent=title;$("drill").append(option);});
+    function drillLab(){const [title,context,answers,best,reason]=drills[Number($("drill").value)];output("drill-context",title,context);output("drill-result","Choose the corrective action.","Inspect the identity, contract or execution boundary rather than masking the symptom.");$("drill-options").replaceChildren();answers.forEach((text,index)=>{const button=document.createElement("button");button.className="answer";button.textContent=`${String.fromCharCode(65+index)}. ${text}`;button.setAttribute("aria-pressed","false");button.addEventListener("click",()=>{$("drill-options").querySelectorAll("button").forEach(other=>other.setAttribute("aria-pressed",String(other===button)));output("drill-result",index===best?"Correct boundary to repair.":"That does not repair the failing boundary.",index===best?reason:`Reconsider which principal, protocol or runtime owns the failure. ${reason}`);});$("drill-options").append(button);});}
+    $("drill").addEventListener("change",drillLab);
+    const atlasEntries=[];
+    atlasGroups.forEach(([area,items])=>{const option=document.createElement("option");option.value=area;option.textContent=area;$("atlas-area").append(option);items.forEach(([name,path,consideration])=>{const card=document.createElement("article");card.className="card";const url=path.startsWith("https:")?path:base+path;card.innerHTML=`<span class="badge">${esc(area)}</span><h3><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(name)} &nearr;</a></h3><p>${esc(consideration)}</p>`;$("atlas-results").append(card);atlasEntries.push({area,name,consideration,url,card});});});
+    function filterAtlas(){const query=$("atlas-query").value.trim().toLocaleLowerCase(),area=$("atlas-area").value;let count=0;atlasEntries.forEach(entry=>{const match=(!area||entry.area===area)&&`${entry.name} ${entry.consideration} ${entry.area}`.toLocaleLowerCase().includes(query);entry.card.hidden=!match;if(match)count++;});$("atlas-count").textContent=`${count} / ${atlasEntries.length} capability / announcement entries`;$("atlas-empty").hidden=count!==0;}
+    $("atlas-query").addEventListener("input",filterAtlas);$("atlas-area").addEventListener("change",filterAtlas);
+    const evidence=[
+      "Project/resource boundary: ARM IDs, tenant, subscription, region, environments, endpoints and dependency owners.",
+      "Network paths: actual-client ingress, runtime egress, Search/source/model paths, registry and telemetry verified.",
+      "Principal matrix: deployment, builder, consumer, project identity, agent identity, Search identity and downstream actor.",
+      "Delegation: supported scheme, correct audience, consent, caller-context propagation and concurrent-user isolation.",
+      "Model contract: provider/version, serving route, processing scope, capacity/quota, load evidence and retirement policy.",
+      "Knowledge: schema/source/KB versions, ingestion, citations, ACLs, freshness, revoke/delete and planner verification.",
+      "Toolbox/MCP: connection modes, schemas/allowlists, immutable/default bindings, discovery and exact-action approvals.",
+      "Runtime/state: protocol, user/tenant ownership, memory scope/retention, loop limits, retry and idempotency.",
+      "Voice: architecture, model management, audio/protocol, turn-taking, tools, privacy, channel and handoff evidence.",
+      "Assurance: versioned datasets/evaluators, deterministic safety gates, holdouts, red teaming and human review.",
+      "Operations: trace/feedback lineage, per-task cost, budget exclusions, alerts, dependencies, RTO/RPO and rollback.",
+      "Governance/release: compatibility manifest, supported policy enforcement, preview exceptions, owner and review date."
+    ];
+    evidence.forEach(text=>{const label=document.createElement("label");label.className="check";const input=document.createElement("input");input.type="checkbox";const span=document.createElement("span");span.textContent=text;label.append(input,span);$("checklist").append(label);input.addEventListener("change",updatePlan);});
+    function updatePlan(){$("plan-count").textContent=`${$("checklist").querySelectorAll("input:checked").length} / ${evidence.length}`;}
+    function planText(){const checked=[...$("checklist").querySelectorAll("input")];return ["MICROSOFT FOUNDRY - IMPLEMENTATION EVIDENCE PLAN",`Created: ${new Date().toISOString()}`,"Documentation review: 2026-11-23","Planning aid only. No Azure resource or production readiness has been validated by this file.","",...evidence.map((text,index)=>`${checked[index].checked?"[x]":"[ ]"} ${text}`),"","COMPLETE IN YOUR AUTHORIZED SYSTEM","Accountable owner: [agree]","Nonproduction target: [agree]","Evidence location and gaps: [record]","Preview/announcement exceptions: [review]","Review date: [agree]","Rollout boundary and rollback trigger: [agree]","","OFFICIAL REFERENCES",...Object.values(refs).map(([title,url])=>`${title}: ${url}`),"","Verify current API, region, model, network, identity, licensing and feature status before implementation."].join("\r\n");}
+    $("download").addEventListener("click",()=>{const url=URL.createObjectURL(new Blob([planText()],{type:"text/plain;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="microsoft-foundry-implementation-evidence-plan.txt";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notify("Plan download requested. If blocked, use View / copy.");});
+    $("view-plan").addEventListener("click",()=>{$("plan-text").value=planText();$("plan-dialog").showModal();});
+    $("copy").addEventListener("click",async()=>{try{if(!navigator.clipboard)throw new Error("Clipboard API unavailable.");await navigator.clipboard.writeText($("plan-text").value);notify("Evidence plan copied.");}catch(error){console.warn("Clipboard copy unavailable:",error);$("plan-text").focus();$("plan-text").select();notify("Automatic copy unavailable. The text is selected; use your device's copy command.");}});
+    Object.values(refs).forEach(([title,url])=>{const card=document.createElement("article");card.className="card";card.innerHTML=`<h3><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(title)} &nearr;</a></h3><p class="fine">${esc(url)}</p>`;$("source-list").append(card);});
+    themeState();authLab();retrievalLab();approvalLab();voiceLab();latencyLab();drillLab();filterAtlas();updatePlan();show(false);
+  </script>
+</body>
+</html>

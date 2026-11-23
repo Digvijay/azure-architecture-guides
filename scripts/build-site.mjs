@@ -5,7 +5,14 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const output = path.join(root, "_site");
 const catalog = JSON.parse(await readFile(path.join(root, "catalog.json"), "utf8"));
-const approvedHosts = new Set(["learn.microsoft.com", "azure.microsoft.com", "revealjs.com"]);
+const approvedHosts = new Set([
+  "learn.microsoft.com", "azure.microsoft.com", "revealjs.com",
+  "news.microsoft.com", "techcommunity.microsoft.com", "devblogs.microsoft.com",
+  "commandline.microsoft.com", "ai.azure.com"
+]);
+const approvedSamples = new Set([
+  "https://github.com/microsoft-foundry/ignite-2026-demos/tree/main/foundry-and-a365"
+]);
 const slugs = new Set();
 
 function checkPublicText(text, name) {
@@ -17,7 +24,7 @@ function checkPublicText(text, name) {
   }
   for (const match of text.matchAll(/https?:\/\/[^\s"'<>\\)]+/g)) {
     const url = new URL(match[0]);
-    if (!approvedHosts.has(url.hostname)) {
+    if (!approvedHosts.has(url.hostname) && !approvedSamples.has(url.href)) {
       throw new Error(`External host not approved for guide publication: ${url.hostname} in ${name}.`);
     }
   }

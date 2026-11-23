@@ -21,5 +21,45 @@
       "assets/azure/azure-logo.svg",
       "assets/azure/Microsoft_Terms_of_Use.pdf"
     ]
+  },
+  {
+    "slug": "microsoft-foundry-overview",
+    "title": "Microsoft Foundry: Architecture Overview",
+    "topic": "Microsoft Foundry",
+    "summary": "An interactive overview for architects and engineers covering models, agents, grounding, evaluation, architecture and governance.",
+    "published": "2026-11-23",
+    "minutes": 30,
+    "chapters": 6,
+    "tags": [
+      "Overview",
+      "Architects",
+      "Engineers",
+      "Foundry",
+      "Agents"
+    ],
+    "files": [
+      "index.html"
+    ]
+  },
+  {
+    "slug": "microsoft-foundry-implementation",
+    "title": "Microsoft Foundry: Implementation Field Guide",
+    "topic": "Microsoft Foundry",
+    "summary": "A bottom-up implementation guide for architects and engineers: projects, identities, knowledge, MCP, Toolbox, voice, governance and verified Ignite 2026 announcements.",
+    "published": "2026-11-23",
+    "minutes": 150,
+    "chapters": 12,
+    "tags": [
+      "Implementation",
+      "Architects",
+      "Engineers",
+      "Foundry",
+      "Voice",
+      "MCP",
+      "Ignite 2026"
+    ],
+    "files": [
+      "index.html"
+    ]
   }
 ]
