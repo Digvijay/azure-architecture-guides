@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="One Microsoft IQ track for architects and developers: Work IQ, Fabric IQ, Foundry IQ and Web IQ, from context architecture and identity to implementation, evaluation and operations.">
+  <title>Microsoft IQ | Context into Action</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--cp-bg); color: var(--cp-text); font: 16px/1.65 "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; }
+    a { color: var(--cp-link); text-underline-offset: 3px; }
+    button,input,select,textarea { font: inherit; }
+    button,.button { padding: 10px 16px; min-height: 44px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; background: var(--cp-surface); color: var(--cp-text); cursor: pointer; font-size: 14px; font-weight: 650; }
+    button:hover,.button:hover { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    button:disabled { opacity: .45; cursor: default; }
+    .primary { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); }
+    .primary:hover { background: var(--cp-accent-hover); color: var(--cp-accent-fg); }
+    :focus-visible { outline: 3px solid var(--cp-accent); outline-offset: 4px; }
+    header { padding: 16px 28px; display: flex; justify-content: space-between; gap: 20px; align-items: center; background: var(--cp-bg-elevated); border-bottom: 1px solid var(--cp-border); }
+    .wordmark { font-weight: 750; line-height: 1.4; }
+    .wordmark small { display: block; color: var(--cp-text-soft); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .layout { display: grid; grid-template-columns: 220px minmax(0,1fr); min-height: calc(100vh - 170px); }
+    aside { min-width: 0; border-right: 1px solid var(--cp-border); padding: 24px 12px; }
+    nav { position: sticky; top: 24px; display: grid; gap: 4px; }
+    nav a { padding: 9px 12px; border: 1px solid var(--cp-bg); border-radius: .625rem; color: var(--cp-text-muted); text-decoration: none; font-size: 12px; line-height: 1.5; }
+    nav a[aria-current] { color: var(--cp-accent); border-color: var(--cp-accent); background: var(--cp-accent-soft); font-weight: 650; }
+    main { min-width: 0; padding: 40px clamp(20px,4vw,64px) 72px; }
+    .panel { max-width: 1150px; margin: auto; }
+    [hidden] { display: none !important; }
+    h1,h2,h3 { line-height: 1.15; letter-spacing: -.035em; margin: 0 0 16px; }
+    h1 { font-size: clamp(36px,4.7vw,68px); max-width: 19ch; }
+    h2 { font-size: clamp(30px,3.8vw,48px); }
+    h3 { font-size: 21px; }
+    p { margin: 0 0 16px; }
+    .eyebrow { color: var(--cp-accent); font-size: 11px; font-weight: 750; letter-spacing: .15em; text-transform: uppercase; }
+    .lead { color: var(--cp-text-muted); font-size: 19px; max-width: 85ch; margin-bottom: 24px; }
+    .badge { display: inline-block; font-size: 11px; border: 1px solid var(--cp-border); border-radius: .625rem; padding: 3px 9px; color: var(--cp-text-soft); margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin: 20px 0; }
+    .four { grid-template-columns: repeat(4,minmax(0,1fr)); }
+    .card { min-width: 0; padding: 24px; border: 1px solid var(--cp-border); border-radius: 16px; background: var(--cp-surface); }
+    .card p:last-child { margin-bottom: 0; }
+    .card .eyebrow { margin-bottom: 12px; }
+    .callout { padding: 18px 22px; background: var(--cp-accent-soft); border-left: 4px solid var(--cp-accent); border-radius: .625rem; margin: 22px 0; }
+    .flow { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; margin: 24px 0; }
+    .node { flex: 1 1 130px; min-width: 0; padding: 16px; border: 1px solid var(--cp-border); border-radius: .625rem; background: var(--cp-surface); }
+    .node b,.node small { display: block; }
+    .node small { color: var(--cp-text-muted); font-size: 12px; margin-top: 6px; }
+    .arrow { align-self: center; color: var(--cp-accent); }
+    .table-wrap { max-width: 100%; overflow-x: auto; margin: 24px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th,td { text-align: left; vertical-align: top; padding: 14px 12px; border-bottom: 1px solid var(--cp-border); min-width: 135px; }
+    th { font-size: 12px; color: var(--cp-text-soft); }
+    .steps { padding-left: 26px; }
+    .steps li { padding: 6px 0 12px 8px; }
+    .steps li::marker { color: var(--cp-accent); font-weight: 750; }
+    code,pre { font-family: Consolas, "Courier New", Courier, monospace; font-size: 13px; }
+    code { overflow-wrap: anywhere; }
+    pre { padding: 22px; background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: .625rem; overflow-x: auto; line-height: 1.6; }
+    .field { display: grid; gap: 8px; margin-bottom: 16px; color: var(--cp-text-muted); font-size: 14px; }
+    select,input[type=search],textarea { width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--cp-border-strong); border-radius: .625rem; background: var(--cp-surface); color: var(--cp-text); }
+    input[type=range] { width: 100%; accent-color: var(--cp-accent); }
+    input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--cp-accent); flex-shrink: 0; margin-top: 5px; }
+    .check { display: flex; gap: 12px; align-items: flex-start; margin: 12px 0; font-size: 14px; cursor: pointer; }
+    .readout { padding: 24px; background: var(--cp-bg-elevated); border: 1px solid var(--cp-accent); border-radius: 16px; }
+    .readout p:last-child { margin-bottom: 0; }
+    .fine { color: var(--cp-text-soft); font-size: 12px; }
+    .stat { font-size: 36px; font-weight: 750; color: var(--cp-accent); line-height: 1.2; }
+    .sources { display: flex; gap: 8px 18px; flex-wrap: wrap; border-top: 1px solid var(--cp-border); margin-top: 30px; padding-top: 16px; font-size: 12px; }
+    #source-list p { overflow-wrap: anywhere; }
+    footer { display: flex; gap: 20px; justify-content: space-between; align-items: center; padding: 16px 28px; border-top: 1px solid var(--cp-border); background: var(--cp-bg-elevated); }
+    .progress { flex: 1; max-width: 700px; min-width: 0; }
+    progress { display: block; width: 100%; height: 5px; accent-color: var(--cp-accent); margin-top: 8px; }
+    .skip { position: absolute; top: -100px; left: 16px; z-index: 4; padding: 12px; background: var(--cp-surface); }
+    .skip:focus { top: 10px; }
+    dialog { background: var(--cp-bg); color: var(--cp-text); border: 1px solid var(--cp-border-strong); border-radius: 16px; width: min(800px,calc(100% - 32px)); max-height: 85vh; padding: 28px; }
+    dialog::backdrop { background: var(--cp-overlay); }
+    dialog li { margin: 8px 0; }
+    textarea { min-height: 300px; font: 13px/1.6 Consolas,"Courier New",Courier,monospace; }
+    #notice { position: fixed; bottom: 20px; left: 20px; right: 20px; max-width: 700px; padding: 14px 18px; border: 1px solid var(--cp-accent); border-radius: .625rem; background: var(--cp-surface); z-index: 5; }
+    .answer { display: block; text-align: left; width: 100%; margin-bottom: 12px; }
+    .answer[aria-pressed=true] { border-color: var(--cp-accent); background: var(--cp-accent-soft); }
+    @media(max-width:1000px) { .four { grid-template-columns: repeat(2,minmax(0,1fr)); } .layout { grid-template-columns: 180px minmax(0,1fr); } }
+    @media(max-width:700px) {
+      header { padding: 16px; flex-direction: column; align-items: flex-start; }
+      .layout { display: block; }
+      aside { padding: 12px; border-right: 0; border-bottom: 1px solid var(--cp-border); }
+      nav { display: flex; overflow-x: auto; position: static; gap: 8px; }
+      nav a { flex-shrink: 0; max-width: 180px; }
+      main { padding: 28px 16px 40px; }
+      .grid,.four { grid-template-columns: minmax(0,1fr); }
+      .card,.readout { padding: 20px; }
+      footer { padding: 16px; flex-wrap: wrap; }
+      footer .progress { flex-basis: 100%; }
+      .lead { font-size: 17px; }
+      .arrow { display: none; }
+    }
+    @media print {
+      header,aside,footer,.skip,.actions,.lab-controls,dialog,#notice { display: none !important; }
+      .layout { display: block; }
+      main { padding: 0; }
+      .panel,.panel[hidden] { display: block !important; break-before: page; margin: 0 0 32px; }
+      .panel:first-child { break-before: auto; }
+      .card,.readout { break-inside: avoid; }
+      .grid,.four { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .table-wrap { overflow: visible; }
+      th,td { min-width: 0; }
+      h1 { font-size: 38px; }
+      h2 { font-size: 30px; }
+      pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#tour">Skip to current stop</a>
+  <header><a class="wordmark" href="../../index.html" aria-label="Back to all customer guides" title="All customer guides" style="color:var(--cp-text);text-decoration:none">Microsoft IQ / Context into action<small>One unified track / For architects and developers</small></a><div class="actions"><button id="map-open">All stops</button><button id="theme" aria-pressed="false">Dark theme</button><button id="print">Print / PDF</button></div></header>
+  <noscript><p>Enable JavaScript to build this guide and its local rehearsals. No background network calls are made.</p></noscript>
+  <div class="layout"><aside><nav id="chapters" aria-label="Unified learning journey"></nav></aside><main id="tour" tabindex="-1"></main></div>
+  <footer><div class="progress"><span id="position" class="fine" aria-live="polite"></span><progress id="progress" max="1" value="1" aria-label="Guide position"></progress></div><div class="actions"><button id="back">Back</button><button id="next" class="primary">Next &rarr;</button></div></footer>
+  <dialog id="map-dialog" aria-labelledby="map-title"><h2 id="map-title">One track, end to end.</h2><ol id="map-list"></ol><form method="dialog"><button>Close map</button></form></dialog>
+  <dialog id="plan-dialog" aria-labelledby="plan-title"><h2 id="plan-title">Your context implementation plan</h2><label class="field" for="plan-text">Copyable planning aid</label><textarea id="plan-text" readonly></textarea><div class="actions"><button id="copy">Copy text</button><form method="dialog"><button>Close plan</button></form></div></dialog>
+  <div id="notice" role="status" hidden></div>
+  <script>
+    "use strict";
+    const $ = id => document.getElementById(id);
+    const learn = "https://learn.microsoft.com/en-us/";
+    const work = learn + "microsoft-365/copilot/extensibility/work-iq/";
+    const refs = {
+      iq:["Microsoft IQ documentation",learn+"microsoft-iq/"],
+      announcement:["Microsoft IQ / Ignite 2026 announcement","https://azure.microsoft.com/en-us/blog/introducing-the-new-microsoft-iq-putting-your-organizations-intelligence-to-work-in-every-agent/"],
+      work:["Work IQ overview",work],
+      workapi:["Work IQ API and protocol contracts",work+"api-overview"],
+      workmcp:["Work IQ MCP",work+"mcp/overview"],
+      workrest:["Work IQ REST limitations",work+"rest/overview"],
+      permissions:["Work IQ permissions",work+"permissions"],
+      enable:["Enable Work IQ",work+"enable-work-iq"],
+      fabric:["Fabric IQ overview",learn+"fabric/iq/overview"],
+      ontology:["Ontology concepts and lifecycle",learn+"fabric/iq/ontology/overview"],
+      ontologymcp:["Ontology MCP / prerequisites and identity",learn+"fabric/iq/ontology/how-to-use-ontology-mcp-server"],
+      dataagent:["Fabric data agent",learn+"fabric/data-science/concept-data-agent"],
+      foundry:["Foundry IQ overview",learn+"azure/foundry/agents/concepts/what-is-foundry-iq"],
+      kb:["Knowledge base API contract",learn+"azure/search/agentic-retrieval-how-to-create-knowledge-base"],
+      acl:["Document-level permissions",learn+"azure/search/search-document-level-access-overview"],
+      aclquery:["Native query-time caller and user tokens",learn+"azure/search/search-query-access-control-rbac-enforcement"],
+      retrieval:["Agentic retrieval implementation",learn+"azure/search/agentic-retrieval-how-to-create-pipeline"],
+      network:["Agentic retrieval network paths",learn+"azure/search/agentic-retrieval-network-security"],
+      graph:["Foundry IQ / Ignite graphs and Retriever 1","https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/foundry-iq-introducing-knowledge-graphs-engineered-for-agents/4572683"],
+      web:["Web IQ overview",learn+"web-iq/overview"],
+      webcreate:["Deploy Web IQ and obtain an AppID",learn+"web-iq/get-started/deploy-azure-portal"],
+      webauth:["Web IQ authentication",learn+"web-iq/get-started/authentication"],
+      webauto:["Auto request and evidence contract",learn+"web-iq/reference/auto"],
+      scopes:["Web IQ named scopes",learn+"web-iq/guides/create-scopes"],
+      plugins:["Plugin package and manifest boundaries",learn+"plugins/overview"],
+      pluginbuild:["Work IQ Dev Tools package recipe",learn+"plugins/quickstart-plugin"],
+      plugintest:["Validate the exact plugin artifact",learn+"plugins/validate-plugin"],
+      improvement:["Continuous improvement in Foundry","https://azure.microsoft.com/en-us/blog/continuous-improvement-comes-to-microsoft-foundry/"]
+    };
+    const chapters = [
+      ["Start","01 / One context strategy"],["Design","02 / Design the data flow"],["Identity","03 / Prove authority"],
+      ["Work","04 / Work IQ"],["Fabric","05 / Fabric IQ"],["Foundry","06 / Foundry IQ"],["Web","07 / Web IQ"],
+      ["Compose","08 / Compose and package"],["Assure","09 / Govern and evaluate"],["Operate","10 / Ship and operate"],["Practice","11 / Build the evidence"]
+    ];
+    const esc = value => String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const cards = items => `<div class="grid">${items.map(([h,p])=>`<article class="card"><h3>${h}</h3><p>${p}</p></article>`).join("")}</div>`;
+    const table = (heads,rows) => `<div class="table-wrap"><table><thead><tr>${heads.map(h=>`<th scope="col">${h}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(cell=>`<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const steps = items => `<ol class="steps">${items.map(item=>`<li>${item}</li>`).join("")}</ol>`;
+    const note = text => `<div class="callout">${text}</div>`;
+    const flow = items => `<div class="flow">${items.map(([a,b],i)=>`${i?'<span class="arrow" aria-hidden="true">&rarr;</span>':""}<div class="node"><b>${a}</b><small>${b}</small></div>`).join("")}</div>`;
+    const stops = [];
+    function add(id,chapter,title,lead,content,sources,status="Architecture + implementation") { stops.push({id,chapter,title,lead,content,sources,status}); }
+
+    add("welcome","Start","Context is an architecture. Not a longer prompt.","One unified Microsoft IQ journey for architects and developers: choose trustworthy context, integrate the right contracts, preserve authority, and prove the resulting decision.",`
+      ${flow([["Define","The decision and its evidence"],["Connect","Work + business + knowledge + web"],["Constrain","Identity, policy and provenance"],["Deliver","A tested agent or application"]])}
+      ${cards([["One track, two responsibilities","Every chapter couples the architectural decision with a build sequence and acceptance evidence. There is no separate introductory versus advanced edition, and no separate architect versus developer path."],["One running case","A supplier disruption assistant must find affected shipments, read the approved mitigation policy, understand the latest team decision, and check a public disruption notice. It proposes a response; a governed business API owns any actual change."]])}
+      ${note("<strong>This file is a learning environment.</strong> Selectors and drills are fictional, local rehearsals. They do not authenticate, access Microsoft 365 or Azure, call a model, install a plugin, or prove production readiness. Use the linked official contracts for real implementation.")}
+      <div class="actions"><button class="primary" data-go="four-iqs">Start the unified track &rarr;</button><button data-go="availability">Review current availability</button><button data-go="capstone">Open the integrated lab</button></div>
+      <p class="fine">Official documentation and Ignite announcements reviewed 23 November 2026. Assumes HTTP, Entra ID and basic data-platform familiarity. Allow several focused sessions.</p>`,["iq","announcement"]);
+
+    add("four-iqs","Start","Four complementary kinds of context.","Microsoft IQ brings together Work IQ, Fabric IQ, Foundry IQ and Web IQ. A shared context strategy does not imply one database, one runtime, one token or one universal endpoint.",`
+      <div class="grid four"><article class="card"><p class="eyebrow">Work IQ</p><h3>How people work</h3><p>Conversations, meetings, documents, organizational context, connected enterprise sources and supported actions.</p></article><article class="card"><p class="eyebrow">Fabric IQ</p><h3>How the business operates</h3><p>Trusted measures, entities, relationships, rules and live analytical or operational data.</p></article><article class="card"><p class="eyebrow">Foundry IQ</p><h3>What the organization knows</h3><p>Curated institutional knowledge, configurable knowledge bases, retrieval and source-grounded evidence.</p></article><article class="card"><p class="eyebrow">Web IQ</p><h3>What changed outside</h3><p>Fresh public-web evidence, news and supported structured or media answers.</p></article></div>
+      ${cards([["Context versus execution","An IQ supplies context or supported capabilities; the consuming experience still has an orchestration and security contract. Foundry Agent Service, Microsoft 365 Copilot, your backend and a developer assistant are different consumers."],["Shared asset versus shared permission","Business plugins can distribute reusable know-how, skills and integrations. Installing the same plugin does not give every user the same source access or make every host support every component."]])}
+      ${note("Work IQ and Foundry IQ can both touch SharePoint, but optimize different jobs. Fabric ontology and Foundry knowledge graphs both express relationships, but are different resources and execution models. Choose by the question and governing source, not a familiar brand suffix.")}`,["iq","work","fabric","foundry","web","plugins"]);
+
+    add("availability","Start","Date the exact feature, not the umbrella.","An Ignite announcement, a REST contract and a particular client integration can have different availability. Record all three before choosing a production dependency.",`
+      ${table(["Surface","State at the review date","Design consequence"],[
+        ["Work IQ / Ignite 2026","Retrieve, real-time meeting context, long-running/A2A, granular MCP policies and business applications announced GA.","The MCP documentation still calls its retrieve tool public preview; REST still documents no long-running task support. Confirm the exact protocol and tenant, not just the headline."],
+        ["Work IQ extensions","Memory, Office creation/editing, Listen subscriptions and human-approval governance announced public preview.","Do not assume these actions exist on the read-oriented REST chat API or every MCP host."],
+        ["Fabric IQ","Semantic models, core data agents and announced Fabric apps have GA surfaces; ontology and its MCP endpoint remain preview.","Data agents coming to Microsoft Copilot is a separate, coming-soon GA announcement. Excel/third-party connectors, ontology sharing and several integrations are preview."],
+        ["Foundry IQ","Knowledge retrieval API capabilities partially GA; portal agentic retrieval preview. Knowledge graphs and Retriever 1 preview.","Pin the Search API contract. Serverless GA and managed IQ in new projects were announced for December 2026, not available GA on this review date."],
+        ["Web IQ","Broad availability; Auto and Auto Advanced GA from 17 November 2026. Commerce private preview.","Paid Azure subscription required; credits do not work for Web IQ. Check actual AppID entitlements and current rate limits."],
+        ["Business plugins","Reusable context, skills, sources and tools announced across agent ecosystems.","Target-specific package/manifest, installation, licensing and permission requirements still apply."]
+      ])}
+      ${note("<strong>Resolve disagreements explicitly.</strong> The top Work IQ overview, MCP reference and permissions page also differ in how many tools or broad scopes they summarize. Discover the actual tool schemas and use the exact permission reference for your route; this guide deliberately avoids a promised fixed tool count.")}`,["announcement","workmcp","workrest","permissions","fabric","dataagent","graph","webauto"],"Dated ledger / GA, preview and future rollout");
+
+    add("decision-contract","Design","Start with the decision that must be defensible.","For the disruption case, a useful answer must separate business facts, approved policy, team discussion and external signals, then explain any proposed action.",`
+      ${table(["Question","Authoritative evidence","Acceptance assertion"],[
+        ["Which shipments are at risk?","Fabric-governed shipment status, measure and event time.","Numbers reconcile to the approved measure at a stated time and under this user's data permissions."],
+        ["Which mitigation is permitted?","Versioned policy evidence in Foundry IQ.","Citations support the rule, jurisdiction and effective date; no missing-policy guesswork."],
+        ["What did the team decide?","Work IQ meeting/chat or approved decision record.","Identify who, when and whether this was a proposal or a final decision; unauthorized messages stay hidden."],
+        ["Is the external disruption current?","Web IQ public notice or licensed evidence.","Preserve publisher, citation and relevant time. A public signal is not proof of an internal shipment state."],
+        ["Should an order change?","Your business service plus current authority and approval.","Revalidate current state, authorize the actor, bind exact arguments and make execution idempotent."]
+      ])}
+      ${note("<strong>Build artifact:</strong> a context contract naming source owner, entity keys, metric definition, required evidence, freshness bound, permitted audience and no-answer behavior for each claim. This is a recommended application artifact, not a Microsoft IQ API schema.")}`,["iq","dataagent","foundry","workapi","webauto"]);
+
+    add("topology","Design","Draw a fan-out, not a magic shared data lake.","Your orchestrator selects the necessary context services. Independent reads may run concurrently; identity-dependent or sequential business steps cannot be parallelized by wishful thinking.",`
+      ${flow([["Client","User + tenant + request"],["Backend / agent","Plan, authorize and minimize"],["Selected IQs","Separate calls and boundaries"],["Evidence layer","Correlate, validate and cite"],["Answer / proposal","Review before action"]])}
+      ${cards([["Architectural choice","Keep the source of truth in its owning system. Use semantic models for trusted measures, knowledge retrieval for authoritative documents, Work IQ for workplace context and Web IQ for public evidence. Do not copy everything to one vector index by default."],["Developer implementation","Create typed adapters for each selected protocol, explicit token acquisition, timeouts and typed errors. Normalize results into an application-owned evidence structure without erasing source permissions, timestamps or the original citation relationship."]])}
+      ${steps(["Name every data-plane caller and target, including nested retrieval-to-model calls.","Place query classification, query redaction and external-call policy before fan-out, not after data has left the boundary.","Keep synthesis and mutation separate. A model-generated response should not automatically execute an order change."])}
+      ${note("An Azure subscription/resource diagram is necessary but insufficient: Work IQ tenant administration, Fabric capacity/workspace access, Search/source access and Web IQ billing/AppID management are independent operating boundaries.")}`,["workapi","fabric","foundry","web"]);
+
+    add("route-lab","Design","Select only the context the task needs.","Rehearse routing against the required evidence. Adding all four IQs to every request increases exposure, latency and cost without guaranteeing a better answer.",`
+      <div class="grid"><article class="card lab-controls"><label class="field">Task<select id="route-task"><option value="kpi">Count delayed shipments using the approved metric</option><option value="decision">Summarize yesterday's team decision</option><option value="policy">Explain the current mitigation policy</option><option value="external">Check the latest public disruption notice</option><option value="triage">Complete the four-evidence disruption briefing</option></select></label><div id="route-options"></div></article><div id="route-result" class="readout" aria-live="polite"></div></div>
+      ${note("This is an evidence-routing exercise, not a universal product exclusivity rule. Other valid architectures exist. The selected case defines which source is authoritative; one service's ability to see similar data does not silently replace that source.")}`,["work","fabric","foundry","web"]);
+
+    add("principal-map","Identity","A valid token is only the first gate.","Preserve the distinction between caller authentication, service permissions, source authorization and permission to perform a business action.",`
+      ${table(["Boundary","Verified contract","Avoid this mistake"],[
+        ["Work IQ API","Delegated Entra user context; OBO supported; application-only authentication unsupported.","Replacing a missing user with your backend managed identity or a shared powerful user."],
+        ["Fabric ontology MCP","User access to a preview item; service principal access currently blocked by a documented known issue.","Assuming a service-principal-capable Fabric management API implies ontology MCP app-only support."],
+        ["Foundry IQ","Service authentication plus supported source-specific user authorization; Search also has outbound identities.","Granting a service Search access and treating that as document-level employee authorization."],
+        ["Web IQ runtime","API key or app-only Entra client credentials bound to a Web IQ AppID.","Passing a Work IQ delegated token or using an Entra client ID where a Web IQ AppID is required."],
+        ["Web IQ management","Separate CustomerApiAccess grant on the intended billing account.","Assuming search runtime access grants authority to modify named scopes."],
+        ["Business mutation","Your service's own actor, resource and operation checks.","Treating retrieved policy text or a user's approval as a new permission grant."]
+      ])}
+      ${note("<strong>Work IQ scope trap:</strong> WorkIQAgent.Ask is documented as including user-scoped read and write access, not an assurance of read-only behavior. Select the least broad supported permission and enforce path/method/tool policy. Microsoft 365 user permissions remain an upper bound, not a task-specific allowlist.")}`,["workapi","permissions","ontologymcp","acl","webauth","scopes"]);
+
+    add("identity-lab","Identity","Test the principal before building the prompt.","This rehearsal intentionally rejects a universal app-only design. It checks documented route constraints, not real tokens or effective permissions.",`
+      <div class="grid"><article class="card lab-controls"><label class="field">Target contract<select id="identity-target"><option value="work">Work IQ API</option><option value="ontology">Fabric ontology MCP</option><option value="foundry">Foundry IQ / native document ACLs</option><option value="web">Web IQ runtime</option></select></label><label class="field">Service caller authentication<select id="identity-mode"><option value="delegated">Delegated user / supported OBO</option><option value="app">Application-only</option><option value="key">API key</option></select></label><label class="check"><input id="identity-source" type="checkbox"><span>Required caller/source permissions and correct target binding have been verified. For native Foundry IQ ACLs, this includes the separate delegated source-user token.</span></label></article><div class="readout" id="identity-result" aria-live="polite"></div></div>
+      ${note("A supported combination is only eligible for further tests. Validate tenant, issuer, audience, scopes/roles, consent, target-specific access, revocation and concurrent-user isolation. Foundry IQ native permission-filtered queries require Search RBAC for the service caller and a delegated source-user token; application-only here describes service authentication, not an unattended userless retrieval design.")}`,["workapi","ontologymcp","aclquery","webauth"]);
+
+    add("trust-boundaries","Identity","Permission-aware retrieval is not permission-free composition.","Each service may correctly trim its own results while your application leaks them through a cache, transcript, log or a second external query.",`
+      ${cards([["Cache by effective authority","Key caches by the applicable tenant, user/security context, query, source/version and relevant policy constraints. Define retention and invalidate stale grants. Do not reuse one employee's retrieved evidence for another employee just because the question matches."],["Minimize outbound queries","Before Web IQ or a third-party host receives a request, remove unnecessary customer identifiers, private document text, credentials and confidential commercial terms. A safe output filter does not undo an unsafe outgoing query."],["Keep provenance and time","Retain the source identity, citation mapping, event/effective/retrieval times, metric/version and access context needed for auditing. Restrict the evidence store itself; permission metadata is not a new authorization engine."],["Do not infer network parity","Foundry IQ ingress, source access, embedding/planner access, Fabric region settings and Work IQ SaaS endpoints are separate paths. A private endpoint on one Azure service does not privatize the entire composition."]])}
+      ${note("<strong>Negative test:</strong> Alice gets a restricted supplier discussion, Bob asks the same question, and Bob's answer must not reuse Alice's evidence. Repeat after access revocation and across simultaneous requests, not just sequential sign-ins.")}`,["workapi","acl","network","webauth"]);
+
+    add("work-surface","Work","Choose delegation, conversation or tools deliberately.","Work IQ is more than raw Microsoft Graph access. It can supply workplace reasoning and grounded context while exposing supported operations through different protocols.",`
+      ${table(["Surface","Use when","Implementation contract"],[
+        ["A2A","An orchestrating agent delegates a workplace task and may need task state or clarification.","Discover the supported version, task/context lifecycle, errors, cancellation and user context."],
+        ["REST chat","Your application wants a synthesized conversation response.","The current REST page documents text-only responses, no action/content-generation skills and no long-running tasks; web grounding is on by default and disabling it is per turn."],
+        ["Remote MCP","A model client needs structured resource tools, discovery or supported context retrieval.","Discover tools and paths; use get_schema/search_paths rather than inventing a tool per Graph endpoint."],
+        ["Local MCP / CLI","A developer wants workplace context inside an approved coding environment.","Local process authentication and trust do not automatically become the production backend's identity contract."]
+      ])}
+      ${note("<strong>Evidence versus answer:</strong> a fully synthesized Work IQ answer is not interchangeable with raw retrieved evidence. If your application must own final synthesis and per-claim citations, select a supported retrieval/tool contract and validate the metadata it returns. The MCP retrieve tool is still labeled preview.")}`,["workapi","workmcp","workrest"]);
+
+    add("work-recipe","Work","Integrate Work IQ from tenant approval outward.","Prove one narrow read under the real user before exposing broad discovery, actions or a long-running workflow.",`
+      ${steps([
+        "<strong>Prepare the tenant and billing.</strong> Have an administrator enable Work IQ and verify the service principal exists, policies allow the intended app/path and Copilot Credits billing is configured. API access is not contingent on every user owning a Microsoft 365 Copilot license; custom/third-party usage can still be billed.",
+        "<strong>Register the application and consent.</strong> Select the supported delegated permissions for the protocol; use interactive user sign-in or a supported OBO backend flow. Do not request application-only support that this API does not provide.",
+        "<strong>Implement the actual protocol.</strong> Inspect remote MCP authentication metadata and tool schemas, or follow the A2A/REST request contract. Keep conversation/task identifiers scoped to the authorized user and tenant.",
+        "<strong>Read known test data.</strong> Fetch a harmless test resource or ask a question with a known answer; retain source/citation metadata and a sanitized correlation record.",
+        "<strong>Prove denial and revocation.</strong> Test a second user, a denied path, blocked connector, expired consent and missing user context before enabling writes."
+      ])}
+      <pre aria-label="Work IQ contract notes, not an executable request">Permission URI prefix: api://workiq.svc.cloud.microsoft
+Example delegated scope: WorkIQ.Read
+A2A host/path: workiq.svc.cloud.microsoft/a2a/
+A2A-Version: 1.0 selects methods such as SendMessage
+Omitting that header defaults to the documented v0.3 contract.
+Retain contextId for the correct authorized conversation.</pre>
+      ${note("For a multitenant app, follow the documented home-tenant issuer requirement. Enabling Work IQ in a parent and child tenant does not make a token issued by the wrong tenant valid. Time-sensitive queries also need appropriate location/time-zone metadata.")}`,["enable","permissions","workapi","work"]);
+
+    add("work-actions","Work","A read path is not a mutation approval path.","Generic entity tools can read, create, update, delete and invoke actions. Short tool lists do not imply a small permission surface.",`
+      ${flow([["Discover","Supported path + schema"],["Propose","Exact actor/resource/arguments"],["Authorize","User + tenant/path policy"],["Approve","Where required by the task"],["Execute","Correlate and reconcile"]])}
+      ${steps(["Allow only the resource paths, verbs and audiences necessary for this task; discover the returned schema instead of assuming Graph API parity.","Show the exact change for approval before a consequential operation. Bind approval to arguments, actor, resource, expiry and operation ID.","Handle timeout-after-commit through result lookup or another documented reconciliation path. Do not blindly replay a send, create or update.","Track working artifacts and workspaces separately from authoritative business records. Apply retention, access and cleanup appropriate to generated/intermediate content."])}
+      ${note("Office editing, Listen event subscriptions, memory and human-approval governance have preview announcements. Their existence does not erase the REST chat limitations. Validate each capability in the exact tenant/client/runtime you intend to ship.")}`,["workmcp","workrest","announcement"]);
+
+    add("fabric-semantics","Fabric","Preserve business meaning before generating a query.","Fabric IQ combines OneLake data, trusted semantic models and preview ontology context. These are complementary layers, not a requirement to rebuild every mature model.",`
+      ${table(["Layer","Owns","Design choice"],[
+        ["OneLake and source data","Data location, access, freshness and supported sharing/shortcuts/mirroring.","Unify the data foundation without pretending every physical source has the same freshness or security model."],
+        ["Power BI semantic model","Curated dimensions, relationships and DAX measures.","Use the existing approved delayed-shipment measure rather than asking a model to invent a different formula."],
+        ["Ontology / preview","Business entities, properties, relationships, metrics, rules and source bindings.","Align concepts across domains; retain source ownership of DAX expressions. Ontology is context, not a general-purpose query engine."],
+        ["Consumers","Data agents, operational experiences, graphs, apps and compatible copilots.","Confirm each consumer's permissions, supported sources, query behavior and availability separately."]
+      ])}
+      ${note("The IQ workload also brings planning, Graph, data agents and operations agents into the picture. Planning concerns coordinated plan-versus-actuals; operations agents concern live signals and governed responses. Neither is simply another name for a semantic model or an ontology.")}`,["fabric","ontology","dataagent"]);
+
+    add("fabric-recipe","Fabric","Ground questions in a tested semantic contract.","For the case study, begin with a small read-only data agent over the trusted shipment model; add ontology when cross-domain meaning actually requires it.",`
+      ${steps([
+        "<strong>Prepare capacity and policy.</strong> Verify the documented paid Fabric F2+ or qualifying Premium capacity, tenant settings and approved cross-geography AI processing/storage settings. Do not assume a developer trial is equivalent.",
+        "<strong>Choose bounded sources.</strong> The current data-agent page supports up to five data sources. Select relevant tables/models, descriptions and date/currency/unit semantics; file-based lakehouse data must be exposed as supported tables.",
+        "<strong>Preserve query authority.</strong> Validate the requesting user's permissions, source RLS/OLS/CLS where applicable and policy controls. The data agent is read-only; approved instructions cannot turn it into a write API.",
+        "<strong>Test representative questions.</strong> Compare generated SQL, DAX or KQL results with trusted baselines. Direct finance/KPI questions to the authoritative semantic model and time-series questions to the appropriate event data.",
+        "<strong>Publish and test the consumer.</strong> Prove the installed/published version, restricted-user behavior and final-channel identity. A successful author test is not a successful consumer test."
+      ])}
+      ${note("<strong>Two easily missed details:</strong> the current data-agent contract says Read, not Build, is sufficient for agent-driven queries against a Power BI semantic model. Sample question/query pairs are not currently supported for semantic-model sources. Follow this specific contract rather than copying permissions or authoring patterns from unrelated APIs.")}`,["dataagent","fabric"]);
+
+    add("fabric-graph","Fabric","An ontology does not automatically materialize every entity.","The updated preview separates business definitions and bindings from optional graph execution. Use a graph when traversing the relationship path is part of the question.",`
+      ${steps(["Model Supplier, Order, Shipment and Location with stable business keys, properties, relationships and source bindings. Reuse trusted semantic-model measures as source-owned metrics.","Validate entity resolution, cardinality, time and cross-domain terminology. Natural-language business rules provide context; they are not automatically hard transaction constraints.","Use named versions and review AI-proposed changes before applying them. A schema graph does not load instance data by default; materialize selected data only when graph execution is needed.","For ontology MCP, record the workspace and ontology item IDs, configure the documented endpoint and test as a permitted user. Service-principal access is currently blocked by a documented known issue."])}
+      <pre aria-label="Ontology MCP endpoint path, illustrative">Host: api.fabric.microsoft.com
+Path: /v1/mcp/dataPlane/workspaces/{workspace-id}/items/{ontology-item-id}/ontologyEndpoint
+Use the actual item IDs, not names or a report ID.
+Preview prerequisite: supported paid capacity + tenant settings + user access.</pre>
+      ${note("<strong>Lifecycle:</strong> the old ontology experience retires 31 January 2027. Plan migration and retest bindings, metrics and consumers. Semantic views are preview; the current Fabric IQ overview does not support creating ontologies from semantic models generated by semantic views.")}`,["ontology","ontologymcp","fabric"],"Ontology and ontology MCP / preview");
+
+    add("foundry-components","Foundry","Separate ingestion, retrieval and synthesis.","Foundry IQ is the current name used by the documentation for Azure AI Search, with knowledge-source and knowledge-base APIs for agentic retrieval.",`
+      ${flow([["Prepare","Parse, chunk, enrich and embed"],["Source","Indexed or remote content"],["Knowledge base","Choose sources + retrieve"],["Evidence","References + activity"],["Synthesize","Answer with citations"]])}
+      ${cards([["Indexed versus remote","Indexed sources need ingestion, updates, deletes and permission synchronization. Remote sources delegate retrieval to another service, with their own query-time availability, identity and cost."],["Planner versus outer agent","Minimal retrieval can bypass an LLM planner. Other supported modes can decompose queries and aggregate evidence. An outer agent that writes another answer can add latency and alter citation fidelity."]])}
+      ${table(["Ignite 2026 addition","Announced state","Compatibility boundary"],[
+        ["Indexed SharePoint, Azure SQL and file-upload knowledge sources","GA","Supported indexed SharePoint permissions must be synchronized; do not assume immediate revocation from an old indexed snapshot."],
+        ["Semantic chunking and image descriptions","GA","Preserve source identity and permissions on extracted/projected content; supported extraction is not permission-free reshaping."],
+        ["Fabric semantic-model and OneLake shortcut/mirror knowledge sources","Preview","These connections do not make all Fabric security and item types universally supported."],
+        ["Source ACL/RBAC enforcement","GA for documented sources; OneLake item permissions and Purview labels preview","Enforce the supported source contract, API version and actual caller context."]
+      ])}
+      ${note("The same policy PDF appearing in Work IQ and an indexed knowledge source does not establish identical freshness, permissions or ranking. Record which version is authoritative, why it is used, and how access revocation reaches the chosen path.")}`,["foundry","kb","retrieval","acl","graph"]);
+
+    add("foundry-recipe","Foundry","Build policy retrieval before composing an agent.","A successful Search request is not proof that the employee is authorized to see every returned document.",`
+      ${steps([
+        "<strong>Define the source contract.</strong> Use approved test policy documents with effective dates, jurisdictions, owners and known ACL differences. Choose a supported indexed or remote source.",
+        "<strong>Choose the API and resources.</strong> Pin the supported Search API version, source definitions and knowledge-base behavior. The documented 2026-10-01 GA contract is not interchangeable with older preview or 2026-04-01 definitions.",
+        "<strong>Configure identities and networks per hop.</strong> Verify caller-to-Search ingress, Search-to-source, embedding/planning models and storage. Grant the actual identity on each target, not a similarly named project identity.",
+        "<strong>Verify retrieval alone.</strong> Check evidence, citations, retrieval activity, empty results, outdated policy and access revocation. Test both a permitted and restricted user.",
+        "<strong>Add the consuming agent.</strong> Bind the tested knowledge base through its supported REST/SDK/MCP integration. Decide whether the knowledge base or outer agent owns final synthesis; preserve references."
+      ])}
+      <pre aria-label="Native Search permission-filtered query token roles; not a universal IQ request">Authorization: Bearer {caller-token-for-Search-RBAC}
+x-ms-query-source-authorization: Bearer {delegated-source-user-token}
+
+Caller: user, service principal or managed identity with the needed Search role.
+Document-permission subject: the delegated source user, not the application.
+Knowledge-base and MCP routes: follow their documented source-auth contract.</pre>
+      ${note("Source-specific user context and supported permission configuration matter even when the service uses application credentials. Native permission-filtered queries without elevated read require both token roles above. Do not silently downgrade a failed user/ACL path to elevated or unrestricted retrieval. A private inbound connection does not automatically isolate Search's outbound calls.")}`,["kb","retrieval","acl","aclquery","network"]);
+
+    add("graph-compare","Foundry","Two graphs, different jobs.","Fabric ontology context and Foundry IQ knowledge graphs can complement each other. Do not model them as a single graph endpoint with interchangeable permissions.",`
+      ${table(["Question","Fabric IQ ontology / optional graph","Foundry IQ knowledge graphs"],[
+        ["What is modeled?","Governed business entities, metrics, rules and bindings to enterprise data.","Entities and sourced relationships across knowledge documents, plus embedding-derived topics."],
+        ["Where does evidence live?","Bound source data and trusted semantic measures; optional instance materialization for graph execution.","Indexed/connected knowledge with citations to the documents supporting relationships."],
+        ["Why choose it?","Operational entities, authoritative KPIs and explicit relationship traversal.","Cross-document questions and broad themes that need connected institutional evidence."],
+        ["What needs testing?","Source permissions, bindings, metric ownership, materialization freshness and consumer support.","Entity/edge correctness, citation provenance, source ACLs, deletes and retrieval quality."]
+      ])}
+      ${note("<strong>Foundry preview additions:</strong> knowledge graphs can use a reviewed ontology or an existing graph and support documented natural-language/GQL paths. Microsoft Retriever 1 is a specialized preview planner without requiring a frontier-model deployment for that supported route. This does not remove planner/network prerequisites from other configurations.")}`,["ontology","graph","foundry"],"Distinct preview graph capabilities");
+
+    add("web-bootstrap","Web","A Web IQ Azure resource is not the runtime endpoint.","The resource meters usage; the application calls api.microsoft.ai. Keep the Azure resource, Web IQ billing account, Web IQ AppID and Entra client ID distinct.",`
+      ${steps(["Create a Web IQ resource in an approved paid Azure subscription, accepting current terms. Azure credits do not work for Web IQ.","Connect that resource in the Web IQ developer portal using the intended tenant/subscription. Record the generated Web IQ AppID and associated billing account.","For production, bind the Entra application's client ID to that AppID and acquire the documented app-only token. Protect any API keys in an approved secret manager; never put them in browser code.","Make one harmless playground/backend request, then test denied AppID selection and exhausted-rate behavior. The default is 15 QPS per AppID at review; use your actual current limit."])}
+      ${table(["Identifier","Purpose","Not the same as"],[
+        ["Azure resource / subscription","Provisioning and usage billing.","The host receiving runtime search calls."],
+        ["Web IQ billingAccountId","Customer-management account and scope collection access.","Azure subscription ID, customer ID or AppID."],
+        ["Web IQ AppID","API eligibility, rate limits, key ownership and bound client IDs.","The Entra app registration's client ID."],
+        ["Entra client ID","Application identity bound to one or more Web IQ AppIDs.","A search scope name or billing-account role."]
+      ])}`,["web","webcreate","webauth","scopes"]);
+
+    add("web-contract","Web","Own the request and its evidence contract.","Web IQ returns grounding evidence, not the application's final business decision. Auto chooses evidence types; your adapter must handle typed content and result-scoped citations.",`
+      <pre aria-label="Illustrative Web IQ Auto request; use a backend and current authentication">POST /v3/auto
+Host: api.microsoft.ai
+Authorization: Bearer {app-only-access-token}
+Content-Type: application/json
+
+{
+  "query": "latest public port disruption notice",
+  "mode": "lite",
+  "scopeName": "ApprovedNotices",
+  "failOnMissingScope": true,
+  "responseFilter": ["web", "news"]
+}</pre>
+      ${cards([["Parse the actual response","The Auto response has results[].evidence and citations scoped to each result, plus traceId and optional scopeApplied. Content can be text or a typed object. Do not attach every citation to every claim or confuse request categories with evidence type discriminators."],["Choose the mode and identity correctly","The current API uses mode lite or advanced, not a guessed AutoAdvanced enum. Entra token scope is https://api.microsoft.ai/.default. When one Entra app is bound to multiple AppIDs, select a permitted Web IQ APPID query parameter; API-key requests must not send APPID."]])}
+      ${note("A timestamp can mean published, updated, crawled or observed time. Keep that meaning with the evidence. Missing metadata is not zero or 'fresh now'. Citation-ready does not mean every returned statement is authoritative or that reuse of licensed content is unrestricted.")}`,["webauto","webauth","web"]);
+
+    add("web-scopes","Web","A source scope is not an OAuth scope.","Named Web IQ scopes filter Web and News evidence. Other Auto answer types are not covered by that scope, even when scopeApplied is true.",`
+      ${steps(["Have the account administrator grant the management identity CustomerApiAccess on the intended billing account. Runtime key/profile access does not confer this broad management grant.","Create and publish a named inclusion/exclusion configuration. Exclusion wins; an empty inclusion list makes all non-excluded sources eligible. Selector syntax differs for domains, path prefixes and exact HTTPS URLs.","Allow for propagation: normally about 10 minutes, sometimes up to 30. A successful scopeApplied value confirms this request used a scope, not that every replica uses the latest definition.","For scope-required Auto grounding, request only supported scoped answer types such as web and news, retain failOnMissingScope: true, inspect the response and never silently retry without the scope."])}
+      <div class="grid"><article class="card lab-controls"><label class="check"><input id="scope-name" type="checkbox" checked><span>A required named scope is requested.</span></label><label class="check"><input id="scope-fail" type="checkbox" checked><span>failOnMissingScope is true.</span></label><label class="field">Response scopeApplied<select id="scope-applied"><option value="true">true</option><option value="false">false</option><option value="unknown">Omitted</option></select></label><label class="check"><input id="scope-types" type="checkbox"><span>Auto may return additional answer types, not just Web and News.</span></label><label class="check"><input id="scope-fresh" type="checkbox"><span>Latest scope revision has been independently verified.</span></label></article><div id="scope-result" class="readout" aria-live="polite"></div></div>
+      ${note("This is a conceptual response-inspection rehearsal. In a normal request, a reported scope-application failure with failOnMissingScope true should return an error, not usable unscoped evidence. Zero matching results from a valid scope is not a scope failure.")}`,["scopes","webauto","webauth"]);
+
+    add("evidence-fusion","Compose","Normalize evidence without flattening its meaning.","Use an application-owned evidence envelope so the synthesis step can distinguish a metric, a policy clause, a conversation and a public notice.",`
+      <pre aria-label="Recommended application evidence envelope; not an IQ service schema">claim:              "Shipment 42 is delayed"
+sourceFamily:       "Fabric IQ"
+sourceReference:    approved model/query/result reference
+businessEntityKey: Shipment/42
+effectiveOrEventAt: source-defined time, with its meaning
+retrievedAt:        application retrieval time
+definitionVersion: metric / policy / ontology version, as applicable
+accessContext:     protected reference to authorized caller context
+citations:         references supporting this claim only
+limitations:       freshness, missing fields, scope or uncertainty</pre>
+      ${steps(["Resolve entity keys across services; do not join a supplier by display-name similarity alone.","Set a maximum acceptable age per claim type. Shipment state, policy effective dates and meeting discussion dates have different clocks.","Apply a conflict policy: a public port notice does not override internal inventory; an informal chat does not amend an approved policy.","Cite each supported claim and disclose missing/conflicting evidence. Require confirmation from the owning system before a consequential action."])}
+      ${note("Do not assert a cross-service atomic snapshot. Capture the participating timestamps, reject inconsistent combinations when the business requires it, and re-read mutable state before committing an action.")}`,["dataagent","foundry","workapi","webauto"]);
+
+    add("plugin-contract","Compose","Package reusable expertise, not universal entitlement.","Microsoft IQ business plugins describe reusable context and know-how. The concrete package route depends on the consuming product; the documented Microsoft 365 plugin has distinct manifest layers.",`
+      ${table(["Artifact","Describes","Do not confuse it with"],[
+        ["Plugin package / Microsoft 365 app manifest","Identity, metadata and supported packaged capabilities.","An API authentication grant or proof of tenant approval."],
+        ["Declarative agent manifest","Instructions, knowledge and actions for that agent.","A custom-engine or hosted-agent container."],
+        ["API/MCP action manifest","An agent's integration configuration and applicable auth/tool contract.","The outer registry package manifest."],
+        ["Package-level remote MCP configuration","Supported agentConnectors route in the app manifest.","Automatically exposing an agent's action plugin as an independent package capability."],
+        ["Skill directory","Reusable procedure and resources, including SKILL.md.","A replacement for server authorization or the underlying remote service."]
+      ])}
+      ${note("The announcement describes reuse across Microsoft Copilot, GitHub Copilot, Foundry through MCP and third-party ecosystems. That does not establish one binary package with identical components, licensing or governance in every host. Maintain and validate the host-specific adapter/package.")}`,["announcement","plugins"]);
+
+    add("plugin-recipe","Compose","Validate what the user actually installs.","A valid source tree, a packaged ZIP, tenant approval and a working user installation are different milestones.",`
+      ${steps([
+        "<strong>Choose the supported host and route.</strong> Inventory included agents, skills, connectors and remote MCP services. The documented Work IQ Dev Tools existing-agent route supports local declarative-agent source, not reconstruction from an installed title or a custom-engine agent.",
+        "<strong>Prepare tools and environment.</strong> Follow current WIQD prerequisites, including Node.js 24.15+ and PowerShell 7+ on Windows. The coding-assistant plugin and the wiqd CLI are separate installations.",
+        "<strong>Validate source offline, then provision.</strong> Choose source mode explicitly; it has limited coverage. Use one intended environment and verify deployment scope, not just an environment named dev.",
+        "<strong>Package after provisioning.</strong> Record the exact ZIP, manifest identity/version and component references. Run package validation on that existing candidate; package and marketplace modes upload it and can need authentication.",
+        "<strong>Install and prove access.</strong> Test the exact artifact through a supported route as permitted and restricted users. Sharing, catalog submission, administrator approval, installation and connection setup are separate operations.",
+        "<strong>Promote or retire deliberately.</strong> Retain release evidence, rollback version, remote endpoint ownership and a tenant disable path. Remote service changes can require retesting without any ZIP change."
+      ])}
+      ${note("Marketplace validation is not official Store approval. An exit code without checking findings/coverage is not a pass. These are implementation instructions only; this guide does not upload, provision, install or share anything.")}`,["pluginbuild","plugintest","plugins"]);
+
+    add("orchestration","Compose","Keep the action boundary outside evidence synthesis.","Use the simplest orchestrator that can preserve user context, typed results, bounded execution and trace continuity across selected IQ contracts.",`
+      ${flow([["Classify","Question + minimum sources"],["Read","Per-route auth + deadlines"],["Validate","Permissions, time and citations"],["Synthesize","Answer or explicit limitation"],["Propose","Separate authorized command"]])}
+      ${steps(["Apply per-hop timeout, cancellation, retry and request budgets. Distinguish rate limits and transient faults from forbidden access, missing consent and unsupported features.","Parallelize only independent reads. A later source query that requires a business key from the first source is sequential.","Handle a partial result explicitly: for example, available policy plus unavailable shipment status supports policy explanation, not a confident rerouting recommendation.","For mutations, re-read current state, enforce business constraints, bind approval to exact arguments and make the downstream command idempotent. Tool interruption or a closed chat is not transaction rollback."])}
+      ${note("MCP describes tool exchange; A2A describes agent/task delegation; REST describes an HTTP API surface. None guarantees that a remote tool's claims are trustworthy, a proposed action is authorized, or every host handles consent/cancellation identically.")}`,["workapi","workmcp","dataagent","foundry","webauto"]);
+
+    add("policy","Assure","Compose controls with explicit enforcement owners.","Business context, policy text, tenant governance and runtime action checks serve different purposes. Name the control that actually blocks an unsafe operation.",`
+      ${table(["Concern","Enforcement owner","Required proof"],[
+        ["Who may see workplace content?","Work IQ user/source permissions and applicable tenant/path policy.","Restricted-user, blocked-path, connector and revocation tests."],
+        ["Who may query business rows/columns?","Fabric workspace/item and source security under the actual query actor.","RLS/OLS/CLS or applicable OneLake tests in the final consumer."],
+        ["Who may retrieve a document?","Supported knowledge-source ACL/label enforcement and user context.","No unauthorized evidence after retrieve, cache, summarize or log."],
+        ["Which public evidence may enter?","Web IQ supported scope rules plus application query/output policy.","Scope-required errors, answer-type restriction, latest-revision verification and query minimization."],
+        ["Who may change a business record?","The business service and the approval workflow.","Exact-operation authorization, validation, replay protection and confirmed commit."]
+      ])}
+      ${note("Preview controls, named ontology rules and authoritative policy documents can guide the agent, but are not automatically hard runtime transaction checks. A plugin catalog listing, dashboard or compliance report is not equivalent to request rejection.")}`,["permissions","ontology","acl","scopes","plugins"]);
+
+    add("evaluation","Assure","Test each source, then test composition.","Answer fluency can hide a wrong KPI, stale policy, mismatched supplier or broken permission boundary. Treat these as separate failures.",`
+      ${table(["Layer","Measure","Negative case"],[
+        ["Work IQ","Decision attribution, source relevance, user isolation and supported action behavior.","A proposal in a chat is presented as an approved commitment."],
+        ["Fabric IQ","Approved metric parity, unit/date semantics and source permission fidelity.","The generated query recomputes a trusted measure incorrectly."],
+        ["Foundry IQ","Retrieval relevance, policy applicability, citations, ACLs and revoke/delete propagation.","Correctly quoted but superseded or unauthorized policy."],
+        ["Web IQ","Publisher authority, relevant observation time, scope/type compliance and citation fidelity.","scopeApplied true with an out-of-scope media/structured answer."],
+        ["Composition","Entity resolution, temporal consistency, per-claim evidence and safe partial failure.","Each call succeeds, but claims refer to different suppliers or different time windows."],
+        ["Action","Authorized and approved arguments, idempotency and reconciled backend result.","Timeout-after-commit causes a second order change."]
+      ])}
+      ${steps(["Create a versioned test set with two users, restricted sources, conflicting evidence, stale data and unavailable dependencies.","Separate deterministic safety/permission assertions from judge-based quality scoring. Calibrate judges with domain reviewers.","Keep optimization and holdout sets separate. Candidate testing can invoke real tools, so isolate business backends.","Compare a candidate against a fixed baseline; require explicit promotion rather than letting observed feedback silently rewrite production behavior."])}`,["dataagent","acl","scopes","plugintest","improvement"]);
+
+    add("operations","Operate","Operate several meters and several failure domains.","Unified context does not create one bill, one rate limit, one service-level agreement or one troubleshooting console.",`
+      ${table(["Symptom / meter","Investigate","Avoid"],[
+        ["Work IQ authentication failure","Delegated context, issuer/home tenant, audience, enablement, consent and path policy.","Substituting app-only credentials or granting broad tenant access to mask a wrong token."],
+        ["Fabric wrong or denied result","Actual consumer identity, source permission, semantic measure, bindings and tenant settings.","Assuming the owner's successful test proves user access."],
+        ["Foundry planning fails but retrieval works","Separate Search-to-planner identity/model/network from minimal retrieval.","Treating model-free success as proof of planner access."],
+        ["Web IQ 400/401/403","AppID selection, key-versus-token rules, bound client ID and scope failure code.","Using an Entra client ID as APPID or removing the required scope on retry."],
+        ["Cost and quota","Work IQ Copilot Credits, Fabric capacity, Search/model costs, Web IQ metering, host/model/tools/logs.","Assuming an existing Copilot license or one Azure budget makes every call free or blocked."]
+      ])}
+      ${note("Record sanitized request/correlation IDs, source versions, effective actor, outcome and latency. Web IQ Auto supplies traceId. Do not store raw tokens, sensitive prompts, document bodies or private conversations in unrestricted logs. Every telemetry store needs access/retention and an incident owner.")}`,["work","workapi","dataagent","retrieval","webauth","webauto"]);
+
+    add("latency-lab","Operate","Budget the critical path, not just the token count.","This teaching model compares independent sequential and parallel context reads. Real calls include nested model work, queueing, retries and synchronization that this simple model excludes.",`
+      <div class="grid"><article class="card lab-controls"><label class="field">Work IQ read (ms)<input id="lat-work" type="range" min="100" max="3000" step="100" value="1200"></label><label class="field">Fabric IQ read (ms)<input id="lat-fabric" type="range" min="100" max="3000" step="100" value="800"></label><label class="field">Foundry IQ read (ms)<input id="lat-foundry" type="range" min="100" max="3000" step="100" value="600"></label><label class="field">Web IQ read (ms)<input id="lat-web" type="range" min="100" max="3000" step="100" value="400"></label><label class="field">Final synthesis (ms)<input id="lat-model" type="range" min="100" max="3000" step="100" value="900"></label></article><div class="readout" id="latency-result" aria-live="polite"></div></div>
+      ${note("Parallel latency is max(selected independent reads) + synthesis in this illustrative four-source briefing. It is not a measured SLA or guarantee of concurrency support. Improve real performance through minimum-source routing, compact evidence, correct cache isolation and explicit budgets, not by dropping authorization.")}`,["workapi","dataagent","foundry","webauto"]);
+
+    add("release","Operate","Release a compatible context system.","The application can stay unchanged while a metric, ontology binding, policy index, scope revision or remote plugin service changes its behavior.",`
+      ${steps(["Record a nonsecret manifest: host/version, adapter/API versions, tenant and service IDs, permissions, source/metric/ontology/knowledge versions, Web IQ AppID/scope configuration and plugin package identity.","Validate the same intended consumers after promotion. Read-only data-agent access, Work IQ action scope and preview ontology identity support are separate gates.","Define rollback for each mutable artifact. A plugin ZIP rollback does not roll back a remote MCP service, source data or a published Web IQ scope.","Assign owners for freshness, grants, billing, incidents, preview exceptions and service retirement. Recheck availability in the actual region/cloud/tenant.","Test disaster and partial recovery against required state, authority and evidence freshness. Do not describe four separately successful restores as an atomic application restore."])}
+      ${note("<strong>Release gate:</strong> no unresolved forbidden-data exposure; trusted metric parity; source-scoped citations; explicit partial-failure UX; mutation reconciliation; and a proven rollback/disable path. These are recommended system acceptance criteria, not an automated Microsoft certification.")}`,["ontology","acl","scopes","plugintest"]);
+
+    add("capstone","Practice","Build the supplier disruption briefing end to end.","Use approved nonproduction resources and fictional data. Keep one solution backlog shared by the architect and developer rather than two disconnected learning tracks.",`
+      ${steps([
+        "<strong>Agree the context contract.</strong> Define Supplier/Shipment keys, the delayed-shipment measure, approved policy, team decision and permitted public notices. Specify user roles, freshness bounds and no-answer behavior.",
+        "<strong>Prove the Fabric slice.</strong> Query the trusted shipment metric as two users. Add ontology only for a justified cross-domain relationship; keep the data agent read-only.",
+        "<strong>Prove the knowledge slice.</strong> Ingest current and superseded policy documents with different ACLs. Verify effective date, citations and access revocation before connecting the agent.",
+        "<strong>Prove the work slice.</strong> Read a fictional decision conversation with delegated identity and least supported scope. Distinguish draft opinion from approved decision.",
+        "<strong>Prove the web slice.</strong> Create a separate AppID/auth path and required named scope. Limit Auto to Web/News where required; test missing scope and mixed answer types without an unrestricted fallback.",
+        "<strong>Compose the evidence.</strong> Resolve IDs, timestamps and per-claim citations; inject one unavailable source and one conflicting fact. The answer must disclose its limit rather than invent certainty.",
+        "<strong>Propose, do not immediately commit.</strong> Add a mock order-change API with authorization, exact-action approval and idempotency. Test timeout-after-commit and a revoked user.",
+        "<strong>Package only if needed.</strong> Choose the supported host-specific business plugin route, validate the exact candidate and test its installed user identity. Retain the compatible release and rollback evidence."
+      ])}
+      ${note("Expected deliverables: one data-flow diagram, one principal-to-target matrix, a context/version manifest, positive and negative test evidence, a per-task cost model, and a release/incident owner. The page itself creates none of these cloud resources.")}`,["iq","workapi","dataagent","retrieval","scopes","plugintest"]);
+
+    add("failure-drills","Practice","Repair the boundary that actually failed.","Choose the best corrective action. These fictional cases connect architecture choices to developer-visible symptoms.",`
+      <label class="field lab-controls">Failure drill<select id="drill"></select></label><div class="grid"><article class="card" id="drill-context"></article><div id="drill-options" role="group" aria-label="Corrective actions"></div></div><div id="drill-result" class="readout" aria-live="polite"></div>`,["workapi","ontologymcp","scopes","ontology","plugins"]);
+
+    add("implementation-plan","Practice","Take away one implementation plan.","Select only the evidence your team has actually prepared. The exported plan includes official references and open decisions, not a claim that the system passed.",`
+      <div class="grid"><article class="card" id="checklist"></article><article class="card"><p class="stat" id="plan-count"></p><h3>Evidence areas prepared</h3><p>For each area, assign an owner, test target, evidence location, gap and review date in your authorized system.</p><div class="actions"><button id="download" class="primary">Download plan</button><button id="view-plan">View / copy</button></div><p class="fine">Selections stay in page memory until reload. No cookies, analytics, credentials or background calls. Download or copy to retain them.</p></article></div>`,["iq","plugintest"]);
+
+    add("sources","Practice","Contracts before slogans.","This is an independent educational synthesis. Official documentation governs the current API, identity, feature status, billing and supported region/tenant behavior.",`
+      <p>Source review: 23 November 2026. Where announcement and API labels differ, both are stated. Architecture envelopes, exercises and acceptance gates are recommendations; request examples are illustrative, not executed or guaranteed for every target.</p><div id="source-list" class="grid"></div>
+      ${note("The unified track is deliberately one customer guide for architects and developers. It covers Microsoft IQ architecture and implementation decisions without implying identical runtime support across every host, partner connector or preview. External source links require connectivity; the guide and rehearsals otherwise work offline.")}
+      <div class="actions"><button data-go="implementation-plan">Return to the plan</button><button data-go="welcome">Return to start</button></div>`,["iq","announcement"]);
+
+    for (const stop of stops) {
+      const section=document.createElement("section");section.className="panel";section.id=stop.id;section.hidden=stop.id!=="welcome";
+      section.innerHTML=`<p class="eyebrow">${esc(chapters.find(([key])=>key===stop.chapter)[1])}</p><h${stop.id==="welcome"?"1":"2"} tabindex="-1">${stop.title}</h${stop.id==="welcome"?"1":"2"}><p class="lead">${stop.lead}</p><span class="badge">${stop.status}</span>${stop.content}<div class="sources" aria-label="Official sources">${stop.sources.map(key=>`<a href="${refs[key][1]}" target="_blank" rel="noopener noreferrer">${esc(refs[key][0])} &nearr;</a>`).join("")}</div>`;
+      $("tour").append(section);
+    }
+    let current=0,noticeTimer;
+    function notify(text){$("notice").textContent=text;$("notice").hidden=false;clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$("notice").hidden=true,6500);}
+    function show(focus=true){
+      const index=stops.findIndex(stop=>`#${stop.id}`===location.hash);current=index<0?0:index;
+      stops.forEach((stop,i)=>$(stop.id).hidden=i!==current);
+      document.querySelectorAll("[data-chapter]").forEach(link=>{if(link.dataset.chapter===stops[current].chapter)link.setAttribute("aria-current","step");else link.removeAttribute("aria-current");});
+      $("position").textContent=`${String(current+1).padStart(2,"0")} / ${stops.length} - ${stops[current].title}`;
+      $("progress").max=stops.length;$("progress").value=current+1;$("back").disabled=current===0;$("next").disabled=current===stops.length-1;
+      document.title=`${stops[current].title} | Microsoft IQ`;
+      if(focus){$(stops[current].id).querySelector("h1,h2").focus({preventScroll:true});window.scrollTo({top:0,behavior:"instant"});}
+    }
+    function go(id){if(location.hash===`#${id}`)show();else location.hash=id;}
+    chapters.forEach(([key,label])=>{const a=document.createElement("a");a.href=`#${stops.find(stop=>stop.chapter===key).id}`;a.textContent=label;a.dataset.chapter=key;$("chapters").append(a);});
+    stops.forEach(stop=>{const li=document.createElement("li"),a=document.createElement("a");a.href=`#${stop.id}`;a.textContent=stop.title;a.addEventListener("click",()=>{$("map-dialog").close();go(stop.id);});li.append(a);$("map-list").append(li);});
+    window.addEventListener("hashchange",()=>show());
+    $("back").addEventListener("click",()=>{if(current>0)go(stops[current-1].id);});$("next").addEventListener("click",()=>{if(current<stops.length-1)go(stops[current+1].id);});
+    document.querySelectorAll("[data-go]").forEach(button=>button.addEventListener("click",()=>go(button.dataset.go)));
+    document.querySelector(".skip").addEventListener("click",event=>{event.preventDefault();$("tour").focus();$("tour").scrollIntoView();});
+    $("map-open").addEventListener("click",()=>$("map-dialog").showModal());$("print").addEventListener("click",()=>window.print());
+    function themeState(){$("theme").setAttribute("aria-pressed",String(document.documentElement.dataset.theme==="dark"));}
+    $("theme").addEventListener("click",()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==="dark"?"light":"dark";themeState();});
+    document.addEventListener("keydown",event=>{if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||document.querySelector("dialog[open]")||event.target.closest("input,select,textarea,button,a,[contenteditable]"))return;if(event.key==="ArrowRight"&&current<stops.length-1){event.preventDefault();go(stops[current+1].id);}if(event.key==="ArrowLeft"&&current>0){event.preventDefault();go(stops[current-1].id);}});
+    function output(id,title,text,detail){const h=document.createElement("h3"),p=document.createElement("p");h.textContent=title;p.textContent=text;$(id).replaceChildren(h,p);if(detail){const small=document.createElement("p");small.className="fine";small.textContent=detail;$(id).append(small);}}
+    const families={work:"Work IQ",fabric:"Fabric IQ",foundry:"Foundry IQ",web:"Web IQ"};
+    const routes={kpi:["fabric"],decision:["work"],policy:["foundry"],external:["web"],triage:["work","fabric","foundry","web"]};
+    Object.entries(families).forEach(([key,name])=>{const label=document.createElement("label");label.className="check";const input=document.createElement("input");input.type="checkbox";input.value=key;input.checked=key==="fabric";input.addEventListener("change",routeLab);label.append(input,document.createTextNode(name));$("route-options").append(label);});
+    function routeLab(){const required=routes[$("route-task").value],selected=[...$("route-options").querySelectorAll("input:checked")].map(input=>input.value),missing=required.filter(key=>!selected.includes(key)),extra=selected.filter(key=>!required.includes(key));if(missing.length)output("route-result","Required evidence is missing.",`Add ${missing.map(key=>families[key]).join(", ")} for this case's authoritative evidence. Similar data elsewhere is not an implicit replacement.`);else if(extra.length)output("route-result","Evidence route is sufficient, but broader than necessary.",`${extra.map(key=>families[key]).join(", ")} is not required by this question. Justify additional context against exposure, latency and cost.`);else output("route-result","Minimum evidence route selected.",`Use ${selected.map(key=>families[key]).join(" + ")}; preserve its source authority and identity contract.`,selected.length===4?"Four sources do not imply a shared transaction or a guaranteed consistent snapshot.":"This is a case-specific routing recommendation, not an assertion that other architectures are impossible.");}
+    $("route-task").addEventListener("change",routeLab);
+    function identityLab(){const target=$("identity-target").value,mode=$("identity-mode").value,source=$("identity-source").checked;let blocked="";if(target==="work"&&mode!=="delegated")blocked="Work IQ requires delegated user context; app-only and API-key paths are not supported by this contract.";if(target==="ontology"&&mode!=="delegated")blocked="Ontology MCP is preview and currently documents a service-principal access issue. Use the supported user path, not assumed app-only or key support.";if(target==="foundry"&&mode==="key")blocked="This native permission-filtered Search route requires caller Search RBAC authorization and a delegated source-user token. API-key service access is not that contract.";if(target==="web"&&mode==="delegated")blocked="The documented Web IQ runtime token route uses app-only client credentials, or an API key. A delegated Work IQ token is not that contract.";if(blocked)output("identity-result","STOP: unsupported authentication assumption.",blocked);else if(!source)output("identity-result","Protocol choice is not permission evidence.","Verify target binding, correct audience, consent and all required user/source grants. For protected Foundry IQ content, service access is not document-level authorization.");else output("identity-result","Eligible for scoped integration testing.","The conceptual mode passes this rehearsal. Prove real tenant, audience, grants, supported source user context and concurrent-user isolation before release.");}
+    ["identity-target","identity-mode","identity-source"].forEach(id=>$(id).addEventListener("change",identityLab));
+    function scopeLab(){const named=$("scope-name").checked,fail=$("scope-fail").checked,applied=$("scope-applied").value,types=$("scope-types").checked,fresh=$("scope-fresh").checked;if(!named)output("scope-result","STOP: no named scope was requested.","failOnMissingScope has no effect without scopeName. Do not claim a source-constrained request.");else if(applied!=="true")output("scope-result","HOLD: required scope application is not established.",applied==="false"?(fail?"With failOnMissingScope true, a reported failure should be an error. Reject an inconsistent or unscoped evidence response.":"This configuration can admit unscoped evidence. Do not use it when the source restriction is required."):"An omitted scopeApplied property is not proof that the required scope was applied.");else if(types)output("scope-result","HOLD: not every answer type is source-scoped.","Named scopes cover Auto Web and News only. Restrict eligible answer types or enforce the separate required policy before accepting other evidence.");else if(!fresh)output("scope-result","Scope applied; latest revision remains unproven.","scopeApplied true is per request, not proof of global propagation or the newest definition. Verify current selectors after changes.",fail?"Fail-closed request configuration is retained.":"Also restore failOnMissingScope true for future scope-required requests.");else output("scope-result",fail?"Eligible for evidence and citation tests.":"Current response scoped; future fallback is unsafe.",fail?"The rehearsal has a named, applied, revision-checked Web/News scope. Still verify actual result authority and citations.":"Set failOnMissingScope true so a later scope failure cannot admit unscoped evidence.");}
+    ["scope-name","scope-fail","scope-applied","scope-types","scope-fresh"].forEach(id=>$(id).addEventListener("change",scopeLab));
+    function latencyLab(){const values=["work","fabric","foundry","web"].map(key=>Number($("lat-"+key).value)),model=Number($("lat-model").value),parallel=Math.max(...values)+model,sequential=values.reduce((sum,value)=>sum+value,0)+model;output("latency-result",`${parallel.toLocaleString("en-US")} ms parallel teaching estimate`,`${values.join(" / ")} ms source reads; ${model} ms synthesis. Sequential: ${sequential.toLocaleString("en-US")} ms. Difference: ${(sequential-parallel).toLocaleString("en-US")} ms.`,"Assumes all four reads are necessary and independent, no retries/queueing and one final synthesis. Measure the real authorized path.");}
+    ["work","fabric","foundry","web","model"].forEach(key=>$("lat-"+key).addEventListener("input",latencyLab));
+    const drills=[
+      ["A daemon cannot call Work IQ","The team reused a backend managed-identity token for Work IQ because Web IQ app-only authentication worked.",["Grant subscription Owner.","Use Work IQ's supported delegated/OBO contract, or redesign the unattended task; do not invent app-only support.","Retry the token with a longer prompt."],1,"Each IQ route has its own identity contract. A compatible Web IQ token flow does not establish Work IQ support."],
+      ["The KPI changed in the answer","The model recomputed delayed-shipment percentage from raw rows instead of using the approved DAX measure.",["Use the trusted semantic-model measure and test numerical parity, filters and time semantics.","Add another general web result.","Treat any plausible percentage as acceptable."],0,"Business measures are governed definitions, not prompt suggestions. Preserve their source ownership."],
+      ["An Auto answer escaped the source list","scopeApplied is true, but the answer includes a non-Web/News evidence type from outside the named scope.",["Assume true means every result is constrained.","Remove citations.","Restrict responseFilter to supported scoped types or separately enforce the required policy."],2,"Named scopes constrain Web and News only; the true flag does not extend that contract to every Auto type."],
+      ["The ontology graph is empty","The team assumed an ontology schema automatically loaded every entity instance into a graph.",["Grant all users workspace Admin.","Inspect definitions/bindings and explicitly choose supported instance materialization when graph execution is needed.","Copy every document into a new ontology."],1,"The current preview separates ontology context/schema from optional graph execution and materialization."],
+      ["A plugin is listed but unusable","The package is discoverable in a catalog, but the user has not been approved, installed it or configured its connection.",["Treat discoverability as successful deployment.","Rebuild all source data.","Verify target support, tenant approval, exact installation and user-specific connection/source access."],2,"Catalog discovery, sharing, approval, installation and runtime authorization are separate milestones."],
+      ["Bob gets Alice's supplier discussion","Both Work IQ requests respected user permissions, but the application reused a global question-only evidence cache.",["Partition cache by effective authority and relevant versions; retest simultaneous users and revocation.","Make the cache lifetime longer.","Give Bob access to every employee conversation."],0,"Permission-aware services do not protect an incorrectly shared application cache."],
+      ["A missing policy became a confident action","Fabric shipment state was available, but policy retrieval failed; the agent proposed a definitive mitigation anyway.",["Hide the failure.","Disclose missing policy, limit the answer and block consequential action until required evidence and authority are present.","Replace the policy with an unrelated public article."],1,"Partial context supports only bounded conclusions. Availability must not become invented authorization."],
+      ["The new scope still returns an old domain","A scope update was published moments ago and one response reports scopeApplied true.",["Assume every replica is current.","Disable the source restriction.","Account for propagation, verify the latest selectors and do not accept stale-policy evidence for a strict requirement."],2,"The flag confirms a scope was applied for that request, not that its latest definition propagated globally."]
+    ];
+    drills.forEach(([title],index)=>{const option=document.createElement("option");option.value=String(index);option.textContent=title;$("drill").append(option);});
+    function drillLab(){const [title,context,answers,best,reason]=drills[Number($("drill").value)];output("drill-context",title,context);output("drill-result","Choose the corrective action.","Repair the governing contract, not the last symptom.");$("drill-options").replaceChildren();answers.forEach((answer,index)=>{const button=document.createElement("button");button.className="answer";button.textContent=`${String.fromCharCode(65+index)}. ${answer}`;button.setAttribute("aria-pressed","false");button.addEventListener("click",()=>{$("drill-options").querySelectorAll("button").forEach(other=>other.setAttribute("aria-pressed",String(other===button)));output("drill-result",index===best?"Correct boundary to repair.":"That does not repair the failing boundary.",reason);});$("drill-options").append(button);});}
+    $("drill").addEventListener("change",drillLab);
+    const evidence=[
+      "Decision contract: required claims, authoritative sources, entity keys, acceptable freshness and no-answer behavior.",
+      "Topology: selected IQ contracts, host/orchestrator, data paths, region/tenant and external-query minimization.",
+      "Authority: actual principal, issuer/audience, consent, source permissions and tenant/path policy for every hop.",
+      "Work IQ: protocol-specific limits, read/action scope, concurrent-user isolation, billing and revocation evidence.",
+      "Fabric IQ: trusted metric parity, source RLS/OLS/CLS as applicable, ontology/binding version and consumer identity.",
+      "Foundry IQ: source/API versions, citations, ACLs, effective policy date, revoke/delete and planner/network tests.",
+      "Web IQ: AppID/client/account mapping, scope revision, supported answer types, failure handling and citations.",
+      "Composition: entity/time reconciliation, per-claim provenance, safe partial results and isolated caches/logs.",
+      "Delivery: supported host/package route, exact version, approval/installation and restricted-user runtime evidence.",
+      "Operations: task cost/latency budgets, rate limits, owners, rollback, incident and preview/lifecycle review."
+    ];
+    evidence.forEach(text=>{const label=document.createElement("label");label.className="check";const input=document.createElement("input");input.type="checkbox";label.append(input,document.createTextNode(text));$("checklist").append(label);input.addEventListener("change",updatePlan);});
+    function updatePlan(){$("plan-count").textContent=`${$("checklist").querySelectorAll("input:checked").length} / ${evidence.length}`;}
+    function planText(){const inputs=[...$("checklist").querySelectorAll("input")];return ["MICROSOFT IQ - UNIFIED CONTEXT IMPLEMENTATION PLAN","For architects and developers",`Created: ${new Date().toISOString()}`,"Source review: 2026-11-23","Planning aid only; this guide has not validated a real tenant or deployment.","",...evidence.map((text,index)=>`${inputs[index].checked?"[x]":"[ ]"} ${text}`),"","COMPLETE IN YOUR AUTHORIZED SYSTEM","Accountable owner: [agree]","Test environment and identities: [record]","Evidence and remaining gaps: [record]","Preview/availability decisions: [review]","Review date and rollback trigger: [agree]","","OFFICIAL REFERENCES",...Object.values(refs).map(([title,url])=>`${title}: ${url}`)].join("\r\n");}
+    $("view-plan").addEventListener("click",()=>{$("plan-text").value=planText();$("plan-dialog").showModal();});
+    $("download").addEventListener("click",()=>{const url=URL.createObjectURL(new Blob([planText()],{type:"text/plain;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="microsoft-iq-implementation-plan.txt";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notify("Plan download requested. If blocked, use View / copy.");});
+    $("copy").addEventListener("click",async()=>{try{if(!navigator.clipboard)throw new Error("Clipboard API unavailable.");await navigator.clipboard.writeText($("plan-text").value);notify("Plan copied.");}catch(error){console.warn("Clipboard copy unavailable:",error);$("plan-text").focus();$("plan-text").select();notify("Automatic copy unavailable. The text is selected; use your device's copy command.");}});
+    Object.values(refs).forEach(([title,url])=>{const card=document.createElement("article");card.className="card";card.innerHTML=`<h3><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(title)} &nearr;</a></h3><p class="fine">${esc(url)}</p>`;$("source-list").append(card);});
+    themeState();routeLab();identityLab();scopeLab();latencyLab();drillLab();updatePlan();show(false);
+  </script>
+</body>
+</html>

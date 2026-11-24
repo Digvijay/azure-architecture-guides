@@ -61,5 +61,26 @@
     "files": [
       "index.html"
     ]
+  },
+  {
+    "slug": "microsoft-iq",
+    "title": "Microsoft IQ: Context into Action",
+    "topic": "Microsoft IQ",
+    "summary": "A unified architecture and implementation journey through Work IQ, Fabric IQ, Foundry IQ and Web IQ, covering identity, evidence, integration, governance and operations.",
+    "published": "2026-11-24",
+    "minutes": 180,
+    "chapters": 11,
+    "tags": [
+      "Microsoft IQ",
+      "Work IQ",
+      "Fabric IQ",
+      "Foundry IQ",
+      "Web IQ",
+      "Architecture",
+      "Implementation"
+    ],
+    "files": [
+      "index.html"
+    ]
   }
 ]

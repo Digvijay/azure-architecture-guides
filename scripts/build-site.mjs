@@ -8,7 +8,7 @@ const catalog = JSON.parse(await readFile(path.join(root, "catalog.json"), "utf8
 const approvedHosts = new Set([
   "learn.microsoft.com", "azure.microsoft.com", "revealjs.com",
   "news.microsoft.com", "techcommunity.microsoft.com", "devblogs.microsoft.com",
-  "commandline.microsoft.com", "ai.azure.com"
+  "commandline.microsoft.com", "ai.azure.com", "api.microsoft.ai"
 ]);
 const approvedSamples = new Set([
   "https://github.com/microsoft-foundry/ignite-2026-demos/tree/main/foundry-and-a365"
