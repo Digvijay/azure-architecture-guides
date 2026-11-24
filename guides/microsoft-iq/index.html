@@ -76,6 +76,7 @@
     .primary { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); }
     .primary:hover { background: var(--cp-accent-hover); color: var(--cp-accent-fg); }
     :focus-visible { outline: 3px solid var(--cp-accent); outline-offset: 4px; }
+    main[tabindex="-1"]:focus, h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
     header { padding: 16px 28px; display: flex; justify-content: space-between; gap: 20px; align-items: center; background: var(--cp-bg-elevated); border-bottom: 1px solid var(--cp-border); }
     .wordmark { font-weight: 750; line-height: 1.4; }
     .wordmark small { display: block; color: var(--cp-text-soft); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }

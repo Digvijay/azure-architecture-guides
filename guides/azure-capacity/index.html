@@ -79,6 +79,7 @@
     button.primary:hover, .button.primary:hover { background: var(--cp-accent-hover); }
     button[disabled] { opacity: .4; cursor: default; }
     :focus-visible { outline: 3px solid var(--cp-accent); outline-offset: 4px; }
+    main[tabindex="-1"]:focus, h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
     a { color: var(--cp-link); text-underline-offset: 4px; }
     .skip { position: fixed; left: 16px; top: -100px; padding: 12px; background: var(--cp-surface); z-index: 100; }
     .skip:focus { top: 8px; }

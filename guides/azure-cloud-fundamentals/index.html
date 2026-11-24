@@ -69,6 +69,7 @@ html[data-theme="dark"] {
 *{box-sizing:border-box}body{margin:0;background:var(--cp-bg);color:var(--cp-text);font:17px/1.65 "Segoe UI",Aptos,Calibri,-apple-system,BlinkMacSystemFont,sans-serif}
 a{color:var(--cp-link)}button,input,select{font:inherit}button{cursor:pointer;padding:10px 16px;border:1px solid var(--cp-border-strong);border-radius:.625rem;background:var(--cp-surface);color:var(--cp-text);min-height:44px}
 button:hover{border-color:var(--cp-accent)}button:disabled{opacity:.5;cursor:default}:focus-visible{outline:3px solid var(--cp-accent);outline-offset:3px}
+main[tabindex="-1"]:focus,h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
 header{padding:20px 28px;border-bottom:1px solid var(--cp-border);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--cp-bg-elevated)}
 .wordmark{font-weight:750}.wordmark small{display:block;font-size:12px;color:var(--cp-text-muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}
 .layout{display:grid;grid-template-columns:245px minmax(0,1fr)}aside{padding:20px;border-right:1px solid var(--cp-border);min-width:0}.sidebar{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-gutter:stable}nav{display:grid;gap:6px}
