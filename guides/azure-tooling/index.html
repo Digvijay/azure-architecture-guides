@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Learn Bicep, Azure CLI and Azure Developer CLI individually, then combine them in a complete deployment lab. Includes offline syntax recipes, command builder and retrieval practice.">
+<title>Bicep, Azure CLI and azd | From syntax to systems</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+*{box-sizing:border-box}body{margin:0;background:var(--cp-bg);color:var(--cp-text);font:16px/1.65 "Segoe UI",Aptos,Calibri,-apple-system,BlinkMacSystemFont,sans-serif}
+a{color:var(--cp-link)}button,input,select,textarea{font:inherit}button{cursor:pointer;padding:10px 16px;border:1px solid var(--cp-border-strong);border-radius:.625rem;background:var(--cp-surface);color:var(--cp-text);min-height:44px}
+button:hover{border-color:var(--cp-accent)}button:disabled{opacity:.5;cursor:default}:focus-visible{outline:3px solid var(--cp-accent);outline-offset:3px}
+header{padding:20px 28px;border-bottom:1px solid var(--cp-border);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--cp-bg-elevated)}
+.wordmark{font-weight:750}.wordmark small{display:block;font-size:12px;color:var(--cp-text-muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr)}aside{padding:20px;border-right:1px solid var(--cp-border);min-width:0}.sidebar{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-gutter:stable}nav{display:grid;gap:4px}
+nav a{padding:6px 8px;border-radius:.625rem;text-decoration:none;color:var(--cp-text-muted);font-size:12px}nav a[aria-current]{background:var(--cp-accent-soft);color:var(--cp-accent)}
+main{padding:40px clamp(20px,4vw,64px);min-width:0}section{max-width:1100px;margin:0 auto 48px}h1,h2,h3{line-height:1.15;letter-spacing:-.025em}h1{font-size:clamp(36px,5vw,64px)}h2{font-size:clamp(30px,4vw,44px)}h3{font-size:22px}
+.eyebrow{color:var(--cp-accent);font-weight:750;font-size:12px;letter-spacing:.1em;text-transform:uppercase}.lead{font-size:21px;color:var(--cp-text-muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}.card,fieldset{border:1px solid var(--cp-border);border-radius:16px;background:var(--cp-surface);padding:24px;min-width:0}
+.callout{background:var(--cp-accent-soft);border-left:4px solid var(--cp-accent);padding:20px;border-radius:.625rem;margin:24px 0}
+.flow{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}.node{flex:1 1 150px;background:var(--cp-surface);border:1px solid var(--cp-border);padding:16px;border-radius:.625rem}.node b,.node small{display:block}.node small{color:var(--cp-text-muted)}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--cp-border);padding:12px}th{color:var(--cp-text-muted)}
+code,pre,textarea{font-family:Consolas,"Courier New",Courier,monospace}code{font-size:13px;overflow-wrap:anywhere}pre{padding:20px;overflow:auto;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:.625rem;line-height:1.5;font-size:13px}
+details{border:1px solid var(--cp-border);background:var(--cp-surface);padding:16px;border-radius:.625rem;margin:16px 0}summary{cursor:pointer;font-weight:650}fieldset{margin:24px 0}legend{font-weight:700;padding:0 8px}
+fieldset label{display:block;padding:8px;cursor:pointer}input[type=radio],input[type=checkbox]{accent-color:var(--cp-accent)}.feedback{font-weight:600}.fine{font-size:12px;color:var(--cp-text-muted)}
+.field{display:grid;gap:8px;margin:12px 0}input[type=search],input[type=text],select,textarea{width:100%;padding:10px;border:1px solid var(--cp-border-strong);border-radius:.625rem;background:var(--cp-surface);color:var(--cp-text)}
+footer{padding:20px 28px;border-top:1px solid var(--cp-border);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--cp-bg-elevated)}progress{accent-color:var(--cp-accent);width:220px}
+.skip{position:absolute;top:-100px;background:var(--cp-surface);padding:12px}.skip:focus{top:0}[hidden]{display:none!important}.copy-tools{margin:-8px 0 24px}
+.code-block{position:relative;margin:16px 0}.code-block pre{margin:0;padding-right:56px}
+.icon-copy{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;min-height:32px;padding:6px;border:0;background:var(--cp-surface);color:var(--cp-text-muted)}.icon-copy svg{width:20px;height:20px}.icon-copy:hover{color:var(--cp-accent);background:var(--cp-accent-soft)}.icon-copy[data-copied]{color:var(--cp-success)}
+@media(max-width:760px){.layout{display:block}aside{border-right:0;border-bottom:1px solid var(--cp-border)}.sidebar{position:static;max-height:none;overflow:visible;scrollbar-gutter:auto}nav{display:flex;overflow:auto}nav a{min-width:165px}.grid{grid-template-columns:1fr}main{padding:28px 16px}header,footer{padding:16px}}
+@media print{header,aside,footer,.controls,.skip,button,.copy-tools{display:none!important}.layout{display:block}main{padding:0}section,section[hidden]{display:block!important;break-before:page}section:first-child{break-before:auto}.card,fieldset{break-inside:avoid}details>*{display:block!important}pre{white-space:pre-wrap}.grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<a class="skip" href="#course">Skip to lesson</a>
+<header><a class="wordmark" href="../../index.html" aria-label="Back to all customer guides" title="All customer guides" style="color:var(--cp-text);text-decoration:none">Bicep / Azure CLI / azd<small>Three individual tracks. One integrated workflow. An offline field reference.</small></a><div class="actions"><button id="theme">Switch theme</button><button id="all">Read all</button><button id="print">Print / PDF</button></div></header>
+<div class="layout"><aside><div class="sidebar"><nav id="nav" aria-label="Course chapters"></nav><label class="field">Find syntax or a recipe<input id="search" type="search" placeholder="loops, --query, azd down..."></label><p id="search-status" class="fine" role="status"></p><p class="fine">Keyboard: Left / Right arrows move between chapters while reading. Tab reaches controls; their normal keys still work. Shortcuts pause in search and Read all views.</p><p class="fine">4-hour guided path including practice. Cloud deployment time can vary. All learning interactions run locally; commands are never executed by this page.</p></div></aside>
+<main id="course" tabindex="-1">
+<noscript><p>All lessons and code are readable without JavaScript. Copy, downloads, command generation and saved progress require JavaScript.</p></noscript>
+<section id="start" data-title="Start / The three tools" data-minutes="5">
+<p class="eyebrow">Orientation / 5 minutes</p><h1>Stop memorizing isolated commands. Learn the system.</h1>
+<p class="lead">Bicep describes the infrastructure. Azure CLI manages and inspects Azure. Azure Developer CLI connects application code, infrastructure and environments.</p>
+<div class="grid"><div class="card"><h3>Your learning sequence</h3><p><b>Bicep:</b> syntax, modules, scope and deployment behavior. <b>Azure CLI:</b> command grammar, queries, access and diagnostics. <b>azd:</b> application lifecycle, environments and hooks. <b>Together:</b> build a small public static website, review changes, deploy, verify and clean up.</p></div><div class="card"><h3>The no-lookup promise, made practical</h3><p>Learn common command shapes through retrieval practice and keep the course's searchable recipes and parameter builder open offline. You will not need an external lookup for the supported lab and common workflows. No course can cover every service command or guarantee unchanged future syntax.</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>Kind</th><th>Input</th><th>Responsibility</th></tr></thead><tbody><tr><td>Bicep</td><td>Declarative language and compiler</td><td><code>.bicep</code>, <code>.bicepparam</code></td><td>Desired infrastructure, dependencies and outputs</td></tr><tr><td><code>az</code></td><td>Azure CLI executable</td><td>Commands, flags, files</td><td>Resource operations, deployments, queries and diagnostics</td></tr><tr><td><code>azd</code></td><td>Azure Developer CLI executable</td><td><code>azure.yaml</code>, IaC, app and environment</td><td>Provision, package, deploy and manage app environments</td></tr></tbody></table></div>
+<p><b>Prerequisites:</b> understand tenant, subscription, resource group, ARM and data plane from the fundamentals course. Use an editor, current Azure CLI with Bicep, current azd and PowerShell 7 for the lab. This page needs no tools installed to study. A sandbox subscription is needed only when you deliberately run deployment commands.</p>
+<pre data-label="Read-only tool version checks">az version
+az bicep version
+azd version</pre>
+<div class="callout"><b>Safety contract:</b> the page never signs you in, changes Azure or runs code. The optional cloud lab creates billable storage and publishes sample content anonymously. Use an isolated sandbox, no private/customer data, and explicit cleanup. The azd <code>storage</code> host used in the lab is <b>beta</b> as of 24 November 2026; use a current version that supports it.</div>
+<p>Code blocks are labelled as complete files, runnable commands or syntax patterns. Commands use PowerShell unless labelled Bash. ARM resource IDs and Bicep module references use their format's forward slashes; local PowerShell paths use backslashes. Never paste angle-bracket placeholders unchanged.</p>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview">Bicep</a> / <a href="https://learn.microsoft.com/en-us/cli/azure/">Azure CLI</a> / <a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview">azd</a></p>
+</section>
+<section id="bicep-language" data-title="Bicep 1 / Read and write" data-minutes="20">
+<p class="eyebrow">Individual track A / Bicep / 20 minutes</p><h2>A Bicep file is a typed resource graph.</h2>
+<p>Start with inputs, derive names, declare resources, and expose outputs. A symbolic name such as <code>store</code> exists in the file; <code>store.name</code> is the deployed Azure name. The resource type and API version select the resource schema. Bicep compiles to ARM JSON; Azure Resource Manager performs the deployment.</p>
+<h3>A complete first file: <code>storage.bicep</code></h3>
+<pre data-file="storage.bicep" data-label="Complete Bicep file">targetScope = 'resourceGroup'
+
+@description('Azure region for the storage account.')
+param location string = resourceGroup().location
+
+@minLength(2)
+@maxLength(8)
+param prefix string = 'campus'
+
+@allowed([
+  'Standard_LRS'
+  'Standard_ZRS'
+])
+param sku string = 'Standard_LRS'
+
+param tags object = {
+  environment: 'learning'
+}
+
+var accountName = '${toLower(prefix)}${uniqueString(resourceGroup().id)}'
+
+resource store 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+  name: accountName
+  location: location
+  kind: 'StorageV2'
+  sku: {
+    name: sku
+  }
+  tags: tags
+  properties: {
+    minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    allowBlobPublicAccess: false
+    allowSharedKeyAccess: false
+  }
+}
+
+output storageName string = store.name
+output storageId string = store.id</pre>
+<p>The name combines a lowercase prefix with a deterministic suffix. Storage names must be 3-24 lowercase letters or digits; the decorators constrain length, not the character set. Use a letters-only prefix such as <code>campus</code>. Deterministic names avoid creating a fresh account on every repeat deployment.</p>
+<div class="table-wrap"><table><thead><tr><th>Syntax</th><th>Purpose</th><th>Remember</th></tr></thead><tbody><tr><td><code>param name type = default</code></td><td>Inputs with optional default</td><td>A required parameter omits the default</td></tr><tr><td><code>var name = expression</code></td><td>Derived values</td><td>Not mutable program state</td></tr><tr><td><code>resource symbol 'type@version' = { ... }</code></td><td>Declare an instance</td><td>Symbol is not necessarily its Azure name</td></tr><tr><td><code>output name type = value</code></td><td>Return values to callers</td><td>Do not output credentials or secrets</td></tr><tr><td><code>'${expression}'</code></td><td>String interpolation</td><td>Bicep uses single-quoted strings</td></tr><tr><td><code>@secure()</code></td><td>Protect sensitive deployment parameters</td><td>Does not make a plaintext parameter file safe</td></tr></tbody></table></div>
+<h3>Environment values: <code>storage.dev.bicepparam</code></h3>
+<pre data-file="storage.dev.bicepparam" data-label="Complete parameter file">using './storage.bicep'
+
+param prefix = 'campus'
+param sku = 'Standard_LRS'
+param tags = {
+  environment: 'dev'
+  owner: 'learning-team'
+}</pre>
+<p><code>using</code> binds the parameter file to its Bicep file. Values must match parameter names and types. A native <code>.bicepparam</code> uses <code>param x = value</code>, not a type declaration. It does not use the JSON file's <code>@</code> prefix in Azure CLI.</p>
+<pre data-label="Local compilation only">az bicep build --file .\storage.bicep
+az bicep build-params --file .\storage.dev.bicepparam</pre>
+<p>Build validates language and schema and emits JSON. It does not verify permissions, quota, regional allocation or application health. Use a current CLI/Bicep combination; linked parameter-file deployments without <code>--template-file</code> require Azure CLI 2.53.0+ and Bicep 0.22.6+.</p>
+<details><summary>Types and operators you will use repeatedly</summary><p>Types include <code>string</code>, <code>int</code>, <code>bool</code>, <code>array</code>, <code>object</code> and user-defined types. Compare with <code>==</code> and <code>!=</code>; combine conditions with <code>&amp;&amp;</code> and <code>||</code>; choose with <code>condition ? yes : no</code>; use <code>??</code> for a null fallback. Arrays use <code>[ ... ]</code>, objects use <code>{ key: value }</code>. Object properties do not need JSON-style commas.</p><pre data-label="Syntax pattern, not a complete deployment file">type Environment = 'dev' | 'prod'
+param environment Environment
+var isProduction = environment == 'prod'
+var storageSku = isProduction ? 'Standard_ZRS' : 'Standard_LRS'</pre></details>
+<fieldset data-answer="b" data-explanation="The symbolic name is a local identifier. store.name is the deployed Azure resource name; store.id is the scoped Azure resource ID."><legend>Retrieval A1: What does <code>store</code> mean in the resource declaration?</legend><label><input type="radio" name="a1" value="a"> A mandatory globally unique storage name</label><label><input type="radio" name="a1" value="b"> A Bicep symbolic identifier</label><label><input type="radio" name="a1" value="c"> A storage access key</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/file">File structure</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/parameter-files">Parameter files</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cli">CLI deployment</a></p>
+</section>
+<section id="bicep-composition" data-title="Bicep 2 / Modules and expressions" data-minutes="20">
+<p class="eyebrow">Individual track A / Bicep / 20 minutes</p><h2>Compose small modules. Let references express dependencies.</h2>
+<p>A module is a reusable Bicep deployment unit with a parameter/output contract. If another resource references an output or property, Bicep infers the deployment dependency. Use explicit <code>dependsOn</code> only when an actual dependency cannot be expressed by such references.</p>
+<pre data-label="Module call pattern, using storage.bicep from the previous chapter">module photos './storage.bicep' = {
+  name: 'photos-storage'
+  params: {
+    location: resourceGroup().location
+    prefix: 'photos'
+    tags: {
+      environment: 'dev'
+    }
+  }
+}
+
+output photoStorageId string = photos.outputs.storageId</pre>
+<p><code>name</code> on the module is its deployment name, not the storage account name. Module parameter defaults still apply when an optional value is omitted. Prefer clear contracts over passing a huge untyped configuration object everywhere. Version-pin reviewed public modules rather than silently accepting changing code.</p>
+<h3>Loops: create a collection from data</h3>
+<pre data-label="Loop pattern; requires a storage account named store in this file">param containerNames array = [
+  'photos'
+  'receipts'
+]
+
+resource blobs 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
+  parent: store
+  name: 'default'
+}
+
+resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = [for containerName in containerNames: {
+  parent: blobs
+  name: containerName
+  properties: {
+    publicAccess: 'None'
+  }
+}]</pre>
+<p>The collection is an array of resource declarations, not a runtime application loop. Referencing <code>parent: store</code> links the resource hierarchy. A child resource's type still includes its full provider/type path even when <code>parent</code> lets you use only the child name.</p>
+<h3>Conditions: include or omit one resource/module</h3>
+<pre data-label="Conditional module pattern, using storage.bicep">param createArchive bool = false
+
+module archive './storage.bicep' = if (createArchive) {
+  name: 'archive-storage'
+  params: {
+    prefix: 'archive'
+  }
+}
+
+output archiveId string = createArchive ? archive!.outputs.storageId : ''</pre>
+<p>The condition does not automatically apply to separately declared children. Guard references to conditional resources/modules. The <code>!</code> asserts non-null here because the matching condition guards access; it is not a substitute for handling missing resources correctly.</p>
+<h3>Existing resources: reference without recreating</h3>
+<pre data-label="Existing-resource pattern; provide an actual account name">param existingStorageName string
+
+resource existingStore 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+  name: existingStorageName
+}
+
+output existingId string = existingStore.id</pre>
+<p><code>existing</code> does not import that resource into full lifecycle ownership or create it. Property reads can require permissions and can fail if the instance is absent. Cross-group references use an appropriate <code>scope: resourceGroup(...)</code>.</p>
+<details><summary>Exercise: make a reusable two-environment module</summary><p>Use the complete <code>storage.bicep</code> file, create dev and prod parameter files, and change only tags and SKU. Before choosing ZRS for production, verify regional support and requirements. Keep unique naming tied to resource scope. Explain why recreating the name randomly would change the deployment outcome.</p><p><b>Expected result:</b> both files compile; each is bound to the same module; a repeated deployment in one group keeps the same account name. This exercise verifies composition, not that any storage redundancy setting alone satisfies a full application's recovery requirements.</p></details>
+<fieldset data-answer="a" data-explanation="References to resource properties and module outputs create inferred dependencies. A manual dependsOn list is not needed for every declaration and can reduce parallelism."><legend>Retrieval A2: A consumer uses a module's output. How is ordering normally established?</legend><label><input type="radio" name="a2" value="a"> By the reference, which creates an inferred dependency</label><label><input type="radio" name="a2" value="b"> By file line order alone</label><label><input type="radio" name="a2" value="c"> By sleeping for 30 seconds</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/modules">Modules</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/loops">Loops</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/conditional-resource-deployment">Conditions</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/existing-resource">Existing resources</a></p>
+</section>
+<section id="bicep-deployment" data-title="Bicep 3 / Scope and safe changes" data-minutes="15">
+<p class="eyebrow">Individual track A / Bicep / 15 minutes</p><h2>Match the target scope to the deployment command.</h2>
+<div class="table-wrap"><table><thead><tr><th>Bicep scope</th><th>CLI command family</th><th>Selector</th></tr></thead><tbody><tr><td><code>resourceGroup</code> (default)</td><td><code>az deployment group</code></td><td><code>--resource-group</code></td></tr><tr><td><code>subscription</code></td><td><code>az deployment sub</code></td><td><code>--subscription</code> and deployment <code>--location</code></td></tr><tr><td><code>managementGroup</code></td><td><code>az deployment mg</code></td><td><code>--management-group-id</code> and <code>--location</code></td></tr><tr><td><code>tenant</code></td><td><code>az deployment tenant</code></td><td><code>--location</code>; tenant-scoped permissions</td></tr></tbody></table></div>
+<p>At subscription scope, a deployment's <code>--location</code> stores deployment metadata; it does not override each resource's location. Use modules scoped to groups to deploy ordinary group-scoped resources from a subscription template. The combined lab shows this pattern.</p>
+<h3>The resource-group deployment sequence</h3>
+<pre data-label="Sandbox commands; set the subscription ID before running">$subscription = 'REPLACE_WITH_YOUR_SUBSCRIPTION_ID'
+$rg = 'rg-campus-bicep-dev'
+$location = 'westeurope'
+az account set --subscription $subscription
+az account show --query "{name:name,id:id,tenant:tenantId}" --output json
+az group create --name $rg --location $location
+az deployment group validate --resource-group $rg --parameters .\storage.dev.bicepparam
+az deployment group what-if --resource-group $rg --parameters .\storage.dev.bicepparam
+az deployment group create --name storage-dev --resource-group $rg --parameters .\storage.dev.bicepparam
+az deployment group show --name storage-dev --resource-group $rg --query properties.outputs --output json</pre>
+<p>Run each line deliberately and stop on errors. Validation and what-if are management requests, not fully offline checks. What-if previews likely changes but can contain noise or unresolved expressions. It does not reserve capacity, create a rollback plan or guarantee success.</p>
+<div class="grid"><div class="card"><h3>Repeatability is not magic</h3><p>Stable names and declarative configuration make repeat deployments converge where APIs support it. Some properties cannot change in place. Concurrent deployments, runtime defaults, provider behavior and out-of-band edits can cause unexpected results. Review every meaningful diff.</p></div><div class="card"><h3>Incremental is not "patch only"</h3><p>Incremental deployments retain resources not listed in the template, but redeploy a declared resource's configuration. Omitted properties can return to defaults. Removing a declaration does not normally delete the resource. For managed deletion workflows, understand deployment stacks rather than casually switching to complete mode.</p></div></div>
+<details><summary>Secrets, drift and deployment history</summary><p>Use secure parameters and appropriate secret retrieval mechanisms; do not store passwords in parameter files or outputs. Bicep does not require a Terraform-style local state file; ARM manages resource and deployment state. Deleting a deployment-history record does not delete the resources it created. A failed deployment can leave successfully created resources behind; rollback is not universally automatic.</p></details>
+<details><summary>Clean up the standalone Bicep sandbox</summary>
+<p>The later <code>azd down</code> command removes the combined azd environment, not this separately created Bicep sandbox. After any CLI exercises that use this group, inspect the explicit subscription and group below. Confirm deletion only if every resource belongs to your isolated lab. These commands are destructive and must not target a shared group.</p>
+<pre data-label="Standalone sandbox cleanup; inspect before confirming deletion">az resource list --subscription $subscription --resource-group $rg --output table
+az group delete --subscription $subscription --name $rg
+az group exists --subscription $subscription --name $rg</pre>
+<p>Use the standalone values <code>$rg = 'rg-campus-bicep-dev'</code> and your original sandbox subscription ID, not values overwritten by a later lab. The final command should return <code>false</code> after deletion completes. Check for any other groups you created during module exercises and clean those up individually after reviewing their ownership.</p>
+</details>
+<fieldset data-answer="c" data-explanation="The default incremental mode retains resources omitted from a new template. It can still update declared resources and reset omitted properties. Deletion requires an intentional lifecycle operation."><legend>Retrieval A3: You remove a resource declaration and redeploy in incremental mode. What normally happens to that existing resource?</legend><label><input type="radio" name="a3" value="a"> It is always deleted</label><label><input type="radio" name="a3" value="b"> The subscription is deleted</label><label><input type="radio" name="a3" value="c"> It remains unless separately deleted or managed by another deletion mechanism</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cli">Deployment commands</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-what-if">What-if</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deployment-modes">Deployment modes</a></p>
+</section>
+<section id="cli-grammar" data-title="CLI 1 / Command grammar" data-minutes="15">
+<p class="eyebrow">Individual track B / Azure CLI / 15 minutes</p><h2>Read an Azure command as a sentence.</h2>
+<pre data-label="Command grammar, not a runnable command">az &lt;group&gt; &lt;subgroup&gt; &lt;verb&gt; --selector value --setting value --query expression --output format</pre>
+<p>Not every command has a subgroup. For example, <code>az group show</code> is group + verb; <code>az storage account show</code> adds a subgroup. Flags identify the target and configure the request. <code>--query</code> shapes the response; <code>--output</code> chooses serialization.</p>
+<div class="table-wrap"><table><thead><tr><th>Verb</th><th>Usual intent</th><th>Example</th></tr></thead><tbody><tr><td>list</td><td>Discover a collection</td><td><code>az group list</code></td></tr><tr><td>show</td><td>Inspect one item</td><td><code>az group show --name $rg</code></td></tr><tr><td>create</td><td>Create, and in some APIs update, an item</td><td><code>az group create --name $rg --location $location</code></td></tr><tr><td>update</td><td>Modify configuration</td><td>Service-specific flags; understand merge behavior</td></tr><tr><td>delete</td><td>Remove an item</td><td><code>az group delete --name $rg</code></td></tr></tbody></table></div>
+<h3>Sign in, pick context, then prove it</h3>
+<pre data-label="Interactive authentication and read-only context checks">az login
+az account list --query "[].{name:name,id:id,tenant:tenantId}" --output table
+az account set --subscription 'REPLACE_WITH_YOUR_SUBSCRIPTION_ID'
+az account show --query "{name:name,id:id,tenant:tenantId}" --output json</pre>
+<p>Use <code>az login --tenant TENANT_ID</code> when you need a specific directory, or <code>az login --use-device-code</code> only where allowed. Subscription IDs are less ambiguous than display names. Specify <code>--subscription</code> explicitly for scripts rather than relying on a user's previous session.</p>
+<div class="table-wrap"><table><thead><tr><th>Common flag</th><th>Meaning</th><th>Mnemonic</th></tr></thead><tbody><tr><td><code>--resource-group</code> / <code>-g</code></td><td>Group scope</td><td>Which container?</td></tr><tr><td><code>--name</code> / <code>-n</code></td><td>Target name</td><td>Which instance?</td></tr><tr><td><code>--location</code> / <code>-l</code></td><td>Region or metadata location depending on command</td><td>Where?</td></tr><tr><td><code>--subscription</code></td><td>Subscription context</td><td>Which boundary?</td></tr><tr><td><code>--output</code> / <code>-o</code></td><td>json, table, tsv, yaml, none and other supported formats</td><td>How to display?</td></tr><tr><td><code>--query</code></td><td>JMESPath expression over returned JSON</td><td>Which values?</td></tr><tr><td><code>--debug</code></td><td>Detailed diagnostics</td><td>Why did it fail?</td></tr><tr><td><code>--help</code> / <code>-h</code></td><td>Installed command reference</td><td>Confirm this version</td></tr></tbody></table></div>
+<details><summary>PowerShell versus Bash: syntax belongs to the shell</summary><pre data-label="PowerShell variable and JSON file patterns">$rg = 'rg-campus-dev'
+$location = 'westeurope'
+az group show --name $rg --output json
+az deployment group create --resource-group $rg --template-file .\main.bicep --parameters '@.\main.parameters.json'</pre><pre data-label="Bash equivalents">rg='rg-campus-dev'
+location='westeurope'
+az group show --name "$rg" --output json
+az deployment group create --resource-group "$rg" --template-file ./main.bicep --parameters @./main.parameters.json</pre><p>These deployment lines demonstrate shell/file syntax, not the subscription-scoped combined lab. PowerShell uses a backtick for continuation; Bash uses a backslash. Prefer complete one-line commands to avoid trailing-space problems. Quote a JSON <code>@file</code> argument in PowerShell. Quote literal <code>'$web'</code> so PowerShell does not expand it as a variable. Command arguments are not interchangeable shell syntax.</p></details>
+<fieldset data-answer="a" data-explanation="--query selects values from response JSON; --output controls how the selected result is serialized. Neither changes the resource location."><legend>Retrieval B1: What does <code>--query</code> do?</legend><label><input type="radio" name="b1" value="a"> Shapes values returned by the command</label><label><input type="radio" name="b1" value="b"> Runs arbitrary SQL in every Azure service</label><label><input type="radio" name="b1" value="c"> Chooses the tenant</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/cli/azure/get-started-with-azure-cli">CLI basics</a> / <a href="https://learn.microsoft.com/en-us/cli/azure/use-azure-cli-successfully-quoting">Quoting</a></p>
+</section>
+<section id="cli-queries" data-title="CLI 2 / JSON and JMESPath" data-minutes="15">
+<p class="eyebrow">Individual track B / Azure CLI / 15 minutes</p><h2>Inspect JSON first. Project only what you need.</h2>
+<p>Azure CLI usually returns structured JSON. JMESPath is a query language for that JSON, not an Azure resource search language or SQL. Querying command output is generally client-side; it is not proof that the server fetched fewer items.</p>
+<pre data-label="Read-only query recipes">az group list --output json
+az group list --query "[].name" --output tsv
+az group list --query "[].{group:name,region:location}" --output table
+az group list --query "[?location=='westeurope'].name" --output tsv
+az group list --query "length(@)" --output tsv
+az resource list --resource-group $rg --query "[].{name:name,type:type,location:location}" --output table</pre>
+<div class="table-wrap"><table><thead><tr><th>Expression</th><th>Shape</th><th>Why it matters</th></tr></thead><tbody><tr><td><code>name</code></td><td>A property of one object</td><td>Useful for show results</td></tr><tr><td><code>[].name</code></td><td>Names from an array</td><td>Useful for list results</td></tr><tr><td><code>[?location=='westeurope']</code></td><td>Filtered array</td><td>Filter before projection</td></tr><tr><td><code>{name:name,id:id}</code></td><td>New object</td><td>Explicit field names</td></tr><tr><td><code>[0].id</code></td><td>First item's ID</td><td>Unsafe if uniqueness or ordering is not established</td></tr><tr><td><code>properties.outputs</code></td><td>Nested object</td><td>Deployment output values</td></tr></tbody></table></div>
+<p><b>Output choices:</b> table is for human scanning; JSON preserves types/structure; TSV is useful for a known single scalar or an explicitly ordered list. Do not scrape table columns in automation. Check that a query returns exactly the expected cardinality.</p>
+<h3>Capture one scalar safely in PowerShell</h3>
+<pre data-label="Runnable read-only pattern, after setting $rg">$groupId = az group show --name $rg --query id --output tsv
+if ($LASTEXITCODE -ne 0) { throw 'Resource-group lookup failed.' }
+if ([string]::IsNullOrWhiteSpace($groupId)) { throw 'No resource-group ID returned.' }
+$groupId</pre>
+<details><summary>Retrieval drill: predict the output without running Azure</summary><pre data-label="Example response JSON">[
+  {"name":"rg-campus-dev","location":"westeurope"},
+  {"name":"rg-campus-prod","location":"northeurope"}
+]</pre><p>Predict <code>[].name</code>, <code>[?location=='westeurope'].name</code>, and <code>length(@)</code>. Then explain why <code>[0].name</code> is an unreliable way to select production.</p><details><summary>Answers</summary><p>The first query returns both names as an array, the second returns only <code>rg-campus-dev</code> in an array, and the third returns the number <code>2</code>. Select production with an explicit name or scope, not the first item in unspecified ordering.</p></details></details>
+<fieldset data-answer="c" data-explanation="[].name projects each object's name. A list command returns an array; name alone targets an object property, not each member."><legend>Retrieval B2: A list command returns an array of objects. Which selects all their names?</legend><label><input type="radio" name="b2" value="a"> <code>name</code></label><label><input type="radio" name="b2" value="b"> <code>SELECT name</code></label><label><input type="radio" name="b2" value="c"> <code>[].name</code></label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Source: <a href="https://learn.microsoft.com/en-us/cli/azure/query-azure-cli">Query CLI output</a></p>
+</section>
+<section id="cli-operations" data-title="CLI 3 / Access and diagnosis" data-minutes="15">
+<p class="eyebrow">Individual track B / Azure CLI / 15 minutes</p><h2>Successful authentication is only the first gate.</h2>
+<p>Check identity, subscription, management permission, policy, quota/capacity, data permission and network reachability separately. Contributor generally manages a storage account but does not grant blob data access. A valid token does not override a firewall.</p>
+<pre data-label="Read-only operational recipes; set the named variables first">az account show --output json
+az provider show --namespace Microsoft.Storage --query registrationState --output tsv
+az resource list --resource-group $rg --output table
+az role assignment list --scope $groupId --include-inherited --output table
+az monitor activity-log list --resource-group $rg --offset 1h --query "[].{time:eventTimestamp,status:status.value,operation:operationName.value}" --output table
+az deployment operation group list --resource-group $rg --name storage-dev --output json</pre>
+<p><code>$groupId</code> is the ARM ID from the previous chapter. The deployment-operation command refers to the standalone deployment name <code>storage-dev</code>; azd uses its own deployment names. Permissions and registration checks can themselves be denied. If the provider is unregistered, an authorized operator can deliberately run <code>az provider register --namespace Microsoft.Storage</code>; do not register providers casually in an unrelated subscription.</p>
+<h3>Data-plane recipe: no account keys</h3>
+<pre data-label="Blob list after setting $storage and obtaining the data role">az storage blob list --account-name $storage --container-name 'photos' --auth-mode login --query "[].{name:name,size:properties.contentLength}" --output table</pre>
+<p>Use <code>--auth-mode login</code> to request Entra-based authorization instead of relying on account keys. The container must exist, your identity needs the relevant blob data role, and the endpoint must be reachable. Do not "fix" an authorization error by enabling anonymous access or embedding keys.</p>
+<h3>Automation: native commands need native exit checks</h3>
+<pre data-label="PowerShell failure-propagation pattern">$ErrorActionPreference = 'Stop'
+az account show --output none
+if ($LASTEXITCODE -ne 0) { throw 'Azure CLI authentication or context check failed.' }
+az deployment group what-if --resource-group $rg --parameters .\storage.dev.bicepparam
+if ($LASTEXITCODE -ne 0) { throw 'What-if failed; do not deploy.' }</pre>
+<p><code>$ErrorActionPreference</code> alone does not reliably convert every native executable failure into a terminating error across PowerShell configurations. Test <code>$LASTEXITCODE</code> immediately after <code>az</code>/<code>azd</code>. Do not swallow errors, deploy after a failed diff, or log tokens. <code>--debug</code> logs can contain sensitive information; review and redact before sharing.</p>
+<details><summary>Diagnose by evidence rather than retrying everything</summary><p><b>AuthorizationFailed:</b> verify principal, scope and required action. <b>RequestDisallowedByPolicy:</b> inspect the policy assignment and evaluated property. <b>Allocation/quota errors:</b> distinguish allowed quantity from regional supply. <b>HTTP 403 on blobs:</b> inspect data RBAC, network rules and token audience. <b>DNS/connectivity failure:</b> inspect the endpoint path and name resolution. <b>Conflict:</b> avoid concurrent changes and check provisioning state. Retry only when you understand a transient cause.</p></details>
+<fieldset data-answer="b" data-explanation="Contributor grants management-plane capabilities, not general blob data access. Use a scoped blob data role and verify networking."><legend>Retrieval B3: You can create a storage account but cannot upload a blob. What is the first conceptual check?</legend><label><input type="radio" name="b3" value="a"> Make the container public</label><label><input type="radio" name="b3" value="b"> Distinguish management permission from blob data permission</label><label><input type="radio" name="b3" value="c"> Delete the tenant</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/storage/blobs/authorize-data-operations-cli">Blob authorization with CLI</a> / <a href="https://learn.microsoft.com/en-us/cli/azure/use-azure-cli-successfully-troubleshooting">Troubleshooting</a></p>
+</section>
+<section id="azd-lifecycle" data-title="azd 1 / Application lifecycle" data-minutes="15">
+<p class="eyebrow">Individual track C / Azure Developer CLI / 15 minutes</p><h2>azd starts from the application, not one resource.</h2>
+<p><code>azd</code> and <code>az</code> are separate executables, with separate configuration and authentication behavior. <code>az login</code> does not establish a universal guarantee that <code>azd</code> is authenticated. Check each tool. azd supports IaC-based application workflows; it is not just shorthand for every Azure CLI command.</p>
+<div class="flow"><div class="node"><b>init</b><small>Initialize project/template</small></div><div class="node"><b>provision</b><small>Create/update infrastructure</small></div><div class="node"><b>package</b><small>Build deployable artifacts</small></div><div class="node"><b>deploy</b><small>Release app content/code</small></div><div class="node"><b>monitor / down</b><small>Inspect / deliberate cleanup</small></div></div>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Intent</th><th>Boundary</th></tr></thead><tbody><tr><td><code>azd init</code></td><td>Initialize from code or a selected template</td><td>Review any generated files or downloaded hooks before execution</td></tr><tr><td><code>azd auth login</code></td><td>Authenticate azd</td><td>Does not assign resource/data permissions</td></tr><tr><td><code>azd env new dev</code></td><td>Create/select local environment configuration</td><td>Does not create an Azure subscription</td></tr><tr><td><code>azd provision</code></td><td>Provision IaC-defined infrastructure</td><td>Does not itself prove user-facing behavior</td></tr><tr><td><code>azd package</code></td><td>Package services</td><td>Does not itself create Azure infrastructure</td></tr><tr><td><code>azd deploy web</code></td><td>Deploy the web service</td><td>Some hosts also perform supporting configuration; understand the host</td></tr><tr><td><code>azd up</code></td><td>Convenience provision-and-deploy workflow</td><td>Not a preview; hooks/workflow customization can alter behavior</td></tr><tr><td><code>azd down</code></td><td>Delete the environment's Azure resources</td><td>Destructive; inspect target and resource ownership first</td></tr></tbody></table></div>
+<h3>The project contract: <code>azure.yaml</code></h3>
+<pre data-label="Minimal project schema used later in the complete lab">name: campus-static
+infra:
+  provider: bicep
+  path: infra
+  module: main
+services:
+  web:
+    project: ./src/web
+    host: storage</pre>
+<p><code>name</code> identifies the app; <code>infra</code> identifies IaC; <code>services.web</code> names one deployable service. <code>project</code> is the content/source folder; <code>host</code> selects the deployment adapter. This example uploads prebuilt HTML without a language/build tool. A JS build-based service would specify <code>language: js</code> and an appropriate <code>dist</code>.</p>
+<p>For this storage host, azd discovers a storage account tagged <code>azd-service-name=web</code>, or uses an explicit service <code>resourceName</code>. The tag must match the <b>service key</b>, not the application name. Keep application content separate from <code>azure.yaml</code>, <code>.azure</code> and IaC.</p>
+<fieldset data-answer="a" data-explanation="provision changes infrastructure; deploy releases application content/code. up combines the workflow and is not a read-only planning command."><legend>Retrieval C1: Only the site's HTML changed. Which operation normally fits?</legend><label><input type="radio" name="c1" value="a"> <code>azd deploy web</code></label><label><input type="radio" name="c1" value="b"> Delete and recreate the subscription</label><label><input type="radio" name="c1" value="c"> <code>azd down</code></label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/reference">azd command reference</a> / <a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-schema">azure.yaml schema</a></p>
+</section>
+<section id="azd-environments" data-title="azd 2 / Environments and outputs" data-minutes="10">
+<p class="eyebrow">Individual track C / Azure Developer CLI / 10 minutes</p><h2>An environment is configuration, not a new cloud.</h2>
+<p>Use environments for independent deployments such as dev/test/prod. azd stores local configuration under <code>.azure</code>; that configuration is not automatically a security boundary or a secret vault. The infrastructure must use environment-dependent names and scopes to keep resources separate.</p>
+<pre data-label="Environment recipes; configuring values does not provision resources">azd auth login
+azd auth status
+azd env new campus-dev
+azd env set AZURE_SUBSCRIPTION_ID 'REPLACE_WITH_YOUR_SUBSCRIPTION_ID'
+azd env set AZURE_LOCATION westeurope
+azd env list
+azd env select campus-dev
+azd env get-values</pre>
+<p><code>AZURE_ENV_NAME</code> identifies the selected environment. <code>AZURE_SUBSCRIPTION_ID</code> and <code>AZURE_LOCATION</code> configure targeting. <code>AZURE_PRINCIPAL_ID</code> supplies the deploying identity's object ID for templates that require it. Infrastructure outputs are persisted as environment values, providing IDs and endpoints to subsequent commands/hooks.</p>
+<p><code>azd env refresh</code> refreshes values from deployed infrastructure; it does not recreate missing resources or deploy new code. Explicit <code>--environment campus-dev</code> avoids accidentally targeting the last selected environment.</p>
+<div class="callout"><b>Do not commit secrets or local environments.</b> Exclude <code>.azure/</code> and reviewed local artifacts in your application's ignore file. <code>azd env get-values</code> can print sensitive values in real projects; do not copy the complete output into shared logs. Nonsecret outputs should be the default.</div>
+<details><summary>Why two environment names can still collide</summary><p>If the Bicep file uses a hard-coded resource group or account name, different local environments can point at the same Azure resources. Derive names using environment and scope, verify outputs and resource discovery, and set separate subscription boundaries where required. Environment labels alone do not grant or isolate access.</p></details>
+<fieldset data-answer="c" data-explanation="An azd environment stores targeting/configuration and outputs. Resource naming, scope and access design determine whether actual infrastructure is isolated."><legend>Retrieval C2: What does <code>azd env new</code> create?</legend><label><input type="radio" name="c2" value="a"> A new Microsoft Entra tenant</label><label><input type="radio" name="c2" value="b"> A new Azure subscription and all infrastructure</label><label><input type="radio" name="c2" value="c"> Local environment configuration for the project</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Source: <a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/manage-environment-variables">Environment variables and outputs</a></p>
+</section>
+<section id="azd-hooks" data-title="azd 3 / Hooks and automation" data-minutes="10">
+<p class="eyebrow">Individual track C / Azure Developer CLI / 10 minutes</p><h2>Hooks are executable code, not harmless metadata.</h2>
+<p>Hooks run at lifecycle boundaries. Project hooks cover commands; service hooks cover an individual service's stages. Keep hooks small, deterministic, reviewed and failure-visible. Avoid secrets in arguments or logs. A template's hooks run with your identity and local permissions.</p>
+<pre data-label="azure.yaml hook pattern, not required by the base lab">hooks:
+  preprovision:
+    shell: pwsh
+    run: ./scripts/check-context.ps1
+    interactive: false
+    continueOnError: false</pre>
+<pre data-label="Example scripts\check-context.ps1 content">if ([string]::IsNullOrWhiteSpace($env:AZURE_SUBSCRIPTION_ID)) {
+  throw 'AZURE_SUBSCRIPTION_ID is required.'
+}
+Write-Host "Target subscription: $env:AZURE_SUBSCRIPTION_ID"
+Write-Host "Target environment: $env:AZURE_ENV_NAME"</pre>
+<p>Hook paths are interpreted in their documented project/service context. Declare the shell; a <code>pwsh</code> hook requires PowerShell on the machine/runner. A preprovision hook can catch missing values but does not replace authorization checks or human approval of an infrastructure diff.</p>
+<h3>CI/CD without long-lived embedded secrets</h3>
+<p>Use workload identity federation where supported. Separate deployment identities and scopes by environment, enforce production approvals, pin tool versions and inspect artifacts. Provisioning can require resource-write permission; role assignments require additional IAM authority. Do not grant Owner everywhere just to make a pipeline pass.</p>
+<pre data-label="Pipeline configuration command; changes remote configuration when confirmed">azd pipeline config --provider github</pre>
+<p>This command is not part of the sandbox lab and can configure repository/cloud pipeline resources. Review the generated workflow, federated identity, permissions and environment protections before accepting. <code>--no-prompt</code> means noninteractive decisions, not guaranteed safety; use it only when required values and approvals are already supplied.</p>
+<fieldset data-answer="b" data-explanation="Hooks are code executed in the user's or pipeline's environment and may alter local or cloud state. Review them and fail on errors."><legend>Retrieval C3: Why review a template's hooks before running <code>azd up</code>?</legend><label><input type="radio" name="c3" value="a"> YAML cannot contain meaningful behavior</label><label><input type="radio" name="c3" value="b"> They execute commands with your local/cloud authority</label><label><input type="radio" name="c3" value="c"> They always run in an isolated disposable sandbox</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-extensibility">Hooks</a> / <a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/configure-devops-pipeline">Pipelines</a></p>
+</section>
+<section id="together" data-title="Together 1 / Architecture and ownership" data-minutes="15">
+<p class="eyebrow">Integration track / 15 minutes</p><h2>One application. Clear ownership at each layer.</h2>
+<p>We will publish a fictional CampusCart welcome page using one StorageV2 account. No real student information, database or server is involved. Storage is billable for capacity, operations and relevant transfers. The public static-site endpoint has no built-in application authentication. This is an integration teaching lab, not a production marketplace architecture.</p>
+<div class="flow"><div class="node"><b>Bicep</b><small>Resource group + storage + data-role assignment</small></div><div class="node"><b>azd provision</b><small>Supply environment values and invoke ARM deployment</small></div><div class="node"><b>azd deploy web</b><small>Upload content and enable static website hosting</small></div><div class="node"><b>Azure CLI + HTTP</b><small>Inspect resources, blob authorization and the actual site</small></div></div>
+<div class="table-wrap"><table><thead><tr><th>File or value</th><th>Purpose</th><th>Connection</th></tr></thead><tbody><tr><td><code>azure.yaml</code></td><td>Application/service contract</td><td><code>web</code> maps to a resource tagged <code>azd-service-name=web</code></td></tr><tr><td><code>infra/main.bicep</code></td><td>Subscription deployment</td><td>Creates the environment group, invokes a scoped module</td></tr><tr><td><code>infra/modules/site.bicep</code></td><td>Resource-group deployment</td><td>Creates storage and scoped blob data permission</td></tr><tr><td><code>infra/main.parameters.json</code></td><td>azd environment substitution</td><td>Connects <code>${AZURE_ENV_NAME}</code> and other values to Bicep inputs</td></tr><tr><td><code>src/web/index.html</code></td><td>Public deployable content</td><td>Uploaded into <code>$web</code>, never the whole repository</td></tr><tr><td>Bicep outputs</td><td>Discovery and verification</td><td>Return group, account and website URL into azd environment values</td></tr></tbody></table></div>
+<h3>Permissions checklist before cloud execution</h3>
+<p>The deploying identity needs subscription/group resource creation privileges and <code>Microsoft.Authorization/roleAssignments/write</code> at the account's scope because the lab assigns a data role. Contributor alone does not grant role-assignment authority. An administrator should provide scoped deployment and IAM authority under organizational policy. For this user-oriented lab, the principal object ID is the signed-in user's object ID, not an application/client ID.</p>
+<p>The same identity must authenticate in both tools. azd and CLI use independent targeting configuration; compare subscription IDs and principal identities deliberately. Policy may prohibit public networks/static sites or role assignment. Do not bypass it: use an approved sandbox or study the workflow offline.</p>
+<div class="callout"><b>Two access surprises:</b> disabling <code>allowBlobPublicAccess</code> blocks anonymous blob-container access but <b>does not make the static website private</b>. Also, disabling shared keys is fine because azd uses Entra data access. The storage <code>$web</code> container is fully owned by this azd service; a later deploy removes blobs not in the local content folder.</div>
+<fieldset data-answer="a" data-explanation="Bicep owns the resources and role assignment; azd deploy owns static website content and may enable the host's required website setting. Azure CLI inspects rather than silently drifting declared infrastructure."><legend>Integration check 1: Where should a lasting storage-account security setting be changed?</legend><label><input type="radio" name="d1" value="a"> In the IaC, then reviewed and provisioned</label><label><input type="radio" name="d1" value="b"> Only in a random local CLI session</label><label><input type="radio" name="d1" value="c"> In the browser's local storage</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Source: <a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/storage-static-website-deployments">Storage host behavior, beta status and permissions</a></p>
+</section>
+<section id="lab-files" data-title="Together 2 / Complete lab files" data-minutes="25">
+<p class="eyebrow">Integration track / 25 minutes</p><h2>Build the contract, file by file.</h2>
+<p>Create a new local folder named <code>campus-static-lab</code>, not inside an existing application's deployment directory. Save these six files at the exact paths shown. Download buttons provide individual file contents; recreate their folders locally. Do not point this lab at shared resources.</p>
+<pre data-label="Project tree">campus-static-lab\
+  azure.yaml
+  .gitignore
+  infra\
+    main.bicep
+    main.parameters.json
+    modules\
+      site.bicep
+  src\
+    web\
+      index.html</pre>
+<h3><code>azure.yaml</code></h3>
+<pre data-file="azure.yaml" data-label="Complete application configuration">name: campus-static
+infra:
+  provider: bicep
+  path: infra
+  module: main
+services:
+  web:
+    project: ./src/web
+    host: storage</pre>
+<h3><code>.gitignore</code></h3>
+<pre data-file=".gitignore" data-label="Complete lab ignore file">.azure/
+artifacts/
+infra/main.json
+infra/main.local.parameters.json
+infra/modules/site.json</pre>
+<h3><code>infra\main.bicep</code></h3>
+<pre data-file="infra\main.bicep" data-label="Complete subscription-scope Bicep file">targetScope = 'subscription'
+
+@description('Unique letters/digits/hyphens environment name, max 20 characters.')
+@minLength(1)
+@maxLength(20)
+param environmentName string
+
+param location string
+
+@description('Object ID of the deploying identity, not its client ID.')
+param principalId string
+
+resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+  name: 'rg-campus-${environmentName}'
+  location: location
+  tags: {
+    'azd-env-name': environmentName
+    environment: environmentName
+    purpose: 'learning'
+  }
+}
+
+module site './modules/site.bicep' = {
+  name: 'campus-site'
+  scope: rg
+  params: {
+    location: location
+    environmentName: environmentName
+    principalId: principalId
+  }
+}
+
+output AZURE_LOCATION string = location
+output AZURE_RESOURCE_GROUP string = rg.name
+output AZURE_STORAGE_ACCOUNT_NAME string = site.outputs.storageName
+output WEBSITE_URL string = site.outputs.websiteUrl</pre>
+<p>The template's <code>targetScope</code> matches <code>az deployment sub</code>. The resource group is subscription-scoped. The module is explicitly scoped to that new group. The reference to <code>rg</code> creates the dependency; do not add a timing delay.</p>
+<h3><code>infra\modules\site.bicep</code></h3>
+<pre data-file="infra\modules\site.bicep" data-label="Complete resource-group module">param location string
+param environmentName string
+param principalId string
+
+var resourceToken = uniqueString(subscription().id, resourceGroup().id, environmentName)
+var blobDataRole = subscriptionResourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+)
+
+resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+  name: 'st${resourceToken}'
+  location: location
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  tags: {
+    'azd-env-name': environmentName
+    'azd-service-name': 'web'
+    purpose: 'learning'
+  }
+  properties: {
+    minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    allowSharedKeyAccess: false
+    allowBlobPublicAccess: false
+    publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource uploader 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storage.id, principalId, blobDataRole)
+  scope: storage
+  properties: {
+    principalId: principalId
+    roleDefinitionId: blobDataRole
+  }
+}
+
+output storageName string = storage.name
+output websiteUrl string = storage.properties.primaryEndpoints.web</pre>
+<p>The stable account name fits storage naming rules. The role GUID is the built-in <b>Storage Blob Data Contributor</b> role; the assignment is scoped to this account. <code>guid</code> creates a deterministic assignment name. The module intentionally leaves <code>principalType</code> unspecified to accept the correct supplied principal; a reviewed production module should specify its known identity type. IAM propagation can lag behind ARM deployment completion.</p>
+<h3><code>infra\main.parameters.json</code></h3>
+<pre data-file="infra\main.parameters.json" data-label="Complete azd-substituted parameters file">{
+  "parameters": {
+    "environmentName": { "value": "${AZURE_ENV_NAME}" },
+    "location": { "value": "${AZURE_LOCATION}" },
+    "principalId": { "value": "${AZURE_PRINCIPAL_ID}" }
+  }
+}</pre>
+<p>This is a complete parameter object; the optional schema/content-version fields are omitted. azd substitutes environment placeholders before deployment. <b>Azure CLI alone does not expand these strings.</b> For the CLI preview, pass resolved inline values as shown next, or create a resolved parameter file. Do not confuse azd's substitution with Bicep string interpolation.</p>
+<h3><code>src\web\index.html</code></h3>
+<p>Save the following <b>public sample content</b>. It intentionally contains no application authentication or personal information. The theme variables are included so it can be opened independently.</p>
+<pre data-file="src\web\index.html" data-label="Complete public sample HTML">&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="utf-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+&lt;title&gt;CampusCart learning lab&lt;/title&gt;
+&lt;script&gt;
+(() =&gt; {
+  const param = new URLSearchParams(window.location.search).get("scoutTheme");
+  const theme = param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", theme);
+})();
+&lt;/script&gt;
+&lt;style&gt;
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+body { background: var(--cp-bg); color: var(--cp-text); margin: 40px; font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; }
+h1 { color: var(--cp-accent); }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;CampusCart learning lab&lt;/h1&gt;
+&lt;p&gt;Bicep described it. azd delivered it. Azure CLI verified it.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<details><summary>Before running anything: explain the six-file contract</summary><p>Which file creates the group? Which file creates the storage account? Where is the role scoped? Which output lets CLI find the account? Why does the service key have to match its tag? Why will the azd JSON parameter file not work unchanged in a direct CLI preview?</p><p><b>Expected answers:</b> main; site module; storage account; AZURE_STORAGE_ACCOUNT_NAME; host resource discovery; azd must substitute environment strings first. Build locally next, then review cloud requests.</p></details>
+</section>
+<section id="lab-run" data-title="Together 3 / Preview, deploy, verify" data-minutes="20">
+<p class="eyebrow">Integration track / 20 minutes plus cloud wait time</p><h2>Build. Inspect. Provision. Deploy. Prove.</h2>
+<p>Run from <code>campus-static-lab</code> in PowerShell 7. These are staged commands, not an unattended script. Stop immediately on any failed command. The later scalar-capture block includes explicit native exit checks. Do not continue with unresolved placeholder values.</p>
+<h3>1. Local compilation and intentional targeting</h3>
+<pre data-label="Build locally, authenticate explicitly, configure the sandbox">az bicep build --file .\infra\main.bicep
+az login
+azd auth login
+$subscription = 'REPLACE_WITH_YOUR_SUBSCRIPTION_ID'
+$location = 'westeurope'
+$environment = 'campus-dev'
+az account set --subscription $subscription
+az account show --query "{name:name,id:id,tenant:tenantId}" --output json
+azd auth status
+azd env new $environment
+azd env set AZURE_SUBSCRIPTION_ID $subscription
+azd env set AZURE_LOCATION $location</pre>
+<p>Do not run <code>azd init</code> over these complete authored files just to satisfy a ritual; the project contract already exists. <code>azd env new</code> sets up the environment for it. If you repeat the lab with an existing environment, select it instead of trying to recreate it.</p>
+<h3>2. Resolve the user principal and preview the same infrastructure</h3>
+<pre data-label="User-oriented principal lookup and subscription-scope preview">$principal = az ad signed-in-user show --query id --output tsv
+if ($LASTEXITCODE -ne 0) { throw 'Signed-in user lookup failed. Do not proceed.' }
+if ([string]::IsNullOrWhiteSpace($principal)) { throw 'A user object ID is required.' }
+azd env set AZURE_PRINCIPAL_ID $principal
+if ($LASTEXITCODE -ne 0) { throw 'azd principal configuration failed.' }
+az deployment sub validate --subscription $subscription --location $location --template-file .\infra\main.bicep --parameters environmentName=$environment location=$location principalId=$principal
+if ($LASTEXITCODE -ne 0) { throw 'Validation failed.' }
+az deployment sub what-if --subscription $subscription --location $location --template-file .\infra\main.bicep --parameters environmentName=$environment location=$location principalId=$principal
+if ($LASTEXITCODE -ne 0) { throw 'What-if failed; do not provision.' }</pre>
+<p>Compare the azd user shown in its auth status with the CLI user. The lookup is deliberately for an interactive user; it is not the right principal-discovery method for a service-principal pipeline. Microsoft Graph access can be restricted. In that case obtain the correct object ID through an authorized administrator rather than substituting a random ID.</p>
+<p><b>Expected diff:</b> one environment resource group, one storage account, one scoped role assignment, and the module/deployment metadata. Investigate unexpected targets or changes. This CLI what-if uses resolved inline values, while azd later resolves its JSON file; values and source files must remain identical between review and provisioning.</p>
+<h3>3. Provision infrastructure, then deploy only public sample content</h3>
+<pre data-label="Creates billable resources and publishes the public sample">azd provision --environment $environment
+azd deploy web --environment $environment</pre>
+<p>Provisioning outputs give the resource group, account and URL. If upload fails immediately with a role-propagation error, verify the assignment and allow time for it to become effective before rerunning <code>azd deploy web</code>. Do not weaken storage security. The storage host enables the static-site setting after uploading and can delete old site files on subsequent deployments.</p>
+<h3>4. Verify management plane, data plane and HTTP independently</h3>
+<pre data-label="Verification using nonsecret azd output values">$rg = azd env get-value AZURE_RESOURCE_GROUP --environment $environment
+if ($LASTEXITCODE -ne 0) { throw 'Resource-group output lookup failed.' }
+$storage = azd env get-value AZURE_STORAGE_ACCOUNT_NAME --environment $environment
+if ($LASTEXITCODE -ne 0) { throw 'Storage output lookup failed.' }
+$url = azd env get-value WEBSITE_URL --environment $environment
+if ($LASTEXITCODE -ne 0) { throw 'Website output lookup failed.' }
+if ([string]::IsNullOrWhiteSpace($rg) -or [string]::IsNullOrWhiteSpace($storage) -or [string]::IsNullOrWhiteSpace($url)) {
+  throw 'Required infrastructure output is empty.'
+}
+az resource list --subscription $subscription --resource-group $rg --output table
+if ($LASTEXITCODE -ne 0) { throw 'Resource verification failed.' }
+az storage blob list --account-name $storage --container-name '$web' --auth-mode login --query "[].name" --output tsv
+if ($LASTEXITCODE -ne 0) { throw 'Blob data access verification failed.' }
+$response = Invoke-WebRequest -Uri $url -ErrorAction Stop
+if ($response.StatusCode -ne 200 -or $response.Content -notmatch 'CampusCart learning lab') {
+  throw 'Site did not return the expected sample.'
+}
+Write-Host 'Management, data authorization and public HTTP checks passed.'</pre>
+<p><b>Expected evidence:</b> the account exists in the correct group/subscription; <code>index.html</code> appears in <code>$web</code>; the site returns HTTP 200 with the sample marker. Resource listing alone is not a proxy for a functional deployment.</p>
+<h3>5. Change application content without recreating the infrastructure</h3>
+<p>Edit only the paragraph in <code>src\web\index.html</code>, then run <code>azd deploy web --environment campus-dev</code> and verify the changed text with HTTP. For an IaC change, repeat build/validate/what-if and then provision before deploying. Do not recreate everything for each HTML change.</p>
+<h3>6. Deliberate cleanup</h3>
+<pre data-label="Inspect first; azd down is destructive and asks for confirmation">azd show --environment $environment
+az resource list --subscription $subscription --resource-group $rg --output table
+azd down --environment $environment
+az group exists --subscription $subscription --name $rg</pre>
+<p><b>Confirm only your isolated lab environment.</b> Never use shared groups, automatic <code>--force</code>, purge flags or a guessed resource scope. The final command should return <code>false</code> after deletion completes. Investigate remaining resources/locks if not. Deleting resources does not instantly erase billed usage or all retained data; inspect the subscription's cost/resource inventory afterward.</p>
+<fieldset data-answer="c" data-explanation="The azd JSON file contains environment placeholders that direct CLI does not expand. Use resolved values for the CLI what-if so the preview matches what azd will deploy."><legend>Integration check 2: Why does the CLI preview use resolved inline parameters?</legend><label><input type="radio" name="d2" value="a"> CLI cannot deploy any Bicep file</label><label><input type="radio" name="d2" value="b"> Inline parameters make deployment free</label><label><input type="radio" name="d2" value="c"> Direct CLI does not perform azd's environment placeholder substitution</label><p class="feedback" role="status"></p></fieldset>
+</section>
+<section id="diagnostics" data-title="Together 4 / Break and repair" data-minutes="15">
+<p class="eyebrow">Integration track / 15 minutes</p><h2>Learn the boundary by diagnosing its failure.</h2>
+<p>These are rehearsal cases. Do not intentionally weaken cloud security or delete shared files to reproduce them. Explain the failing layer, evidence and minimum repair before revealing the answer.</p>
+<details><summary>Case 1: Bicep compiles, but role assignment creation fails</summary><p><b>Layer:</b> management authorization. Compilation checks syntax/schema, not the deploying identity's IAM rights. Inspect the deployment error and required <code>roleAssignments/write</code> action at the target account scope. Get approved scoped IAM authority or have an authorized operator manage the assignment. Do not grant broad Owner by default.</p></details>
+<details><summary>Case 2: Provision succeeded; deploy cannot find service web</summary><p><b>Layer:</b> azd resource discovery. Inspect the selected environment, group and resource tags. <code>azd-service-name</code> must equal <code>web</code>; confirm the account type and group outputs. Repair IaC/service configuration and reprovision, rather than selecting the first account returned by CLI.</p></details>
+<details><summary>Case 3: azd deploy returns a blob authorization error</summary><p><b>Layer:</b> data authorization or network access. Verify the uploader object ID, assignment scope, role and active azd identity. Allow propagation only after verifying the assignment. Inspect network rules and host connectivity. Keep shared keys and anonymous blob-container access disabled; neither is required for Entra-based upload.</p></details>
+<details><summary>Case 4: HTTP returns 404 even though resources exist</summary><p><b>Layer:</b> content/website configuration. Check <code>src/web/index.html</code>, the service's project path, successful deployment and static website settings. Confirm you use the website endpoint, not the normal blob endpoint. Resource existence does not establish uploaded content or correct routing.</p></details>
+<details><summary>Case 5: Production changed while you thought you were using dev</summary><p><b>Layer:</b> environment/scope and change governance. Stop, record the actual target and change evidence, and follow your incident/change procedure. Compare <code>--environment</code>, subscription IDs, outputs and names. Use separate scopes, deployment identities and approvals. A local environment name alone is not isolation or rollback.</p></details>
+<details><summary>Case 6: Deletion is blocked</summary><p><b>Layer:</b> locks, permissions or dependencies. Inspect the actual error and inventory. A lock removal is itself a consequential authorized change; do not automatically remove it. If deletion partially completes, verify remaining resources and costs, then resolve deliberately. Never broaden the cleanup target.</p></details>
+<pre data-label="Useful read-only checks for the combined lab">az storage account show --subscription $subscription --resource-group $rg --name $storage --query "{id:id,tags:tags,endpoint:primaryEndpoints.web}" --output json
+azd env list
+azd show --environment $environment
+az deployment sub list --subscription $subscription --query "[].{name:name,state:properties.provisioningState}" --output table</pre>
+<fieldset data-answer="b" data-explanation="Check whether the service tag matches the azure.yaml key and whether the selected environment/group is correct. Selecting an arbitrary account risks deploying into the wrong resource."><legend>Integration check 3: What is the safest first response to an azd resource-discovery failure?</legend><label><input type="radio" name="d3" value="a"> Use the first storage account returned in the subscription</label><label><input type="radio" name="d3" value="b"> Verify environment, group, resource type and matching service tag</label><label><input type="radio" name="d3" value="c"> Disable authentication</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Source: <a href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/troubleshoot">azd troubleshooting</a></p>
+</section>
+<section id="reference" data-title="Reference / Recipe desk" data-minutes="20">
+<p class="eyebrow">Offline desk reference / 20 minutes</p><h2>When syntax slips, stay in the course.</h2>
+<p>Search the left-hand field to find recipes across every chapter. Use the builder for the lab's common command shapes. It produces text only, rejects unsafe parameter characters, and never executes anything. The optional local-help commands confirm your installed version when you work outside the supported recipes.</p>
+<div class="grid"><div class="card"><h3>Parameter-aware command builder</h3>
+<label class="field">Shell<select id="shell"><option value="pwsh">PowerShell</option><option value="bash">Bash</option></select></label>
+<label class="field">Task<select id="task"><option value="inspect">Inspect group resources</option><option value="preview">Preview standalone storage Bicep</option><option value="deploy">Deploy standalone storage Bicep</option><option value="azd-provision">Provision combined azd lab</option><option value="azd-deploy">Deploy combined lab website</option><option value="blobs">List combined lab website blobs</option><option value="down">Delete combined azd environment</option></select></label>
+<label class="field">Subscription ID (required for CLI tasks)<input id="subscription" type="text" placeholder="00000000-0000-0000-0000-000000000000"></label>
+<label class="field">Resource group<input id="group" type="text" value="rg-campus-bicep-dev"></label>
+<label class="field">azd environment<input id="environment" type="text" value="campus-dev"></label>
+<label class="field">Storage account (blob listing)<input id="account" type="text" placeholder="st... from infrastructure output"></label>
+<button id="generate">Generate command</button><p id="builder-status" role="status"></p></div>
+<div class="card"><h3>Your command</h3><div class="code-block"><pre id="generated">Choose a task and provide its target values.</pre><button id="copy-generated" disabled aria-label="Copy command" title="Copy command"></button></div><p id="risk" class="fine">Standalone storage recipes use storage.dev.bicepparam from Bicep 1. Combined lab recipes use azure.yaml in campus-static-lab.</p><p class="fine">azd targeting comes from the named environment's AZURE_SUBSCRIPTION_ID. The CLI subscription field does not retarget azd. Inspect azd configuration before provision, deploy or down.</p></div></div>
+<h3>Frequently needed command parameters</h3>
+<div class="table-wrap"><table><thead><tr><th>Task</th><th>Command shape</th><th>Parameter meaning</th></tr></thead><tbody>
+<tr><td>Set context</td><td><code>az account set --subscription ID</code></td><td>ID selects the subscription; login selects available identity/tenants</td></tr>
+<tr><td>List resources</td><td><code>az resource list --resource-group GROUP --subscription ID</code></td><td>Explicit target; add query/output for response shaping</td></tr>
+<tr><td>Create group</td><td><code>az group create --name GROUP --location REGION</code></td><td>Group's metadata region, not all future resources' region</td></tr>
+<tr><td>Build Bicep</td><td><code>az bicep build --file FILE</code></td><td>Local compiler input; does not deploy</td></tr>
+<tr><td>Preview group deployment</td><td><code>az deployment group what-if --resource-group GROUP --parameters FILE.bicepparam</code></td><td>Linked native parameters; current tool versions required</td></tr>
+<tr><td>Preview subscription deployment</td><td><code>az deployment sub what-if --location REGION --template-file FILE --parameters name=value</code></td><td>Deployment metadata region plus resolved input parameters</td></tr>
+<tr><td>Deploy JSON parameters</td><td><code>--template-file FILE.bicep --parameters '@.\FILE.parameters.json'</code></td><td>PowerShell quoting for JSON file input; not azd placeholder expansion</td></tr>
+<tr><td>Create native parameter deployment</td><td><code>az deployment group create --resource-group GROUP --parameters FILE.bicepparam</code></td><td>No JSON-style @ prefix on the native file</td></tr>
+<tr><td>Provision azd</td><td><code>azd provision --environment NAME</code></td><td>Use the project's selected IaC and named environment</td></tr>
+<tr><td>Deploy one service</td><td><code>azd deploy web --environment NAME</code></td><td>Service key is positional; environment is a flag</td></tr>
+<tr><td>Blob access</td><td><code>az storage blob list --account-name ACCOUNT --container-name '$web' --auth-mode login</code></td><td>Literal container name, Entra data access, network reachability</td></tr>
+<tr><td>Diagnostics</td><td><code>--debug</code></td><td>Review/redact logs; never disclose tokens</td></tr>
+<tr><td>Noninteractive azd</td><td><code>--no-prompt</code></td><td>Suppress prompts; only when context/approvals are already resolved</td></tr>
+<tr><td>Cleanup</td><td><code>azd down --environment NAME</code> or <code>az group delete --name GROUP</code></td><td>Destructive alternatives, not commands to run blindly together</td></tr>
+</tbody></table></div>
+<details><summary>Local discovery when your installed version differs</summary><pre data-label="Read-only installed help and inventory">az deployment group create --help
+az storage blob list --help
+azd deploy --help
+azd env --help
+az extension list --output table
+azd completion powershell</pre><p>Completion outputs a shell script; generating it does not automatically install it in your profile. Review it before loading. Install an extension or update a tool only when a required command is actually missing and your organization's workflow permits it.</p></details>
+<details><summary>Bicep syntax flashcards</summary><p><code>param</code> inputs / <code>var</code> derived values / <code>resource</code> declarations / <code>module</code> composition / <code>output</code> return values / <code>existing</code> references / <code>if</code> conditional declaration / <code>[for ...]</code> resource collections / <code>parent</code> resource hierarchy / <code>scope</code> deployment boundary / <code>@secure()</code> protected parameter handling.</p></details>
+<details><summary>Beyond storage: common service inspection recipes</summary>
+<p>These are read-only command patterns for existing resources. Set the named variables to actual instances, use an explicit subscription, and check permissions. They do not create these services. Prefer IaC for lasting configuration changes.</p>
+<pre data-label="Existing-service discovery and inspection recipes">az vm list --subscription $subscription --resource-group $rg --show-details --query "[].{name:name,state:powerState}" --output table
+az vm get-instance-view --subscription $subscription --resource-group $rg --name $vmName --output json
+az webapp list --subscription $subscription --resource-group $rg --query "[].{name:name,host:defaultHostName,state:state}" --output table
+az webapp show --subscription $subscription --resource-group $rg --name $webAppName --output json
+az containerapp list --subscription $subscription --resource-group $rg --output table
+az containerapp revision list --subscription $subscription --resource-group $rg --name $containerAppName --output table
+az network vnet list --subscription $subscription --resource-group $rg --output table
+az network vnet subnet list --subscription $subscription --resource-group $rg --vnet-name $vnetName --output table
+az network nsg rule list --subscription $subscription --resource-group $rg --nsg-name $nsgName --output table
+az keyvault show --subscription $subscription --resource-group $rg --name $vaultName --output json
+az keyvault secret list --vault-name $vaultName --query "[].{name:name,enabled:attributes.enabled}" --output table</pre>
+<p>The last command lists secret <b>metadata</b>, not secret values, and requires data-plane authorization. Avoid reading or logging secret values as a diagnostic shortcut. App runtime configuration and environment values may contain secrets; inspect only necessary fields.</p>
+<p><b>Selector vocabulary:</b> <code>--name</code> identifies a top-level VM/app/vault; <code>--vnet-name</code> identifies a parent network for a subnet; <code>--nsg-name</code> identifies a rule's parent security group; <code>--vault-name</code> selects a Key Vault data endpoint. Learn the resource hierarchy rather than assuming every command uses the same flags.</p></details>
+<p class="fine">Source review: 24 November 2026. Service commands and beta behavior evolve; the course's recipes are a bounded reference, not every future Azure CLI parameter.</p>
+</section>
+<section id="mastery" data-title="Finish / Prove retention" data-minutes="5">
+<p class="eyebrow">Final retrieval / 5 minutes</p><h2>Can you reconstruct the workflow without notes?</h2>
+<div class="card"><ol><li>Write a Bicep parameter, resource declaration, module call and output from memory.</li><li>Explain linked bicepparam versus JSON @file versus azd environment substitution.</li><li>Write the correct what-if command for group and subscription scope.</li><li>List resources as table for humans and select one scalar as TSV for a script.</li><li>Explain azd provision, deploy and up without conflating them.</li><li>Trace a value from environment to IaC parameter to output to verification command.</li><li>Explain why Contributor may not upload blobs and why a public static website is still public with anonymous blob access disabled.</li><li>Describe the inspection and confirmation you require before cleanup.</li></ol></div>
+<fieldset data-answer="a" data-explanation="Stable IaC plus reviewed values, scoped authorization and independent management/data/HTTP checks verify the actual workflow. A remembered command alone does not prove safe operation."><legend>Final check: Which demonstrates useful mastery?</legend><label><input type="radio" name="final" value="a"> Reconstruct the workflow, explain its scope, inspect a diff, verify the endpoint and clean up deliberately</label><label><input type="radio" name="final" value="b"> Memorize azd up and run it in any repository</label><label><input type="radio" name="final" value="c"> Use admin credentials until every command succeeds</label><p class="feedback" role="status"></p></fieldset>
+<div class="callout"><b>Retention plan:</b> tomorrow, reconstruct the command sequence and query shapes without notes. In one week, repeat the lab in a fresh approved environment with a changed app paragraph and one reviewed nonsecurity IaC change. Explain each failure before retrying. Use the offline recipe desk for exact parameters; verify changing service/version facts before production.</div>
+<p class="fine">This is a course completion aid, not a professional certification. Cloud execution is optional and billable; conceptual exercises can be completed offline.</p>
+</section>
+</main></div>
+<footer><div><span id="position"></span><br><progress id="progress" max="16" value="0" aria-label="Completed chapters"></progress><span id="score" class="fine"></span></div><div class="actions controls"><button id="complete">Mark chapter complete</button><button id="back">Back</button><button id="next">Next</button></div><p id="notice" class="fine" role="status"></p></footer>
+<script>
+"use strict";
+const sections = [...document.querySelectorAll("main > section")];
+const $ = id => document.getElementById(id);
+const key = "azure-tooling-v1";
+let state = { complete: [], answers: {} }, active = 0, all = false;
+try { const stored = JSON.parse(localStorage.getItem(key)); if (stored && Array.isArray(stored.complete) && stored.answers && typeof stored.answers === "object" && !Array.isArray(stored.answers)) state = stored; }
+catch (error) { $("notice").textContent = "Saved progress is unavailable. You can still use the course in this session."; console.warn("Progress load failed", error); }
+function save() { try { localStorage.setItem(key, JSON.stringify(state)); } catch (error) { $("notice").textContent = "Progress could not be saved on this device."; console.warn("Progress save failed", error); } }
+sections.forEach((section, index) => {
+  const a = document.createElement("a"); a.href = "#" + section.id; a.textContent = section.dataset.title + " / " + section.dataset.minutes + " min";
+  a.addEventListener("click", event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault(); all = false; $("search").value = ""; navigate(index - active);
+  }); $("nav").append(a);
+});
+function render() {
+  const query = $("search").value.trim().toLowerCase(); let matches = 0;
+  sections.forEach((section, index) => {
+    const match = section.textContent.toLowerCase().includes(query); section.hidden = query ? !match : !all && index !== active;
+    if (!section.hidden) matches++;
+    const a = $("nav").children[index]; a.removeAttribute("aria-current"); if (index === active && !all && !query) a.setAttribute("aria-current", "step");
+  });
+  $("search-status").textContent = query ? matches + " matching chapters" : "";
+  $("position").textContent = all || query ? "Reference view" : (active + 1) + " / " + sections.length + " chapters";
+  $("progress").value = sections.filter(s => state.complete.includes(s.id)).length;
+  const questions = [...document.querySelectorAll("fieldset[data-answer]")];
+  const correct = questions.filter(q => state.answers[q.querySelector("input").name] === q.dataset.answer).length;
+  $("score").textContent = " " + $("progress").value + " completed / " + correct + " of " + questions.length + " checks correct";
+  $("back").disabled = all || !!query || active === 0; $("next").disabled = all || !!query || active === sections.length - 1; $("complete").disabled = all || !!query;
+  $("all").textContent = all ? "Chapter view" : "Read all";
+}
+function navigate(delta) {
+  const target = active + delta;
+  if (all || $("search").value.trim() || target < 0 || target >= sections.length) return;
+  active = target; location.hash = sections[active].id; render(); $("course").focus(); $("course").scrollIntoView({ block: "start" });
+}
+window.addEventListener("hashchange", () => { const index = sections.findIndex(s => "#" + s.id === location.hash); if (index >= 0) { active = index; all = false; $("search").value = ""; render(); } });
+$("back").addEventListener("click", () => navigate(-1)); $("next").addEventListener("click", () => navigate(1));
+document.addEventListener("keydown", event => {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
+      all || $("search").value.trim() || document.querySelector("dialog[open]") ||
+      event.target.closest("input, select, textarea, button, a, summary, pre, code, [contenteditable]")) return;
+  if (event.key === "ArrowRight" && active < sections.length - 1) { event.preventDefault(); navigate(1); }
+  if (event.key === "ArrowLeft" && active > 0) { event.preventDefault(); navigate(-1); }
+});
+$("all").addEventListener("click", () => { all = !all; $("search").value = ""; render(); });
+$("search").addEventListener("input", render);
+$("complete").addEventListener("click", () => { const id = sections[active].id; if (!state.complete.includes(id)) state.complete.push(id); save(); render(); });
+$("theme").addEventListener("click", () => { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; });
+$("print").addEventListener("click", () => { document.querySelectorAll("details").forEach(d => d.open = true); window.print(); });
+document.querySelectorAll("fieldset[data-answer]").forEach(q => {
+  const inputs = [...q.querySelectorAll("input")], name = inputs[0].name;
+  function feedback(value) { q.querySelector(".feedback").textContent = (value === q.dataset.answer ? "Correct. " : "Not yet. ") + q.dataset.explanation; }
+  inputs.forEach(input => { if (state.answers[name] === input.value) { input.checked = true; feedback(input.value); } input.addEventListener("change", () => { state.answers[name] = input.value; feedback(input.value); save(); render(); }); });
+});
+const clipboardIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>';
+const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg>';
+const copyTimers = new WeakMap();
+function resetCopyButton(button) {
+  button.innerHTML = clipboardIcon; button.removeAttribute("data-copied");
+  button.setAttribute("aria-label", button.dataset.copyLabel); button.title = button.dataset.copyLabel;
+}
+function prepareCopyButton(button, label) {
+  button.classList.add("icon-copy"); button.dataset.copyLabel = label; resetCopyButton(button);
+}
+async function copy(text, button) {
+  button.disabled = true;
+  clearTimeout(copyTimers.get(button));
+  resetCopyButton(button);
+  try {
+    await navigator.clipboard.writeText(text);
+    button.innerHTML = checkIcon; button.setAttribute("data-copied", "");
+    button.setAttribute("aria-label", "Copied to clipboard"); button.title = "Copied to clipboard";
+    $("notice").textContent = "Copied to clipboard.";
+    copyTimers.set(button, setTimeout(() => resetCopyButton(button), 2000));
+  }
+  catch (error) { $("notice").textContent = "Clipboard access is unavailable. Select the code and copy manually."; console.warn("Clipboard copy failed", error); }
+  finally { button.disabled = false; }
+}
+document.querySelectorAll("pre[data-label]").forEach(pre => {
+  pre.setAttribute("aria-label", pre.dataset.label);
+  const block = document.createElement("div"); block.className = "code-block";
+  pre.before(block); block.append(pre);
+  const tools = document.createElement("div"); tools.className = "actions copy-tools";
+  const button = document.createElement("button"); prepareCopyButton(button, "Copy code: " + pre.dataset.label); button.addEventListener("click", () => copy(pre.textContent, button)); block.append(button);
+  if (pre.dataset.file) {
+    const download = document.createElement("button"); download.textContent = "Download " + pre.dataset.file;
+    download.addEventListener("click", () => {
+      const url = URL.createObjectURL(new Blob([pre.textContent + "\n"], { type: "text/plain;charset=utf-8" }));
+      const a = document.createElement("a"); a.href = url; a.download = pre.dataset.file.split("\\").pop(); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }); tools.append(download);
+  }
+  if (tools.children.length) block.after(tools);
+});
+$("generate").addEventListener("click", () => {
+  clearTimeout(copyTimers.get($("copy-generated")));
+  resetCopyButton($("copy-generated"));
+  const task = $("task").value, shell = $("shell").value, subscription = $("subscription").value.trim(), group = $("group").value.trim(), env = $("environment").value.trim(), account = $("account").value.trim();
+  const azd = task.startsWith("azd-") || task === "down";
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  let error = "";
+  if (azd && !/^[a-z0-9][a-z0-9-]{0,19}$/.test(env)) error = "Use a 1-20 character lab environment name with lowercase letters, digits or hyphens.";
+  if (!azd && !uuid.test(subscription)) error = "Enter a complete subscription GUID for this CLI task.";
+  if (["inspect","preview","deploy"].includes(task) && !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,89}$/.test(group)) error = "Use a simple resource-group name with letters, digits, underscores or hyphens.";
+  if (task === "blobs" && !/^[a-z0-9]{3,24}$/.test(account)) error = "Enter the actual 3-24 lowercase letters/digits storage account name.";
+  if (error) { $("builder-status").textContent = error; $("generated").textContent = "No command generated. Correct the target values."; $("copy-generated").disabled = true; return; }
+  const file = shell === "pwsh" ? ".\\storage.dev.bicepparam" : "./storage.dev.bicepparam";
+  const commands = {
+    inspect: `az resource list --subscription '${subscription}' --resource-group '${group}' --output table`,
+    preview: `az deployment group what-if --subscription '${subscription}' --resource-group '${group}' --parameters ${file}`,
+    deploy: `az deployment group create --subscription '${subscription}' --resource-group '${group}' --name storage-dev --parameters ${file}`,
+    "azd-provision": `azd provision --environment '${env}'`,
+    "azd-deploy": `azd deploy web --environment '${env}'`,
+    blobs: `az storage blob list --subscription '${subscription}' --account-name '${account}' --container-name '$web' --auth-mode login --query "[].name" --output tsv`,
+    down: `azd down --environment '${env}'`
+  };
+  $("generated").textContent = commands[task]; $("copy-generated").disabled = false;
+  $("builder-status").textContent = "Command text generated. Nothing was executed.";
+  $("risk").textContent = task === "down" ? "DESTRUCTIVE: deletes this azd environment's Azure resources after confirmation. Inspect azd show and the environment's subscription first." : ["deploy","azd-provision","azd-deploy"].includes(task) ? "CHANGES AZURE: may incur charges. Review target, permissions, source files and any hooks. Website deployment publishes public content." : "Inspection/preview: requires the correct context and relevant permissions; what-if does not reserve capacity or guarantee success.";
+});
+prepareCopyButton($("copy-generated"), "Copy command");
+$("copy-generated").addEventListener("click", () => copy($("generated").textContent, $("copy-generated")));
+const initial = sections.findIndex(s => "#" + s.id === location.hash); if (initial >= 0) active = initial;
+render();
+</script>
+</body>
+</html>

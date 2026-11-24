@@ -82,5 +82,43 @@
     "files": [
       "index.html"
     ]
+  },
+  {
+    "slug": "azure-cloud-fundamentals",
+    "title": "Azure Cloud Fundamentals: Your First Hour",
+    "topic": "Azure Cloud Fundamentals",
+    "summary": "A graduate-friendly one-hour course covering cloud concepts, Azure identity and governance, ARM, regions, service models, security, reliability and cost, with scenario checkpoints and an offline glossary.",
+    "published": "2026-11-24",
+    "minutes": 60,
+    "chapters": 12,
+    "tags": [
+      "Fundamentals",
+      "Graduates",
+      "Cloud",
+      "ARM",
+      "Governance"
+    ],
+    "files": [
+      "index.html"
+    ]
+  },
+  {
+    "slug": "azure-tooling",
+    "title": "Bicep, Azure CLI and azd: From Syntax to Systems",
+    "topic": "Azure Tooling",
+    "summary": "Learn Bicep, Azure CLI and azd individually, then combine them in a complete sandbox deployment workflow, with downloadable lab files, retrieval practice and an offline command recipe desk.",
+    "published": "2026-11-24",
+    "minutes": 240,
+    "chapters": 16,
+    "tags": [
+      "Bicep",
+      "Azure CLI",
+      "azd",
+      "Infrastructure as Code",
+      "Hands-on"
+    ],
+    "files": [
+      "index.html"
+    ]
   }
 ]

@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A graduate-friendly, 60-minute Azure cloud foundations course with visual mental models, scenario decisions, retrieval practice and an offline glossary.">
+<title>Azure Cloud Fundamentals | Your first hour</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+*{box-sizing:border-box}body{margin:0;background:var(--cp-bg);color:var(--cp-text);font:17px/1.65 "Segoe UI",Aptos,Calibri,-apple-system,BlinkMacSystemFont,sans-serif}
+a{color:var(--cp-link)}button,input,select{font:inherit}button{cursor:pointer;padding:10px 16px;border:1px solid var(--cp-border-strong);border-radius:.625rem;background:var(--cp-surface);color:var(--cp-text);min-height:44px}
+button:hover{border-color:var(--cp-accent)}button:disabled{opacity:.5;cursor:default}:focus-visible{outline:3px solid var(--cp-accent);outline-offset:3px}
+header{padding:20px 28px;border-bottom:1px solid var(--cp-border);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--cp-bg-elevated)}
+.wordmark{font-weight:750}.wordmark small{display:block;font-size:12px;color:var(--cp-text-muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.layout{display:grid;grid-template-columns:245px minmax(0,1fr)}aside{padding:20px;border-right:1px solid var(--cp-border);min-width:0}.sidebar{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-gutter:stable}nav{display:grid;gap:6px}
+nav a{padding:8px;border-radius:.625rem;text-decoration:none;color:var(--cp-text-muted);font-size:13px}nav a[aria-current]{background:var(--cp-accent-soft);color:var(--cp-accent)}
+main{padding:40px clamp(20px,5vw,72px);min-width:0}section{max-width:1060px;margin:0 auto 48px}h1,h2,h3{line-height:1.15;letter-spacing:-.025em}h1{font-size:clamp(36px,5vw,64px)}h2{font-size:clamp(30px,4vw,44px)}h3{font-size:22px}
+.eyebrow{color:var(--cp-accent);font-weight:750;font-size:12px;letter-spacing:.1em;text-transform:uppercase}.lead{font-size:21px;color:var(--cp-text-muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}.card,fieldset{border:1px solid var(--cp-border);border-radius:16px;background:var(--cp-surface);padding:24px;min-width:0}
+.callout{background:var(--cp-accent-soft);border-left:4px solid var(--cp-accent);padding:20px;border-radius:.625rem;margin:24px 0}
+.flow{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}.node{flex:1 1 150px;background:var(--cp-surface);border:1px solid var(--cp-border);padding:16px;border-radius:.625rem}.node b,.node small{display:block}.node small{color:var(--cp-text-muted)}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:15px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--cp-border);padding:12px}th{color:var(--cp-text-muted)}
+code,pre{font-family:Consolas,"Courier New",Courier,monospace}code{font-size:14px;overflow-wrap:anywhere}pre{padding:20px;overflow:auto;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:.625rem;line-height:1.5}
+details{border:1px solid var(--cp-border);background:var(--cp-surface);padding:16px;border-radius:.625rem;margin:16px 0}summary{cursor:pointer;font-weight:650}fieldset{margin:24px 0}legend{font-weight:700;padding:0 8px}
+fieldset label{display:block;padding:8px;cursor:pointer}input[type=radio],input[type=checkbox]{accent-color:var(--cp-accent)}.feedback{font-weight:600}.muted,.fine{color:var(--cp-text-muted)}.fine{font-size:13px}
+.search{display:grid;gap:8px;margin-top:16px}input[type=search]{width:100%;padding:10px;border:1px solid var(--cp-border-strong);border-radius:.625rem;background:var(--cp-surface);color:var(--cp-text)}
+footer{padding:20px 28px;border-top:1px solid var(--cp-border);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--cp-bg-elevated)}progress{accent-color:var(--cp-accent);width:220px}
+.skip{position:absolute;top:-100px;background:var(--cp-surface);padding:12px}.skip:focus{top:0}[hidden]{display:none!important}
+@media(max-width:760px){.layout{display:block}aside{border-right:0;border-bottom:1px solid var(--cp-border)}.sidebar{position:static;max-height:none;overflow:visible;scrollbar-gutter:auto}nav{display:flex;overflow:auto}nav a{min-width:155px}.grid{grid-template-columns:1fr}main{padding:28px 16px}header,footer{padding:16px}}
+@media print{header,aside,footer,.controls,.skip,button{display:none!important}.layout{display:block}main{padding:0}section,section[hidden]{display:block!important;break-before:page}section:first-child{break-before:auto}.card,fieldset{break-inside:avoid}details>*{display:block!important}pre{white-space:pre-wrap}.grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<a class="skip" href="#course">Skip to lesson</a>
+<header><a class="wordmark" href="../../index.html" aria-label="Back to all customer guides" title="All customer guides" style="color:var(--cp-text);text-decoration:none">Azure Cloud Fundamentals<small>Your first hour / No previous cloud knowledge required</small></a><div class="actions"><button id="theme">Switch theme</button><button id="all">Read all</button><button id="print">Print / PDF</button></div></header>
+<div class="layout"><aside><div class="sidebar"><nav aria-label="Course chapters" id="nav"></nav><label class="search">Find a concept<input id="search" type="search" placeholder="ARM, tenant, geography..."></label><p id="search-status" class="fine" role="status"></p><p class="fine">Keyboard: Left / Right arrows move between chapters while reading. Tab reaches controls; their normal keys still work. Shortcuts pause in search and Read all views.</p><p class="fine">Offline learning. No sign-in, cloud resources, analytics, or background network requests.</p></div></aside>
+<main id="course" tabindex="-1">
+<noscript><p>Every lesson is readable without JavaScript. Interactive checks and saved progress require JavaScript.</p></noscript>
+<section id="start" data-title="Start here" data-minutes="3">
+<p class="eyebrow">00-03 minutes / The learning contract</p><h1>Understand the cloud. Then understand Azure.</h1>
+<p class="lead">One story, twelve stops, sixty minutes. Learn to explain the system rather than memorize a catalogue of services.</p>
+<p>You have just graduated. Your team wants to launch <b>CampusCart</b>, a fictional student marketplace. Ten people use it today; ten thousand might use it next term. It holds accounts, listings and photos. What should run where, who can change it, how do you pay, and what happens when something fails?</p>
+<div class="grid"><div class="card"><h3>What you will be able to do</h3><p>Draw Azure's hierarchy; trace a deployment and a user request; choose a service model and a region; distinguish access from policy; explain cost, resilience and responsibility; defend a simple architecture.</p></div><div class="card"><h3>What an hour cannot do</h3><p>Turn a beginner into a production expert. Expertise requires building, debugging and operating real systems. This hour builds the mental models that make that practice much faster. The course is not an exam certification or a claim of universal superiority.</p></div></div>
+<p><b>Your method:</b> read the model, apply it to CampusCart, answer the checkpoint without looking, then explain the answer aloud. The time budget includes these short checks. Optional deep links and the final glossary are reference material, not extra required reading.</p>
+<div class="callout"><b>Five questions organize the whole cloud:</b> What runs? Where does it run? Who may act? What rules apply? How do we know it works and what it costs?</div>
+<details><summary>Before you begin: your baseline</summary><p>Without searching, explain "a subscription", "a region" and "ARM". If you cannot, that is the intended starting point. Repeat this explanation at the end and compare how precisely you can connect the terms.</p></details>
+</section>
+<section id="cloud" data-title="1. What cloud actually is" data-minutes="5">
+<p class="eyebrow">03-08 minutes / From a server to a service</p><h2>Cloud is a way to obtain computing, not a place above the sky.</h2>
+<p>Cloud computing gives you on-demand access to shared computing services over a network: processing, storage, databases and more. A provider owns physical infrastructure; you provision what you need through a portal or an API. Cloud still uses real buildings, chips, disks, cables and people.</p>
+<div class="grid"><div class="card"><h3>The old CampusCart plan</h3><p>Buy servers for the busiest possible day. Wait for delivery. Install an operating system. Arrange power, networking, backups and spare parts. Pay even while idle. Too little capacity means rejected users; too much means unused equipment.</p></div><div class="card"><h3>The cloud plan</h3><p>Rent services now, adjust capacity, automate configuration and pay under the service's pricing model. You trade some physical control for speed and managed capabilities. You still own architecture, security decisions and spending.</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Meaning</th><th>Do not confuse it with</th></tr></thead><tbody>
+<tr><td>On demand</td><td>Provision services when needed, usually through self-service APIs.</td><td>Guaranteed access to every SKU. Quotas and capacity still apply.</td></tr>
+<tr><td>Scalability</td><td>Handle more work by scaling up a machine or out to more instances.</td><td>Elasticity: automatically or dynamically matching changing demand.</td></tr>
+<tr><td>Resource pooling</td><td>The provider shares fleets across customers with isolation.</td><td>Customers being allowed to read one another's data.</td></tr>
+<tr><td>Measured service</td><td>Usage is metered, with usage, fixed-tier and commitment pricing.</td><td>Everything being billed only while a request is running.</td></tr>
+</tbody></table></div>
+<p><b>CapEx versus OpEx:</b> buying equipment is typically capital expenditure; paying for service consumption is typically operating expenditure. This is a financing shift, not proof that cloud is always cheaper. Poorly sized always-on services can be expensive.</p>
+<details><summary>Public, private, hybrid, multicloud</summary><p><b>Public cloud:</b> provider-operated services offered to many customers. <b>Private cloud:</b> cloud-like infrastructure dedicated to one organization. <b>Hybrid:</b> on-premises/private systems connected with public cloud. <b>Multicloud:</b> using multiple cloud providers. Public cloud does not mean your application or data must be publicly accessible.</p></details>
+<fieldset data-answer="b" data-explanation="Elasticity matches capacity to changing demand. Provisioning and autoscaling have limits; the application's data and bottlenecks must also scale."><legend>Checkpoint 1: Demand increases for registration week, then falls. Which property helps avoid keeping peak capacity all year?</legend><label><input type="radio" name="q1" value="a"> Geography</label><label><input type="radio" name="q1" value="b"> Elasticity</label><label><input type="radio" name="q1" value="c"> A management group</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Source: <a href="https://learn.microsoft.com/en-us/training/modules/describe-cloud-compute/">Describe cloud computing</a></p>
+</section>
+<section id="azure" data-title="2. Where Azure stands" data-minutes="4">
+<p class="eyebrow">08-12 minutes / A platform, not a single product</p><h2>Azure is Microsoft's cloud platform.</h2>
+<p>Azure offers infrastructure, application platforms, data services, AI and management tools. AWS and Google Cloud offer overlapping categories. There is no universal winner: compare the actual workload's reliability, cost, regional availability, skills, operational needs and regulatory constraints.</p>
+<div class="grid"><div class="card"><h3>Why teams choose Azure</h3><p>Integration with Microsoft identity and enterprise environments; managed application, data and AI services; hybrid management capabilities; a common governance layer. Azure also supports Linux, containers, open-source databases and non-Microsoft languages.</p></div><div class="card"><h3>The trade-offs to check</h3><p>Learning and operations complexity, provider-specific APIs, migration effort, egress costs, service limits and regional feature differences. Managed services reduce some work but also reduce some control.</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Layer</th><th>Examples</th><th>What it is not</th></tr></thead><tbody><tr><td>Cloud platform</td><td>Azure, AWS, Google Cloud</td><td>A single virtual machine</td></tr><tr><td>Microsoft SaaS</td><td>Microsoft 365, Dynamics 365</td><td>Your Azure subscription's resource inventory</td></tr><tr><td>Identity service</td><td>Microsoft Entra ID</td><td>A region or the same thing as Azure RBAC</td></tr><tr><td>Developer tooling</td><td>Bicep, Azure CLI, Azure Developer CLI</td><td>Different clouds</td></tr></tbody></table></div>
+<p><b>CampusCart decision:</b> the university already uses Microsoft identity. That can make Azure attractive, but it does not remove the need to compare costs, required services and student-data obligations. Existing Microsoft 365 licensing does not mean arbitrary Azure infrastructure is free.</p>
+<fieldset data-answer="c" data-explanation="Choose a provider against workload requirements. Brand, market share or existing licenses alone do not establish technical fit or cost."><legend>Checkpoint 2: What is the strongest cloud selection argument?</legend><label><input type="radio" name="q2" value="a"> Its logo is familiar</label><label><input type="radio" name="q2" value="b"> All clouds have identical services and costs</label><label><input type="radio" name="q2" value="c"> It meets the workload's requirements with acceptable operational and commercial trade-offs</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://azure.microsoft.com/en-us/resources/cloud-computing-dictionary/what-is-azure/">What is Azure?</a> / <a href="https://learn.microsoft.com/en-us/azure/architecture/guide/">Azure architecture guide</a></p>
+</section>
+<section id="responsibility" data-title="3. Who manages what?" data-minutes="5">
+<p class="eyebrow">12-17 minutes / Service models</p><h2>IaaS, PaaS and SaaS describe how much you manage.</h2>
+<p>Think of food preparation: renting a kitchen, ordering a prepared meal, or subscribing to a meal service. The analogy helps with responsibility, but real contracts and service documentation define the boundaries.</p>
+<div class="table-wrap"><table><thead><tr><th>Model</th><th>Azure / Microsoft example</th><th>Provider operates</th><th>You still operate</th></tr></thead><tbody>
+<tr><td>IaaS: infrastructure as a service</td><td>Azure Virtual Machines</td><td>Datacenter, physical hosts and virtualization</td><td>Guest OS patching, applications, configuration, identities and data</td></tr>
+<tr><td>PaaS: platform as a service</td><td>Azure App Service, Azure SQL Database</td><td>Infrastructure and the managed runtime/database platform</td><td>Your code/schema, supported configuration, access, data protection and application behavior</td></tr>
+<tr><td>SaaS: software as a service</td><td>Microsoft 365</td><td>The application and underlying platform</td><td>Tenant configuration, identities, devices, access and data governance</td></tr>
+</tbody></table></div>
+<p><b>Serverless</b> means you do not manage server instances in the traditional way; it does not mean no servers exist. Azure Functions and event-driven platforms may scale on demand, but plans differ in billing, cold starts, limits and always-on behavior. Serverless is not automatically free.</p>
+<div class="callout"><b>Shared responsibility never disappears.</b> You remain responsible for your data, identities, access decisions and appropriate configuration. A provider's security certification does not certify your application.</div>
+<p><b>CampusCart choice:</b> use a managed web platform and managed database unless you have a requirement that justifies VM-level control. "We know how to install an OS" is not by itself a reason to accept patching and recovery work.</p>
+<fieldset data-answer="a" data-explanation="App Service operates the platform, but application code, authorization logic and safe handling of student data remain your responsibility."><legend>Checkpoint 3: CampusCart moves from a VM to App Service. What remains your responsibility?</legend><label><input type="radio" name="q3" value="a"> Fixing a bug that exposes another student's listings</label><label><input type="radio" name="q3" value="b"> Replacing the provider's failed physical disk</label><label><input type="radio" name="q3" value="c"> Cooling the datacenter</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Source: <a href="https://learn.microsoft.com/en-us/azure/security/fundamentals/shared-responsibility">Shared responsibility in the cloud</a></p>
+</section>
+<section id="hierarchy" data-title="4. Azure's logical hierarchy" data-minutes="7">
+<p class="eyebrow">17-24 minutes / Identity and governance</p><h2>Where resources belong is not where their servers live.</h2>
+<div class="flow" aria-label="Azure governance hierarchy"><div class="node"><b>Entra tenant</b><small>Identity directory / Trust boundary</small></div><div class="node"><b>Management groups</b><small>Governance across subscriptions</small></div><div class="node"><b>Subscription</b><small>Billing, access and service-limit boundary</small></div><div class="node"><b>Resource group</b><small>Related lifecycle / Management container</small></div><div class="node"><b>Resource</b><small>An instance of a service</small></div></div>
+<p><b>Tenant:</b> an organization's Microsoft Entra ID directory holds identities, applications and groups. A subscription trusts one Entra tenant at a time; a tenant can be associated with many subscriptions. A person's account can be granted access across multiple tenants. Identity roles and Azure resource roles are different systems.</p>
+<p><b>Management group:</b> a governance scope above subscriptions. Put CampusCart's development and production subscriptions under a university management group to apply shared policies and role assignments. Groups may nest. Each child management group or subscription has one parent. Descendant subscriptions trust the same tenant. A management group is not a server, a region or a billing invoice.</p>
+<p><b>Subscription:</b> where resource consumption is associated with billing and where many quotas and permissions are scoped. Separate development from production for stronger boundaries, not merely different tags. Billing accounts and billing profiles are commercial structures; they are not the same hierarchy as management groups.</p>
+<p><b>Resource group:</b> an ARM container for related resources you manage together. Most everyday service resources belong to one resource group. It is not a network or a datacenter. Resources in it can be in different regions and can connect to other groups. Deleting the group deletes the resources in it, subject to locks and service behavior.</p>
+<p><b>Resource:</b> one managed instance, such as a storage account, virtual network or database server. A provider and resource type identify what it is; its resource ID identifies this particular instance.</p>
+<pre aria-label="CampusCart hierarchy">University Entra tenant
+  Tenant root management group
+    Campus applications management group
+      CampusCart development subscription
+        rg-campuscart-dev
+          web app + database + storage account
+      CampusCart production subscription
+        rg-campuscart-prod
+          web app + database + storage account</pre>
+<details><summary>Inheritance: what flows down, and what does not?</summary><p>Role assignments and policy assignments can apply to descendant scopes. A subscription Owner cannot simply bypass an inherited deny policy. Resource-group tags are <b>not automatically inherited</b> by resources. Some administrative resources exist at subscription, management-group or tenant scope rather than inside a resource group. The tenant is the identity context, not an ordinary fifth Azure RBAC resource scope.</p></details>
+<fieldset data-answer="b" data-explanation="A management-group policy assignment governs descendant subscriptions. A resource group cannot contain subscriptions, and a region is a physical location rather than a governance scope."><legend>Checkpoint 4: Where should the university enforce allowed locations across many subscriptions?</legend><label><input type="radio" name="q4" value="a"> A storage container</label><label><input type="radio" name="q4" value="b"> Their parent management group</label><label><input type="radio" name="q4" value="c"> A new region</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/governance/management-groups/overview">Management groups</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview">Resource Manager and resource groups</a> / <a href="https://learn.microsoft.com/en-us/entra/fundamentals/whatis">Microsoft Entra ID</a></p>
+</section>
+<section id="arm" data-title="5. ARM and the two planes" data-minutes="5">
+<p class="eyebrow">24-29 minutes / What happens when you click Create?</p><h2>Azure Resource Manager is the management front door.</h2>
+<div class="flow"><div class="node"><b>Portal / CLI / SDK</b><small>You request a resource change</small></div><div class="node"><b>ARM</b><small>Authentication, authorization and governance</small></div><div class="node"><b>Resource provider</b><small>Service-specific management API</small></div><div class="node"><b>Resource</b><small>The requested instance is created or updated</small></div></div>
+<p><b>ARM</b> stands for Azure Resource Manager, the deployment and management service. It is not the Arm CPU architecture. Creating a storage account from the portal, Azure CLI or a Bicep deployment uses the same management platform. Providers such as <code>Microsoft.Storage</code> and <code>Microsoft.Compute</code> implement service-specific resource operations.</p>
+<p><b>ARM template</b> means a JSON infrastructure definition. <b>Bicep</b> is a more concise authoring language that compiles into ARM templates. Declarative infrastructure says what should exist, rather than listing every imperative step. APIs are versioned: the version selects a contract, not a newer physical server.</p>
+<div class="grid"><div class="card"><h3>Control plane</h3><p>Create a database server, resize a VM, configure a network or assign access. This is resource management through ARM. The Azure Activity Log records management events.</p></div><div class="card"><h3>Data plane</h3><p>Read a student photo, run SQL or send a queue message. These requests usually go directly to service endpoints, not through ARM. They need service-specific authentication, authorization and network connectivity.</p></div></div>
+<pre aria-label="Example Azure resource ID">/subscriptions/{subscription-id}/resourceGroups/rg-campuscart-dev
+/providers/Microsoft.Storage/storageAccounts/{account-name}</pre>
+<p>Read that ID as: <b>which subscription / which group / which provider and type / which instance</b>. Its components form one continuous path; the line break above is only for readability.</p>
+<div class="callout"><b>Common failure:</b> Contributor access can let you manage a storage account without granting permission to read its blobs. Management access and data access must both be designed. An ARM deployment succeeding does not prove the application's endpoint works.</div>
+<fieldset data-answer="c" data-explanation="Uploading the photo is a blob data-plane operation. Creating or deleting the account is an ARM control-plane operation."><legend>Checkpoint 5: Which operation is data plane?</legend><label><input type="radio" name="q5" value="a"> Creating the storage account</label><label><input type="radio" name="q5" value="b"> Adding an ARM resource lock</label><label><input type="radio" name="q5" value="c"> Uploading a student photo to blob storage</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview">ARM overview</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/control-plane-and-data-plane">Control plane and data plane</a></p>
+</section>
+<section id="location" data-title="6. Geography, region, zone" data-minutes="6">
+<p class="eyebrow">29-35 minutes / Azure's physical map</p><h2>Governance is logical. Location is physical.</h2>
+<div class="flow"><div class="node"><b>Geography</b><small>A defined data-residency boundary containing regions</small></div><div class="node"><b>Region</b><small>A named area containing datacenters and networking</small></div><div class="node"><b>Availability zone</b><small>An isolated datacenter group within a region</small></div><div class="node"><b>Datacenter</b><small>Physical buildings, hardware and facilities</small></div></div>
+<p><b>Geography:</b> a boundary such as Europe or the United States used in Azure's global infrastructure model. It may contain multiple regions. Choosing a geography helps address residency requirements; verify the specific service's replication, backup and processing commitments rather than assuming the label guarantees everything.</p>
+<p><b>Region:</b> an area such as West Europe where you deploy regional services. The portal's display name may differ from the API location name, for example <code>West Europe</code> versus <code>westeurope</code>. Some services are global/nonregional. Available products, versions, SKUs, prices and quotas differ by region.</p>
+<p><b>Availability zone:</b> a physically separated group of one or more datacenters with independent power, cooling and networking. Zones isolate many local failures. Not every region or service supports zones. A service being available in a zonal region does not mean your configuration is automatically zone-redundant.</p>
+<p><b>Resource-group location:</b> where the group's management metadata is stored. It does not force every resource into that region. A subscription is not tied to one region either.</p>
+<details><summary>Region pairs and sovereign clouds: two misconceptions</summary><p>Some Azure regions are paired; many newer regions are not. A pair is not automatic application replication or failover. You must configure and test the relevant service behavior. Azure Government and Azure operated by 21Vianet are separate cloud environments with different endpoints, eligibility and feature availability; they are not merely another region in the public cloud.</p></details>
+<div class="callout"><b>CampusCart region decision:</b> first meet residency obligations, then verify service/SKU availability and capacity, then consider user latency, resilience and cost. The closest region is not always an eligible one. Cross-region copies and transfers have operational and commercial consequences.</div>
+<fieldset data-answer="a" data-explanation="A resource group's location concerns management metadata; resources can be placed in other regions. Neither a management group nor a subscription specifies one physical datacenter."><legend>Checkpoint 6: A resource group is in West Europe. Can a resource in it be in a different region?</legend><label><input type="radio" name="q6" value="a"> Yes, if the service and governance rules permit it</label><label><input type="radio" name="q6" value="b"> No, the group is a physical datacenter</label><label><input type="radio" name="q6" value="c"> Only if the tenant is moved</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/reliability/regions-overview">Regions and geographies</a> / <a href="https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview">Availability zones</a></p>
+</section>
+<section id="services" data-title="7. The service map" data-minutes="5">
+<p class="eyebrow">35-40 minutes / What should run?</p><h2>Choose a capability before choosing a product.</h2>
+<div class="table-wrap"><table><thead><tr><th>Need</th><th>Starting options</th><th>Decision you must make</th></tr></thead><tbody>
+<tr><td>Run web/API code</td><td>App Service, Container Apps, Functions</td><td>Runtime, containerization, event model, scaling and operational ownership</td></tr>
+<tr><td>Control an OS</td><td>Virtual Machines</td><td>Whether the extra control justifies patching, hardening and recovery</td></tr>
+<tr><td>Orchestrate Kubernetes</td><td>Azure Kubernetes Service (AKS)</td><td>Whether you need Kubernetes and have the skills to operate workloads and clusters</td></tr>
+<tr><td>Store files and objects</td><td>Blob Storage, Azure Files</td><td>Object API versus file-share semantics; access, retention and redundancy</td></tr>
+<tr><td>Store structured data</td><td>Azure SQL Database, Azure Database for PostgreSQL</td><td>Transactions, query model, compatibility, scale and recovery</td></tr>
+<tr><td>Store distributed application data</td><td>Azure Cosmos DB</td><td>Data model, consistency, partition keys, throughput and regional distribution</td></tr>
+<tr><td>Decouple work</td><td>Service Bus, Event Grid, Event Hubs</td><td>Commands/messages versus event notifications versus streaming ingestion</td></tr>
+<tr><td>Observe and govern</td><td>Azure Monitor, Policy, Cost Management</td><td>Signals, enforcement and ownership</td></tr>
+<tr><td>Add AI or search</td><td>Microsoft Foundry, Azure AI Search</td><td>Grounding, evaluation, privacy and model/service availability</td></tr>
+</tbody></table></div>
+<p><b>CampusCart's modest starting architecture:</b> App Service for the web/API, a managed relational database for listings and transactions, Blob Storage for photos, Microsoft Entra integration where appropriate, and Azure Monitor for health. These are illustrative choices, not a universally correct stack.</p>
+<p><b>Do not overbuild:</b> microservices, Kubernetes and multiple regions add work. Begin with explicit requirements. A "managed" database still needs safe migrations, indexes, access control, backup settings and tested restore procedures.</p>
+<fieldset data-answer="b" data-explanation="Photos are object data, so Blob Storage is a natural starting point. A management group organizes governance and is not application storage."><legend>Checkpoint 7: What is the most natural starting service for photo files?</legend><label><input type="radio" name="q7" value="a"> Management groups</label><label><input type="radio" name="q7" value="b"> Blob Storage</label><label><input type="radio" name="q7" value="c"> Azure Policy</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Source: <a href="https://learn.microsoft.com/en-us/azure/architecture/guide/technology-choices/compute-decision-tree">Choose compute</a></p>
+</section>
+<section id="security" data-title="8. Identity, network, rules" data-minutes="5">
+<p class="eyebrow">40-45 minutes / Three separate gates</p><h2>A request needs an identity, permission and a path.</h2>
+<div class="grid"><div class="card"><h3>Identity and access</h3><p><b>Authentication:</b> who are you? <b>Authorization:</b> what may you do? Azure RBAC combines a security principal, role and scope. Use least privilege. A managed identity lets an Azure workload obtain tokens without storing a password in its code.</p></div><div class="card"><h3>Network reachability</h3><p>A virtual network is a private IP network, not a resource group. Subnets divide it. Network security groups filter traffic. Private endpoints provide private IP access to supported services. DNS resolves names to addresses. Correct RBAC cannot fix incorrect DNS or a blocked network path.</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Mechanism</th><th>Question answered</th><th>Example</th></tr></thead><tbody><tr><td>RBAC</td><td>Who may perform which action at which scope?</td><td>Developer gets Reader in production</td></tr><tr><td>Azure Policy</td><td>Is this resource configuration allowed or compliant?</td><td>Deny disallowed deployment locations</td></tr><tr><td>Resource lock</td><td>Should certain control-plane modifications be blocked?</td><td>CanNotDelete lock on a production group</td></tr><tr><td>Tags</td><td>How do we label and attribute resources?</td><td>owner=campus-team, environment=prod</td></tr></tbody></table></div>
+<p>Policy effects differ: audit reports, deny blocks applicable requests, and modify/deployIfNotExists have specific enforcement and remediation behavior. A lock is not a backup and does not generally prevent data-plane deletion. Tags are not a security boundary and do not automatically inherit from a resource group.</p>
+<div class="callout"><b>CampusCart request:</b> the web app's managed identity obtains a token; the database authorizes it; DNS and network rules let it reach the endpoint. Student-facing authorization still needs code that checks which student owns which listing.</div>
+<fieldset data-answer="c" data-explanation="Authentication proves identity; authorization decides permitted actions. Investigate the missing data-plane role or application permission, then separately check network connectivity."><legend>Checkpoint 8: A valid login succeeds, but reading a blob returns authorization failure. What distinction matters?</legend><label><input type="radio" name="q8" value="a"> A tenant is the same thing as a subnet</label><label><input type="radio" name="q8" value="b"> Logging in grants every permission</label><label><input type="radio" name="q8" value="c"> Authentication is not authorization</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/role-based-access-control/overview">RBAC</a> / <a href="https://learn.microsoft.com/en-us/azure/governance/policy/overview">Policy</a> / <a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview">Virtual networks</a> / <a href="https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview">Managed identities</a></p>
+</section>
+<section id="operations" data-title="9. Reliability and money" data-minutes="5">
+<p class="eyebrow">45-50 minutes / Operate, do not just deploy</p><h2>Healthy infrastructure is not the same as a healthy application.</h2>
+<p><b>High availability</b> reduces downtime from expected failures. <b>Disaster recovery</b> restores service after larger failures. <b>Backup</b> keeps recoverable copies. Replication can copy an accidental deletion; backups need tested restoration. None of these is a synonym for another.</p>
+<div class="grid"><div class="card"><h3>Define recovery in numbers</h3><p><b>RTO:</b> target time to restore service. <b>RPO:</b> target maximum acceptable data loss measured in time. "RTO 1 hour, RPO 15 minutes" means restore within an hour and tolerate at most about fifteen minutes of lost changes. These are objectives you design and test, not defaults Azure promises for every app.</p></div><div class="card"><h3>Define what users see</h3><p><b>SLI:</b> measured behavior, such as successful requests. <b>SLO:</b> your reliability target. <b>SLA:</b> a provider's contractual service commitment and remedies under stated conditions. Several dependencies can reduce end-to-end reliability; do not assume one service's SLA is your whole application's SLA.</p></div></div>
+<p><b>Observe three layers:</b> metrics show quantities and trends; logs explain events; distributed traces follow requests through dependencies. Activity Log helps with management changes; Application Insights helps with application telemetry. Service Health reports Azure incidents affecting your services; Resource Health reports individual resource state.</p>
+<p><b>Cost equation:</b> service tier/capacity + storage + requests + network transfer + supporting services + operational effort. A budget usually alerts; it is not a hard spending cap. Reservations and savings plans trade commitment for qualifying discounts and require thoughtful utilization planning.</p>
+<p><b>Quota versus capacity:</b> quota is your allowed amount; capacity is what Azure can actually allocate. Permission, available quota and an offered SKU do not guarantee a successful allocation.</p>
+<details><summary>Why stopping a VM might not stop its bill</summary><p>Stopping inside the guest may leave compute allocated and billed. Deallocation removes the ordinary allocated-compute charge, but disks, certain IP resources, backups and other services can still incur charges. Always verify resource state and the actual cost breakdown.</p></details>
+<fieldset data-answer="a" data-explanation="A budget is normally an alerting mechanism, not an automatic shutoff. Cost controls require appropriate monitoring, policies, rightsizing and deliberate cleanup."><legend>Checkpoint 9: A budget reaches its threshold. What should you expect by default?</legend><label><input type="radio" name="q9" value="a"> Notifications according to the budget configuration, not universal resource shutdown</label><label><input type="radio" name="q9" value="b"> All Azure billing stops immediately</label><label><input type="radio" name="q9" value="c"> The subscription automatically moves regions</label><p class="feedback" role="status"></p></fieldset>
+<p class="fine">Sources: <a href="https://learn.microsoft.com/en-us/azure/well-architected/reliability/disaster-recovery">Disaster recovery</a> / <a href="https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets">Budgets</a> / <a href="https://learn.microsoft.com/en-us/azure/azure-monitor/overview">Azure Monitor</a></p>
+</section>
+<section id="capstone" data-title="10. Defend your architecture" data-minutes="7">
+<p class="eyebrow">50-57 minutes / Make the connections</p><h2>You are now CampusCart's architecture reviewer.</h2>
+<p>Requirement: launch a small marketplace; separate development and production; keep student data in approved European locations; restrict production changes; avoid storing deployment credentials in code; recover from accidental deletion; monitor errors and costs.</p>
+<div class="flow"><div class="node"><b>Student browser</b><small>DNS + HTTPS + user sign-in</small></div><div class="node"><b>Web/API</b><small>Managed application platform / Business authorization</small></div><div class="node"><b>Database + photos</b><small>Managed database + Blob Storage / Restricted application access</small></div></div>
+<p>Wrap the application in two logical views: <b>governance</b> (tenant, management group, subscriptions, groups, RBAC, policy) and <b>operations</b> (region choices, recovery, telemetry, budget, deployment automation).</p>
+<div class="card"><h3>Your two-minute design defense</h3><ol><li>Name which identities deploy the app and which identities read data.</li><li>Place development and production in the hierarchy and explain the boundary.</li><li>Select a service model and justify the work you are delegating.</li><li>Explain region eligibility and why zones are not automatic regional disaster recovery.</li><li>Describe a deployment through ARM and a student request through the data plane.</li><li>State RTO/RPO, a backup/restore test, an error alert and a cost owner.</li></ol></div>
+<details><summary>Compare with an example answer after you explain yours</summary><p>Use separate dev/prod subscriptions under a university management group. Apply approved-location policies at the appropriate parent scope, and least-privilege production roles. Group resources by lifecycle, not by arbitrary service category. Start with App Service, a managed relational database and Blob Storage where they satisfy requirements. Choose an eligible European region after verifying service behavior, residency and availability.</p><p>Use federated deployment identities or managed identities where supported; give the application only necessary data permissions. Restrict data endpoints as required and configure DNS. Bicep describes resource configuration; deployments use ARM; user requests use application/service endpoints. Define recovery targets, enable supported backups, test restoration, monitor application failure rates and assign budget alerts to a responsible owner. Zone/multiregion choices depend on recovery requirements and supported configurations, not just a map.</p></details>
+<fieldset data-answer="b" data-explanation="Logical scopes organize identity/governance; regions and zones describe physical placement/fault isolation. Mixing the two leads to incorrect security and resilience assumptions."><legend>Final case A: Which is the correct separation?</legend><label><input type="radio" name="q10" value="a"> Subscription = datacenter; resource group = subnet</label><label><input type="radio" name="q10" value="b"> Management hierarchy = logical scope; geography/region/zone = physical placement</label><label><input type="radio" name="q10" value="c"> Tenant = region; policy = backup</label><p class="feedback" role="status"></p></fieldset>
+<fieldset data-answer="c" data-explanation="Deployment success verifies a management operation, not an end-to-end app. Check application health, access paths, telemetry and recovery independently."><legend>Final case B: Bicep deployment succeeded. Is CampusCart production-ready?</legend><label><input type="radio" name="q11" value="a"> Yes, successful ARM deployment verifies everything</label><label><input type="radio" name="q11" value="b"> Yes, if it has a production tag</label><label><input type="radio" name="q11" value="c"> Not yet: verify user flows, data access, monitoring, security and recovery</label><p class="feedback" role="status"></p></fieldset>
+<fieldset data-answer="a" data-explanation="Least-privilege RBAC governs who can act, while Policy governs eligible resource configuration. Both are needed; neither replaces application authorization."><legend>Final case C: What protects production changes and location eligibility?</legend><label><input type="radio" name="q12" value="a"> Scoped RBAC plus appropriate Azure Policy</label><label><input type="radio" name="q12" value="b"> A resource-group name containing prod</label><label><input type="radio" name="q12" value="c"> Paying for a larger database</label><p class="feedback" role="status"></p></fieldset>
+<div class="callout"><b>Exit criterion:</b> explain the design with no notes, then revisit any incorrect checkpoints. A quiz score measures this course's concepts, not professional certification. Next, implement and operate a small sandbox workload.</div>
+</section>
+<section id="reference" data-title="11. Your pocket reference" data-minutes="3">
+<p class="eyebrow">57-60 minutes / Retrieval and next practice</p><h2>The cloud on one page.</h2>
+<p>Close your notes and explain these three sentences: <b>ARM manages resources. Identity plus authorization plus networking governs access. Physical location and recovery configuration determine failure behavior.</b> Then use the glossary to repair any gaps.</p>
+<div class="table-wrap"><table><thead><tr><th>Term</th><th>Precise short meaning</th></tr></thead><tbody>
+<tr><td>Cloud</td><td>On-demand, network-accessible computing services with pooled, measured capacity.</td></tr><tr><td>Azure</td><td>Microsoft's cloud platform, not just VMs or Microsoft 365.</td></tr>
+<tr><td>Tenant</td><td>Entra identity directory and trust context.</td></tr><tr><td>Management group</td><td>Governance scope above subscriptions, with inherited assignments.</td></tr>
+<tr><td>Subscription</td><td>Resource billing association, access scope and many service limits.</td></tr><tr><td>Resource group</td><td>Logical lifecycle/management container for related resources.</td></tr>
+<tr><td>Resource / resource ID</td><td>A managed instance / its scoped identifier.</td></tr><tr><td>ARM / provider</td><td>Management and deployment layer / service-specific resource implementation.</td></tr>
+<tr><td>Bicep / ARM template</td><td>Azure declarative authoring language / JSON deployment definition.</td></tr><tr><td>Control / data plane</td><td>Managing service resources / using their application or data capabilities.</td></tr>
+<tr><td>Geography / region / zone</td><td>Residency boundary / deployment area / fault-isolated datacenter group.</td></tr><tr><td>IaaS / PaaS / SaaS</td><td>Rent infrastructure / rent a managed platform / use managed software.</td></tr>
+<tr><td>Scale up / out / elasticity</td><td>Bigger instance / more instances / capacity adapting to demand.</td></tr><tr><td>RBAC / policy / lock / tag</td><td>Permission / configuration governance / control-plane guard / label.</td></tr>
+<tr><td>Managed identity</td><td>Azure-managed workload identity for token-based access without embedded credentials.</td></tr><tr><td>VNet / subnet / private endpoint</td><td>Private IP network / segment / private IP connection to a supported service.</td></tr>
+<tr><td>RTO / RPO</td><td>Restoration-time target / acceptable data-loss window.</td></tr><tr><td>SLA / SLO / SLI</td><td>Contractual commitment / your target / measured indicator.</td></tr>
+<tr><td>Quota / capacity</td><td>Allowed allocation / physically allocatable supply.</td></tr><tr><td>Budget</td><td>Configured spending threshold and notifications, not a universal hard cap.</td></tr>
+</tbody></table></div>
+<div class="grid"><div class="card"><h3>Next practical step</h3><p>Use the companion Bicep, Azure CLI and azd course. Build a small isolated sandbox, inspect the deployment, prove data access, record costs, then deliberately clean up. Use no real student data.</p></div><div class="card"><h3>Keep your model current</h3><p>Concepts are stable; service features, regions, pricing and limits change. Check first-party service documentation before production decisions. This course's source review date is <b>24 November 2026</b>.</p></div></div>
+<p class="fine">Further study: <a href="https://learn.microsoft.com/en-us/training/paths/microsoft-azure-fundamentals-describe-cloud-concepts/">Cloud concepts learning path</a> / <a href="https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/">Cloud Adoption Framework</a> / <a href="https://learn.microsoft.com/en-us/azure/well-architected/">Well-Architected Framework</a></p>
+</section>
+</main></div>
+<footer><div><span id="position"></span><br><progress id="progress" max="12" value="0" aria-label="Completed chapters"></progress><span id="score" class="fine"></span></div><div class="actions controls"><button id="complete">Mark chapter complete</button><button id="back">Back</button><button id="next">Next</button></div><p id="notice" class="fine" role="status"></p></footer>
+<script>
+"use strict";
+const sections = [...document.querySelectorAll("main > section")];
+const $ = id => document.getElementById(id);
+const key = "azure-fundamentals-v1";
+let state = { complete: [], answers: {} }, active = 0, all = false;
+try { const stored = JSON.parse(localStorage.getItem(key)); if (stored && Array.isArray(stored.complete) && stored.answers && typeof stored.answers === "object" && !Array.isArray(stored.answers)) state = stored; }
+catch (error) { $("notice").textContent = "Saved progress is unavailable. You can still use the course in this session."; console.warn("Progress load failed", error); }
+function save() { try { localStorage.setItem(key, JSON.stringify(state)); } catch (error) { $("notice").textContent = "Progress could not be saved on this device."; console.warn("Progress save failed", error); } }
+sections.forEach((section, index) => {
+  const a = document.createElement("a"); a.href = "#" + section.id; a.textContent = section.dataset.title + " / " + section.dataset.minutes + " min";
+  a.addEventListener("click", event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    event.preventDefault(); all = false; $("search").value = ""; navigate(index - active);
+  }); $("nav").append(a);
+});
+function render() {
+  const query = $("search").value.trim().toLowerCase();
+  let matches = 0;
+  sections.forEach((section, index) => {
+    const match = section.textContent.toLowerCase().includes(query);
+    section.hidden = query ? !match : !all && index !== active;
+    if (!section.hidden) matches++;
+    const a = $("nav").children[index]; a.removeAttribute("aria-current"); if (index === active && !all && !query) a.setAttribute("aria-current", "step");
+  });
+  $("search-status").textContent = query ? matches + " matching chapters" : "";
+  $("position").textContent = all || query ? "Reference view" : (active + 1) + " / " + sections.length + " chapters";
+  $("progress").value = sections.filter(s => state.complete.includes(s.id)).length;
+  const questions = [...document.querySelectorAll("fieldset[data-answer]")];
+  const correct = questions.filter(q => state.answers[q.querySelector("input").name] === q.dataset.answer).length;
+  $("score").textContent = " " + $("progress").value + " completed / " + correct + " of " + questions.length + " checks correct";
+  $("back").disabled = all || !!query || active === 0; $("next").disabled = all || !!query || active === sections.length - 1; $("complete").disabled = all || !!query;
+  $("all").textContent = all ? "Chapter view" : "Read all";
+}
+function navigate(delta) {
+  const target = active + delta;
+  if (all || $("search").value.trim() || target < 0 || target >= sections.length) return;
+  active = target; location.hash = sections[active].id; render(); $("course").focus(); $("course").scrollIntoView({ block: "start" });
+}
+window.addEventListener("hashchange", () => { const index = sections.findIndex(s => "#" + s.id === location.hash); if (index >= 0) { active = index; all = false; $("search").value = ""; render(); } });
+$("back").addEventListener("click", () => navigate(-1)); $("next").addEventListener("click", () => navigate(1));
+document.addEventListener("keydown", event => {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
+      all || $("search").value.trim() || document.querySelector("dialog[open]") ||
+      event.target.closest("input, select, textarea, button, a, summary, pre, code, [contenteditable]")) return;
+  if (event.key === "ArrowRight" && active < sections.length - 1) { event.preventDefault(); navigate(1); }
+  if (event.key === "ArrowLeft" && active > 0) { event.preventDefault(); navigate(-1); }
+});
+$("all").addEventListener("click", () => { all = !all; $("search").value = ""; render(); });
+$("search").addEventListener("input", render);
+$("complete").addEventListener("click", () => { const id = sections[active].id; if (!state.complete.includes(id)) state.complete.push(id); save(); render(); });
+$("theme").addEventListener("click", () => { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; });
+$("print").addEventListener("click", () => { document.querySelectorAll("details").forEach(d => d.open = true); window.print(); });
+document.querySelectorAll("fieldset[data-answer]").forEach(q => {
+  const inputs = [...q.querySelectorAll("input")], name = inputs[0].name;
+  function feedback(value) { q.querySelector(".feedback").textContent = (value === q.dataset.answer ? "Correct. " : "Not yet. ") + q.dataset.explanation; }
+  inputs.forEach(input => { if (state.answers[name] === input.value) { input.checked = true; feedback(input.value); } input.addEventListener("change", () => { state.answers[name] = input.value; feedback(input.value); save(); render(); }); });
+});
+const initial = sections.findIndex(s => "#" + s.id === location.hash); if (initial >= 0) active = initial;
+render();
+</script>
+</body>
+</html>
